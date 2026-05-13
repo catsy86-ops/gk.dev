@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 210 33% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 214 32% 94%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 214 32% 94%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 214 32% 94%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 89%;
+    --input: 214 32% 89%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.5rem;
+
+    --hero-description: 215 16% 47%;
+    --hero-input: 0 0% 99%;
+    --hero-cta: 221 83% 53%;
+    --hero-cta-foreground: 0 0% 100%;
+    --hero-star: 45 93% 58%;
+    
+    --accent-blue: 217 91% 60%;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 40% 8%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 40% 8%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 30% 13%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 222 30% 13%;
+    --muted-foreground: 215 20% 60%;
+
+    --accent: 222 30% 13%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 20% 14%;
+    --input: 222 20% 14%;
+    --ring: 217 91% 60%;
+
+    --hero-description: 215 20% 65%;
+    --hero-cta: 217 91% 60%;
+    --hero-cta-foreground: 0 0% 100%;
+
+    --accent-blue: 221 83% 53%;
+
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 30% 13%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 20% 14%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Glitch logo effect */
+@keyframes glitch-1 {
+  0%, 100% { clip-path: inset(0 0 80% 0); transform: translate(-2px, -1px); }
+  25% { clip-path: inset(20% 0 60% 0); transform: translate(2px, 1px); }
+  50% { clip-path: inset(40% 0 40% 0); transform: translate(-1px, 2px); }
+  75% { clip-path: inset(60% 0 20% 0); transform: translate(1px, -2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { clip-path: inset(60% 0 0 0); transform: translate(2px, 1px); }
+  25% { clip-path: inset(40% 0 20% 0); transform: translate(-2px, -1px); }
+  50% { clip-path: inset(80% 0 0 0); transform: translate(1px, -2px); }
+  75% { clip-path: inset(0 0 60% 0); transform: translate(-1px, 2px); }
+}
+
+.logo-glitch {
+  position: relative;
+}
+
+.logo-glitch::before,
+.logo-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo-glitch:hover::before {
+  opacity: 0.8;
+  color: hsl(var(--primary));
+  animation: glitch-1 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.logo-glitch:hover::after {
+  opacity: 0.8;
+  color: hsl(var(--destructive));
+  animation: glitch-2 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Smooth section transitions */
+section {
+  will-change: transform;
+}
+
+/* Custom cursor - hide default on desktop (soft, allow override for accessibility) */
+@media (pointer: fine) {
+  body:has(.custom-cursor) {
+    cursor: none;
+  }
+  
+  body:has(.custom-cursor) a,
+  body:has(.custom-cursor) button,
+  body:has(.custom-cursor) [role="button"],
+  body:has(.custom-cursor) input,
+  body:has(.custom-cursor) textarea {
+    cursor: none;
+  }
+}
+
+/* Show default cursor on touch devices */
+@media (pointer: coarse) {
+  .custom-cursor {
+    display: none !important;
+  }
+}
