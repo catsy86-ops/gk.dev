@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
-import kaczyLogo from "@/assets/kaczy-logo.png";
+import GKLogo from "@/assets/gk-logo.png";
 import { useMagnetic } from "@/hooks/use-magnetic";
 
 const fadeUp = {
@@ -93,7 +93,7 @@ const HeroSection = () => {
         style={{ scale: logoScale, opacity: logoOpacity }}
       >
         <img
-          src={kaczyLogo}
+          src={GKLogo}
           alt=""
           className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] object-contain select-none"
           aria-hidden="true"
@@ -147,7 +147,7 @@ const HeroSection = () => {
             className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent"
             style={{ fontSize: "clamp(50px, 6.9vw, 100px)" }}
           >
-            Kaczy
+            Grzegorz
           </span>
         </motion.h1>
 
@@ -197,7 +197,7 @@ const HeroSection = () => {
             {[
               { icon: Github, href: "#", label: "GitHub" },
               { icon: Linkedin, href: "#", label: "LinkedIn" },
-              { icon: Mail, href: "mailto:kaczy@example.com", label: "Email" },
+              { icon: Mail, href: "mailto:GK@example.com", label: "Email" },
             ].map(({ icon: Icon, href, label }) => (
               <a
                 key={label}

@@ -49,6 +49,14 @@ const Navbar = () => {
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && mobileOpen) setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       e.preventDefault();
@@ -77,7 +85,7 @@ const Navbar = () => {
           href="#hero"
           onClick={(e) => handleClick(e, "#hero")}
           className="logo-glitch text-xl font-semibold tracking-[-0.03em] text-foreground relative"
-          data-text="kaczy.dev"
+          data-text="GK.dev"
           onHoverStart={() => setLogoHovered(true)}
           onHoverEnd={() => setLogoHovered(false)}
           whileHover={{ scale: 1.05 }}
@@ -91,7 +99,7 @@ const Navbar = () => {
             className="bg-gradient-to-r from-foreground via-primary to-foreground bg-[length:200%_100%] bg-clip-text"
             style={{ WebkitTextFillColor: logoHovered ? "transparent" : "inherit" }}
           >
-            kaczy
+            GK
           </motion.span>
           <motion.span
             className="text-primary"
@@ -199,19 +207,20 @@ const Navbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="md:hidden fixed inset-0 z-40 flex flex-col overflow-hidden"
+            className="md:hidden fixed inset-0 z-40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.4, 0.25, 1] }}
           >
-            {/* Backdrop blur layers */}
+            {/* Backdrop — tap to close */}
             <motion.div
-              className="absolute inset-0 bg-background/95 backdrop-blur-2xl"
+              className="absolute inset-0 bg-background/90 backdrop-blur-3xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.35 }}
+              onClick={() => setMobileOpen(false)}
             />
 
             {/* Decorative gradient orbs */}
@@ -220,20 +229,36 @@ const Navbar = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
             />
             <motion.div
               className="absolute bottom-20 -right-20 w-48 h-48 rounded-full bg-primary/5 blur-3xl"
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             />
 
             {/* Content */}
-            <div className="relative flex flex-col flex-1 pt-24 pb-10 px-8">
+            <div className="relative z-10 flex flex-col h-full pt-24 pb-10 px-6 sm:px-10">
+              {/* Close button — top right */}
+              <motion.button
+                className="absolute top-6 right-6 h-10 w-10 rounded-full border border-border/50 bg-card/40 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ delay: 0.15, duration: 0.3 }}
+                onClick={() => setMobileOpen(false)}
+                aria-label="Zamknij menu"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M2 2L14 14" />
+                  <path d="M14 2L2 14" />
+                </svg>
+              </motion.button>
+
               {/* Nav links */}
-              <div className="flex flex-col gap-1 flex-1 justify-center">
+              <div className="flex flex-col gap-0 flex-1 justify-center">
                 {navLinks.map((link, i) => {
                   const isActive = `#${activeSection}` === link.href;
                   return (
@@ -241,22 +266,29 @@ const Navbar = () => {
                       key={link.label}
                       href={link.href}
                       onClick={(e) => handleClick(e, link.href)}
-                      className={`group flex items-center gap-4 py-5 px-5 rounded-2xl transition-colors ${
+                      className={`group flex items-center gap-4 py-4 px-4 rounded-2xl transition-colors border-b border-border/20 last:border-b-0 ${
                         isActive
                           ? "bg-primary/10 text-primary"
-                          : "text-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                          : "text-foreground/55 hover:text-foreground hover:bg-secondary/40"
                       }`}
                       initial={{ opacity: 0, x: -40, filter: "blur(12px)" }}
                       animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, x: 30 }}
+                      exit={{ opacity: 0, x: -30, filter: "blur(8px)" }}
                       transition={{
-                        delay: 0.05 + i * 0.07,
-                        duration: 0.45,
+                        delay: 0.08 + i * 0.08,
+                        duration: 0.5,
                         ease: [0.25, 0.4, 0.25, 1],
                       }}
                     >
-                      <span className="text-2xl">{link.emoji}</span>
-                      <span className="text-2xl font-semibold tracking-[-0.02em]">
+                      <motion.span
+                        className="text-2xl"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.25 + i * 0.08, type: "spring", stiffness: 250, damping: 20 }}
+                      >
+                        {link.emoji}
+                      </motion.span>
+                      <span className="text-xl sm:text-2xl font-semibold tracking-[-0.02em]">
                         {link.label}
                       </span>
                       {isActive && (
@@ -266,6 +298,12 @@ const Navbar = () => {
                           transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         />
                       )}
+                      <motion.span
+                        className="ml-auto text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                        initial={false}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </motion.span>
                     </motion.a>
                   );
                 })}
@@ -273,17 +311,18 @@ const Navbar = () => {
 
               {/* CTA Button */}
               <motion.div
-                className="mt-auto"
+                className="mt-8"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.35, duration: 0.4 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
               >
                 <motion.a
                   href="#kontakt"
                   onClick={(e) => handleClick(e, "#kontakt")}
-                  className="flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-lg font-medium text-primary-foreground shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)]"
+                  className="flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)]"
                   whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
                 >
                   Napisz do mnie
                   <ArrowRight className="h-5 w-5" />
@@ -291,14 +330,17 @@ const Navbar = () => {
               </motion.div>
 
               {/* Bottom branding */}
-              <motion.p
-                className="text-center text-xs text-muted-foreground/50 mt-6"
+              <motion.div
+                className="text-center mt-8 pb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
               >
-                kaczy<span className="text-primary/40">.dev</span> © {new Date().getFullYear()}
-              </motion.p>
+                <p className="text-xs text-muted-foreground/40">
+                  GK<span className="text-primary/30">.dev</span> © {new Date().getFullYear()}
+                </p>
+              </motion.div>
             </div>
           </motion.div>
         )}

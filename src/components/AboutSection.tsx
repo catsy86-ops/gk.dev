@@ -102,7 +102,7 @@ const AboutSection = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <p className="font-['Geist'] text-muted-foreground leading-relaxed mb-6">
-              Cześć! Jestem <span className="text-foreground font-medium">Kaczy</span> — fullstack
+              Cześć! Jestem <span className="text-foreground font-medium">Grzegorz</span> — fullstack
               developer z pasją do tworzenia nowoczesnych aplikacji webowych i mobilnych.
               Od kilku lat projektuję i buduję rozwiązania, które łączą piękny design z solidną architekturą.
             </p>

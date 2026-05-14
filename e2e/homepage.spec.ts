@@ -6,9 +6,9 @@ test.describe("Homepage", () => {
   });
 
   test("displays loading screen then shows content", async ({ page }) => {
-    await expect(page.locator("text=kaczy.dev")).toBeVisible({ timeout: 500 });
+    await expect(page.locator("text=GK.dev")).toBeVisible({ timeout: 500 });
     await page.waitForTimeout(2500);
-    await expect(page.locator("text=kaczy.dev")).not.toBeVisible();
+    await expect(page.locator("text=GK.dev")).not.toBeVisible();
   });
 
   test("has all main sections", async ({ page }) => {

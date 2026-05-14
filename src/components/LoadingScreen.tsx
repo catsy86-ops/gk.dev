@@ -59,7 +59,7 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            kaczy
+            GK
             <motion.span
               className="text-primary"
               initial={{ opacity: 0 }}

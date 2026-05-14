@@ -121,7 +121,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {[
-            { icon: Mail, text: "kaczy@example.com" },
+            { icon: Mail, text: "GK@example.com" },
             { icon: MapPin, text: "Warszawa, PL" },
             { icon: Phone, text: "+48 123 456 789" },
           ].map(({ icon: Icon, text }, i) => (

@@ -31,7 +31,7 @@ const useCountUp = (target: number, inView: boolean, duration = 2000) => {
   return count;
 };
 
-const StatItem = React.memo(({ icon, value, suffix = "", label, delay, inView }: StatItemProps) => {
+const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatItemProps) => {
   const count = useCountUp(value, inView);
 
   return (

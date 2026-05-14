@@ -4,7 +4,7 @@ import { Github, Linkedin, Mail, Heart, ArrowUp, Code2 } from "lucide-react";
 const socialLinks = [
   { icon: Github, href: "#", label: "GitHub" },
   { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:kaczy@example.com", label: "Email" },
+  { icon: Mail, href: "mailto:GK@example.com", label: "Email" },
 ];
 
 const Footer = () => {
@@ -43,10 +43,10 @@ const Footer = () => {
               href="#hero"
               onClick={(e) => { e.preventDefault(); scrollToTop(); }}
               className="logo-glitch text-xl font-semibold tracking-[-0.03em] text-foreground font-['Geist'] inline-block mb-2"
-              data-text="kaczy.dev"
+              data-text="GK.dev"
               whileHover={{ scale: 1.05 }}
             >
-              kaczy<span className="text-primary/50">.dev</span>
+              GK<span className="text-primary/50">.dev</span>
             </motion.a>
             <p className="font-['Geist'] text-sm text-muted-foreground max-w-[280px]">
               Tworzę nowoczesne aplikacje webowe i mobilne z pasją do czystego kodu.
@@ -113,7 +113,7 @@ const Footer = () => {
         >
           <p className="font-['Geist'] text-xs text-muted-foreground flex items-center gap-1.5">
             <Code2 className="h-3 w-3 text-primary/50" />
-            © {new Date().getFullYear()} kaczy.dev — Wszelkie prawa zastrzeżone.
+            © {new Date().getFullYear()} GK.dev — Wszelkie prawa zastrzeżone.
           </p>
           <p className="font-['Geist'] text-xs text-muted-foreground flex items-center gap-1">
             Zbudowane z <Heart className="h-3 w-3 text-destructive inline" fill="currentColor" /> i dużą ilością kawy
