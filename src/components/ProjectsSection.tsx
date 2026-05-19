@@ -1,39 +1,46 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
+import { ExternalLink, ArrowUpRight, Star } from "lucide-react";
 import { useState, forwardRef, useRef } from "react";
 
 const projects = [
   {
-    title: "TaskFlow",
-    description: "Aplikacja do zarządzania projektami z drag & drop, real-time sync i dashboardem analitycznym.",
-    tags: ["React", "TypeScript", "Supabase"],
-    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
-    github: "#",
-    demo: "#",
+    title: "Wartość Firmy",
+    description:
+      "Kalkulator wyceny przedsiębiorstw — estymacja na podstawie DCF, mnożników i metody aktywów netto. Interaktywne wykresy i eksport PDF.",
+    tags: ["Angular", "TypeScript", "Bootstrap"],
+    accent: "from-blue-500/20 to-cyan-500/10",
+    accentBorder: "hover:border-blue-500/30",
+    accentGlow: "0 0 30px -5px rgba(59,130,246,0.2)",
+    image:
+      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c3ea89de-36c1-4cc4-9c66-53182cd4a6a9/id-preview-6a3f3809--ac9c976f-9b8b-4f29-aa1a-82a36c8c4ad6.lovable.app-1774777004451.png",
+    demo: "https://wycena.vercel.app",
+    featured: true,
   },
   {
-    title: "ShopNest",
-    description: "Platforma e-commerce z koszykiem, płatnościami Stripe i panelem administracyjnym.",
-    tags: ["Next.js", "Prisma", "Stripe"],
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-    github: "#",
-    demo: "#",
+    title: "uFISZA",
+    description:
+      "Platforma e-commerce do sprzedaży fiszu — katalog produktów, koszyk, płatności online i panel zarządzania zamówieniami.",
+    tags: ["React", "TypeScript", "Tailwind"],
+    accent: "from-emerald-500/20 to-green-500/10",
+    accentBorder: "hover:border-emerald-500/30",
+    accentGlow: "0 0 30px -5px rgba(16,185,129,0.2)",
+    image:
+      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c3ea89de-36c1-4cc4-9c66-53182cd4a6a9/id-preview-6a3f3809--ac9c976f-9b8b-4f29-aa1a-82a36c8c4ad6.lovable.app-1774777004451.png",
+    demo: "https://fisz-handel-c1bb3a8d-uubz.vercel.app",
+    featured: false,
   },
   {
-    title: "WeatherPulse",
-    description: "Aplikacja pogodowa z geolokalizacją, animowanymi mapami i 7-dniową prognozą.",
-    tags: ["React Native", "OpenWeather API"],
-    image: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=600&h=400&fit=crop",
-    github: "#",
-    demo: "#",
-  },
-  {
-    title: "DevBoard",
-    description: "Dashboard dla developerów — integracja z GitHub, Jira i Slack w jednym miejscu.",
-    tags: ["Vue.js", "Node.js", "GraphQL"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-    github: "#",
-    demo: "#",
+    title: "Jednoręka Kaczka",
+    description:
+      "Gra w stylu jednoręki bandyta z systemem poziomów, auto-spinem i animacjami. Kaczki, kasyno, klimat!",
+    tags: ["React", "TypeScript", "Framer Motion"],
+    accent: "from-amber-500/20 to-orange-500/10",
+    accentBorder: "hover:border-amber-500/30",
+    accentGlow: "0 0 30px -5px rgba(245,158,11,0.2)",
+    image:
+      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c896a25f-872c-4cce-92a4-6f2c6dfcabe0/id-preview-289dc1cd--a35697ee-c8bc-4f17-9569-e2c3c532c2c9.lovable.app-1774851748709.png",
+    demo: "https://jednoreki.vercel.app",
+    featured: false,
   },
 ];
 
@@ -60,7 +67,10 @@ const cardVariants = {
   }),
 };
 
-const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; index: number }>(({ project, index }, ref) => {
+const ProjectCard = forwardRef<
+  HTMLDivElement,
+  { project: (typeof projects)[0]; index: number }
+>(({ project, index }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -73,7 +83,7 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
   return (
     <motion.div
       ref={cardRef}
-      className="group relative rounded-2xl border border-border bg-card overflow-hidden"
+      className={`group relative rounded-2xl border border-border bg-card overflow-hidden ${project.accentBorder}`}
       variants={cardVariants}
       custom={index}
       onHoverStart={() => setIsHovered(true)}
@@ -81,19 +91,53 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
       whileHover={{ y: -6, transition: { duration: 0.3 } }}
       style={{ y: parallaxY }}
     >
-      {/* Glow effect */}
+      {/* Animated gradient bg on hover */}
       <motion.div
-        className="absolute -inset-[1px] rounded-2xl pointer-events-none z-10"
+        className={`absolute inset-0 bg-gradient-to-br ${project.accent}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+      />
+
+      {/* Shine sweep effect */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-20"
+        style={{
+          background:
+            "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 45%, transparent 50%)",
+        }}
+        initial={{ x: "-100%" }}
+        animate={isHovered ? { x: "200%" } : { x: "-100%" }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
+      />
+
+      {/* Glowing border on hover */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl pointer-events-none z-10"
         animate={{
           boxShadow: isHovered
-            ? "0px 20px 60px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)"
-            : "0px 0px 0px 0px rgba(0,0,0,0)",
+            ? `inset 0 0 0 1px rgba(255,255,255,0.15), ${project.accentGlow}`
+            : "inset 0 0 0 1px rgba(255,255,255,0)",
         }}
         transition={{ duration: 0.4 }}
       />
 
+      {/* Featured badge */}
+      {project.featured && (
+        <motion.div
+          className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground font-['Geist'] shadow-lg"
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+        >
+          <Star className="h-3 w-3" fill="currentColor" />
+          Wyróżniony
+        </motion.div>
+      )}
+
       {/* Thumbnail */}
-      <div className="relative overflow-hidden aspect-[3/2]">
+      <div className="relative overflow-hidden aspect-[16/10]">
         <motion.img
           src={project.image}
           alt={project.title}
@@ -106,8 +150,8 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
 
         {/* Overlay gradient */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/20 to-transparent"
-          animate={{ opacity: isHovered ? 1 : 0 }}
+          className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent"
+          animate={{ opacity: isHovered ? 0.9 : 0.4 }}
           transition={{ duration: 0.4 }}
         />
 
@@ -122,27 +166,23 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
           <a
-            href={project.github}
-            aria-label={`GitHub – ${project.title}`}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm border border-border text-foreground hover:bg-secondary transition-colors"
-          >
-            <Github className="h-4 w-4" strokeWidth={1.8} />
-          </a>
-          <a
             href={project.demo}
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label={`Demo – ${project.title}`}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-hero-cta text-hero-cta-foreground shadow-[inset_-4px_-6px_25px_0px_rgba(201,201,201,0.08),inset_4px_4px_10px_0px_rgba(29,29,29,0.24)] hover:opacity-90 transition-opacity"
+            className="flex h-10 items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground font-['Geist'] shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] transition-shadow"
           >
-            <ExternalLink className="h-4 w-4" strokeWidth={1.8} />
+            <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
+            Zobacz na żywo
           </a>
         </motion.div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="relative p-6">
         <div className="flex items-start justify-between mb-3">
           <motion.h3
-            className="font-['Geist'] font-medium text-foreground text-xl tracking-[-0.01em]"
+            className="font-['Geist'] font-semibold text-foreground text-lg tracking-[-0.01em]"
             initial={{ opacity: 0, x: -15 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -150,16 +190,20 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
           >
             {project.title}
           </motion.h3>
-          <motion.div
+          <motion.a
+            href={project.demo}
+            target="_blank"
+            rel="noopener noreferrer"
             animate={{
               opacity: isHovered ? 1 : 0,
               x: isHovered ? 0 : -4,
               y: isHovered ? 0 : 4,
             }}
             transition={{ duration: 0.3 }}
+            className="text-muted-foreground hover:text-primary transition-colors"
           >
-            <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-          </motion.div>
+            <ArrowUpRight className="h-5 w-5" />
+          </motion.a>
         </div>
         <p className="font-['Geist'] text-sm text-muted-foreground leading-relaxed mb-4">
           {project.description}
@@ -168,7 +212,7 @@ const ProjectCard = forwardRef<HTMLDivElement, { project: typeof projects[0]; in
           {project.tags.map((tag, tagIdx) => (
             <motion.span
               key={tag}
-              className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground font-['Geist']"
+              className="rounded-full bg-secondary/80 backdrop-blur-sm border border-border/30 px-3 py-1 text-[11px] font-medium text-muted-foreground font-['Geist'] tracking-wide"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -186,18 +230,40 @@ ProjectCard.displayName = "ProjectCard";
 
 const ProjectsSection = () => {
   return (
-    <section className="relative z-10 bg-background py-28 px-6 overflow-hidden" id="projekty">
+    <section
+      className="relative z-10 bg-background py-28 px-6 overflow-hidden"
+      id="projekty"
+    >
       {/* Section line */}
       <motion.div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px]"
         style={{
-          background: "linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent)",
         }}
         initial={{ scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1, delay: 0.2 }}
       />
+
+      {/* Background orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-primary/3 blur-[150px]"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5 }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 -right-32 w-72 h-72 rounded-full bg-violet-500/3 blur-[120px]"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+        />
+      </div>
 
       <div className="mx-auto max-w-[1200px]">
         <motion.div
@@ -208,12 +274,13 @@ const ProjectsSection = () => {
           transition={{ duration: 0.7 }}
         >
           <motion.span
-            className="inline-block rounded-full border border-border bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground font-['Geist'] mb-5"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary font-['Geist'] mb-5"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ type: "spring" as const, stiffness: 300 }}
           >
+            <Star className="h-3 w-3" />
             Wybrane realizacje
           </motion.span>
           <motion.h2
@@ -225,7 +292,7 @@ const ProjectsSection = () => {
           >
             Moje{" "}
             <motion.span
-              className="font-['Instrument_Serif'] italic text-5xl md:text-6xl inline-block"
+              className="font-['Instrument_Serif'] italic text-5xl md:text-6xl inline-block bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent"
               initial={{ opacity: 0, rotateY: 90 }}
               whileInView={{ opacity: 1, rotateY: 0 }}
               viewport={{ once: true }}
@@ -237,14 +304,18 @@ const ProjectsSection = () => {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
           {projects.map((project, i) => (
-            <ProjectCard key={project.title} project={project} index={i} />
+            <ProjectCard
+              key={project.title}
+              project={project}
+              index={i}
+            />
           ))}
         </motion.div>
       </div>

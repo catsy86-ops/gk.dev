@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sun, Moon, ArrowRight } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
-import { useDarkMode } from "@/hooks/use-dark-mode";
+import { useTheme } from "next-themes";
 
 const navLinks = [
   { label: "O mnie", href: "#o-mnie", emoji: "👋" },
@@ -36,7 +36,9 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
   const activeSection = useActiveSection();
-  const { isDark, toggle } = useDarkMode();
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const toggle = useCallback(() => setTheme(isDark ? "light" : "dark"), [isDark, setTheme]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

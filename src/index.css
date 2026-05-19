@@ -6,6 +6,10 @@ html {
   scroll-behavior: smooth;
 }
 
+#root {
+  position: relative;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -165,10 +169,7 @@ All colors MUST be HSL.
   animation: glitch-2 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-/* Smooth section transitions */
-section {
-  will-change: transform;
-}
+/* Smooth section transitions — removed blanket will-change to stay within GPU memory budget */
 
 /* Custom cursor - hide default on desktop (soft, allow override for accessibility) */
 @media (pointer: fine) {

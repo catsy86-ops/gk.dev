@@ -1,7 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
-import GKLogo from "@/assets/gk-logo.png";
 import { useMagnetic } from "@/hooks/use-magnetic";
 
 const fadeUp = {
@@ -59,8 +58,6 @@ const HeroSection = () => {
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const logoScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.4], [0.06, 0]);
 
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden" id="hero">
@@ -87,18 +84,6 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
       </motion.div>
 
-      {/* Background logo watermark */}
-      <motion.div
-        className="absolute inset-0 z-[1] flex items-center justify-center pointer-events-none"
-        style={{ scale: logoScale, opacity: logoOpacity }}
-      >
-        <img
-          src={GKLogo}
-          alt=""
-          className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] object-contain select-none"
-          aria-hidden="true"
-        />
-      </motion.div>
 
       {/* Content with parallax */}
       <motion.div

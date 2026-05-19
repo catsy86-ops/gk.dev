@@ -17,7 +17,7 @@ const CustomCursor = () => {
     isClicking: false,
     hoveredElement: null,
   });
-  const [trails, setTrails] = useState<Array<{ id: number; x: number; y: number; key: string }>>([]);
+  const [trails, setTrails] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const trailIdRef = useRef(0);
   const lastPositionRef = useRef({ x: 0, y: 0 });
   const rafIdRef = useRef<number>(0);
@@ -37,7 +37,7 @@ const CustomCursor = () => {
       trailIdRef.current += 1;
       setTrails((prev) => [
         ...prev.slice(-20),
-        { id: trailIdRef.current, x: newX, y: newY, key: `trail-${trailIdRef.current}` },
+        { id: trailIdRef.current, x: newX, y: newY },
       ]);
       lastPositionRef.current = { x: newX, y: newY };
     }
@@ -125,7 +125,7 @@ const CustomCursor = () => {
       <AnimatePresence>
         {trails.map((trail, i) => (
           <motion.div
-            key={trail.key}
+            key={trail.id}
             className="custom-cursor"
             initial={{ x: trail.x - 4, y: trail.y - 4, opacity: 0.6, scale: 1 }}
             animate={{
