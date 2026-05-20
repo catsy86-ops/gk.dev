@@ -1,45 +1,80 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { ExternalLink, ArrowUpRight, Star } from "lucide-react";
 import { useState, forwardRef, useRef } from "react";
+import SectionWrapper from "@/components/ui/SectionWrapper";
+import SectionHeader from "@/components/ui/SectionHeader";
 
 const projects = [
   {
-    title: "Wartość Firmy",
+    title: "Szczecin Styl",
     description:
-      "Kalkulator wyceny przedsiębiorstw — estymacja na podstawie DCF, mnożników i metody aktywów netto. Interaktywne wykresy i eksport PDF.",
-    tags: ["Angular", "TypeScript", "Bootstrap"],
+      "Nowoczesna strona e-commerce dla butiku odzieżowego. Responsywny katalog produktów, filtrowanie, koszyk i integracja z systemem płatności.",
+    tags: ["React", "TypeScript", "Tailwind", "E-commerce"],
+    accent: "from-purple-500/20 to-pink-500/10",
+    accentBorder: "hover:border-purple-500/30",
+    accentGlow: "0 0 30px -5px rgba(168,85,247,0.2)",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=500&fit=crop",
+    demo: "https://szczecin-styl-main.vercel.app/",
+    featured: true,
+  },
+  {
+    title: "Notatnik",
+    description:
+      "Aplikacja do zarządzania notatkami z synchronizacją w chmurze. Edytor rich-text, tagi, wyszukiwanie i ciemny motyw.",
+    tags: ["React", "Firebase", "TypeScript", "Tailwind"],
     accent: "from-blue-500/20 to-cyan-500/10",
     accentBorder: "hover:border-blue-500/30",
     accentGlow: "0 0 30px -5px rgba(59,130,246,0.2)",
-    image:
-      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c3ea89de-36c1-4cc4-9c66-53182cd4a6a9/id-preview-6a3f3809--ac9c976f-9b8b-4f29-aa1a-82a36c8c4ad6.lovable.app-1774777004451.png",
-    demo: "https://wycena.vercel.app",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=500&fit=crop",
+    demo: "https://notatnik-seven.vercel.app/",
     featured: true,
+  },
+  {
+    title: "Łysy",
+    description:
+      "Portfolio dla fryzjera z galerią prac, rezerwacją wizyt i systemem opinii klientów. Responsywny design z animacjami.",
+    tags: ["Next.js", "TypeScript", "Tailwind", "CMS"],
+    accent: "from-amber-500/20 to-orange-500/10",
+    accentBorder: "hover:border-amber-500/30",
+    accentGlow: "0 0 30px -5px rgba(245,158,11,0.2)",
+    image: "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=800&h=500&fit=crop",
+    demo: "https://lysy-smoky.vercel.app/",
+    featured: false,
+  },
+  {
+    title: "Ghydra",
+    description:
+      "Platforma do zarządzania projektami z tablicą Kanban, przydzielaniem zadań i śledzeniem czasu. Kolaboracja w zespołach.",
+    tags: ["React", "Node.js", "MongoDB", "Socket.io"],
+    accent: "from-emerald-500/20 to-green-500/10",
+    accentBorder: "hover:border-emerald-500/30",
+    accentGlow: "0 0 30px -5px rgba(16,185,129,0.2)",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=500&fit=crop",
+    demo: "https://ghydra-main.vercel.app/",
+    featured: false,
+  },
+  {
+    title: "Łuszy Elektro Glow",
+    description:
+      "Sklep internetowy z oświetleniem LED i akcesoriami elektronicznymi. Zaawansowany system filtrowania, porównywanie produktów i rekomendacje.",
+    tags: ["React", "TypeScript", "Stripe", "Tailwind"],
+    accent: "from-yellow-500/20 to-red-500/10",
+    accentBorder: "hover:border-yellow-500/30",
+    accentGlow: "0 0 30px -5px rgba(234,179,8,0.2)",
+    image: "https://images.unsplash.com/photo-1565636192335-14c46fa1120d?w=800&h=500&fit=crop",
+    demo: "https://lucasz-elektro-glow-main.vercel.app/",
+    featured: false,
   },
   {
     title: "uFISZA",
     description:
       "Platforma e-commerce do sprzedaży fiszu — katalog produktów, koszyk, płatności online i panel zarządzania zamówieniami.",
-    tags: ["React", "TypeScript", "Tailwind"],
-    accent: "from-emerald-500/20 to-green-500/10",
-    accentBorder: "hover:border-emerald-500/30",
-    accentGlow: "0 0 30px -5px rgba(16,185,129,0.2)",
-    image:
-      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c3ea89de-36c1-4cc4-9c66-53182cd4a6a9/id-preview-6a3f3809--ac9c976f-9b8b-4f29-aa1a-82a36c8c4ad6.lovable.app-1774777004451.png",
-    demo: "https://fisz-handel-c1bb3a8d-uubz.vercel.app",
-    featured: false,
-  },
-  {
-    title: "Jednoręka Kaczka",
-    description:
-      "Gra w stylu jednoręki bandyta z systemem poziomów, auto-spinem i animacjami. Kaczki, kasyno, klimat!",
-    tags: ["React", "TypeScript", "Framer Motion"],
-    accent: "from-amber-500/20 to-orange-500/10",
-    accentBorder: "hover:border-amber-500/30",
-    accentGlow: "0 0 30px -5px rgba(245,158,11,0.2)",
-    image:
-      "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c896a25f-872c-4cce-92a4-6f2c6dfcabe0/id-preview-289dc1cd--a35697ee-c8bc-4f17-9569-e2c3c532c2c9.lovable.app-1774851748709.png",
-    demo: "https://jednoreki.vercel.app",
+    tags: ["React", "TypeScript", "Tailwind", "E-commerce"],
+    accent: "from-teal-500/20 to-cyan-500/10",
+    accentBorder: "hover:border-teal-500/30",
+    accentGlow: "0 0 30px -5px rgba(20,184,166,0.2)",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=500&fit=crop",
+    demo: "https://fisz-handel-c1bb3a8d-uubz.vercel.app/",
     featured: false,
   },
 ];
@@ -125,13 +160,13 @@ const ProjectCard = forwardRef<
       {/* Featured badge */}
       {project.featured && (
         <motion.div
-          className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-primary/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold text-primary-foreground font-['Geist'] shadow-lg"
-          initial={{ opacity: 0, y: -10 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent-blue backdrop-blur-sm px-3 py-1.5 text-[11px] font-semibold text-white font-['Geist'] shadow-lg"
+          initial={{ opacity: 0, y: -10, scale: 0.8 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.4 }}
+          transition={{ delay: 0.5, duration: 0.4, type: "spring", stiffness: 300 }}
         >
-          <Star className="h-3 w-3" fill="currentColor" />
+          <Star className="h-3.5 w-3.5" fill="currentColor" />
           Wyróżniony
         </motion.div>
       )}
@@ -170,10 +205,10 @@ const ProjectCard = forwardRef<
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Demo – ${project.title}`}
-            className="flex h-10 items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground font-['Geist'] shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] transition-shadow"
+            className="flex h-10 items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground font-['Geist'] shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
-            Zobacz na żywo
+            Otwórz
           </a>
         </motion.div>
       </div>
@@ -182,7 +217,7 @@ const ProjectCard = forwardRef<
       <div className="relative p-6">
         <div className="flex items-start justify-between mb-3">
           <motion.h3
-            className="font-['Geist'] font-semibold text-foreground text-lg tracking-[-0.01em]"
+            className="font-['Geist'] font-semibold text-foreground text-lg tracking-[-0.01em] flex-1"
             initial={{ opacity: 0, x: -15 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -200,19 +235,24 @@ const ProjectCard = forwardRef<
               y: isHovered ? 0 : 4,
             }}
             transition={{ duration: 0.3 }}
-            className="text-muted-foreground hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+            aria-label={`Otwórz ${project.title}`}
           >
             <ArrowUpRight className="h-5 w-5" />
           </motion.a>
         </div>
+
+        {/* Description */}
         <p className="font-['Geist'] text-sm text-muted-foreground leading-relaxed mb-4">
           {project.description}
         </p>
+
+        {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {project.tags.map((tag, tagIdx) => (
             <motion.span
               key={tag}
-              className="rounded-full bg-secondary/80 backdrop-blur-sm border border-border/30 px-3 py-1 text-[11px] font-medium text-muted-foreground font-['Geist'] tracking-wide"
+              className="rounded-full bg-secondary/80 backdrop-blur-sm border border-border/30 px-3 py-1 text-[11px] font-medium text-muted-foreground font-['Geist'] tracking-wide hover:border-primary/30 hover:text-primary transition-colors"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -230,23 +270,7 @@ ProjectCard.displayName = "ProjectCard";
 
 const ProjectsSection = () => {
   return (
-    <section
-      className="relative z-10 bg-background py-28 px-6 overflow-hidden"
-      id="projekty"
-    >
-      {/* Section line */}
-      <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px]"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent)",
-        }}
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.2 }}
-      />
-
+    <SectionWrapper id="projekty" label="Projekty">
       {/* Background orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -266,42 +290,13 @@ const ProjectsSection = () => {
       </div>
 
       <div className="mx-auto max-w-[1200px]">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <motion.span
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary font-['Geist'] mb-5"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring" as const, stiffness: 300 }}
-          >
-            <Star className="h-3 w-3" />
-            Wybrane realizacje
-          </motion.span>
-          <motion.h2
-            className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-5xl leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            Moje{" "}
-            <motion.span
-              className="font-['Instrument_Serif'] italic text-5xl md:text-6xl inline-block bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent"
-              initial={{ opacity: 0, rotateY: 90 }}
-              whileInView={{ opacity: 1, rotateY: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              projekty
-            </motion.span>
-          </motion.h2>
-        </motion.div>
+        <SectionHeader
+          badge="Wybrane realizacje"
+          badgeIcon={<Star className="h-3 w-3" />}
+          title="Moje"
+          highlight="projekty"
+          gradient
+        />
 
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -319,7 +314,7 @@ const ProjectsSection = () => {
           ))}
         </motion.div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

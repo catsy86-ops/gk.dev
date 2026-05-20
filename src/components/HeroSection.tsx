@@ -1,21 +1,51 @@
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import {
+  EASE_STANDARD,
+  TYPEWRITER_TYPING_SPEED,
+  TYPEWRITER_DELETING_SPEED,
+  TYPEWRITER_PAUSE_TIME,
+  PARTICLE_COUNT_DESKTOP,
+  PARTICLE_COUNT_MOBILE,
+  PARTICLE_CONNECTION_DISTANCE,
+} from "@/constants/animations";
+
+// ─── Animation variants ────────────────────────────────────────────────────────
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.15, duration: 0.7, ease: [0.25, 0.4, 0.25, 1] as [number, number, number, number] },
+    transition: { delay: i * 0.15, duration: 0.7, ease: EASE_STANDARD },
   }),
 };
+
+// ─── Data ──────────────────────────────────────────────────────────────────────
 
 const roles = ["Fullstack Developer", "React Specialist", "Cloud Architect", "UI/UX Enthusiast"];
 const greetings = ["Cześć", "Hello", "Hej", "Yo", "Siema"];
 
-const useTypewriter = (words: string[], typingSpeed = 80, deletingSpeed = 50, pauseTime = 2000) => {
+const socialLinks = [
+  { icon: Github, href: "https://github.com/gkdev", label: "GitHub" },
+  { icon: Linkedin, href: "https://linkedin.com/in/gkdev", label: "LinkedIn" },
+  { icon: Mail, href: "mailto:kontakt@gkdev.pl", label: "Email" },
+] as const;
+
+// ─── Hooks ─────────────────────────────────────────────────────────────────────
+
+/**
+ * useTypewriter — extracted hook (SRP).
+ * Handles typewriter animation logic independently of rendering.
+ */
+const useTypewriter = (
+  words: readonly string[],
+  typingSpeed = TYPEWRITER_TYPING_SPEED,
+  deletingSpeed = TYPEWRITER_DELETING_SPEED,
+  pauseTime = TYPEWRITER_PAUSE_TIME,
+) => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -43,12 +73,128 @@ const useTypewriter = (words: string[], typingSpeed = 80, deletingSpeed = 50, pa
   return currentText;
 };
 
+// ─── ParticleField ─────────────────────────────────────────────────────────────
+
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+}
+
+/**
+ * ParticleField — canvas-based particle network (extracted from HeroSection, SRP).
+ * Respects prefers-reduced-motion.
+ */
+const ParticleField = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const isMobile =
+    typeof window !== "undefined" && window.innerWidth < 768;
+
+  const particles = useMemo<Particle[]>(() => {
+    const count = isMobile ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP;
+    return Array.from({ length: count }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      size: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 0.0002 + 0.0001,
+      opacity: Math.random() * 0.4 + 0.1,
+    }));
+  }, [isMobile]);
+
+  useEffect(() => {
+    // Respect reduced-motion preference
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    const dpr = Math.min(window.devicePixelRatio, 2);
+
+    const setSize = () => {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+    };
+    setSize();
+
+    // Throttled resize handler
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(setSize, 150);
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    const draw = () => {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      for (const p of particles) {
+        p.y -= p.speed * 16;
+        if (p.y < -0.02) p.y = 1.02;
+
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(217, 91%, 60%, ${p.opacity})`;
+        ctx.fill();
+      }
+
+      // O(n²) connections — acceptable for ≤80 particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = (particles[i].x - particles[j].x) * w;
+          const dy = (particles[i].y - particles[j].y) * h;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < PARTICLE_CONNECTION_DISTANCE) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x * w, particles[i].y * h);
+            ctx.lineTo(particles[j].x * w, particles[j].y * h);
+            ctx.strokeStyle = `hsla(217, 91%, 60%, ${0.08 * (1 - dist / PARTICLE_CONNECTION_DISTANCE)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+    animId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [particles]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-[1] pointer-events-none"
+      aria-hidden="true"
+    />
+  );
+};
+
+// ─── HeroSection ───────────────────────────────────────────────────────────────
+
 const HeroSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const magneticPrimary = useMagnetic(0.35);
   const magneticSecondary = useMagnetic(0.35);
   const typewriterText = useTypewriter(roles);
   const greetingText = useTypewriter(greetings, 100, 60, 2500);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -59,9 +205,19 @@ const HeroSection = () => {
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
+  const scrollToSection = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <section ref={sectionRef} className="relative min-h-screen overflow-hidden" id="hero">
-      {/* Background Video — laptop coding */}
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen overflow-hidden"
+      id="hero"
+      aria-label="Sekcja powitalna"
+    >
+      {/* Background Video */}
       <motion.div
         className="absolute inset-0 z-0"
         style={{ y: videoY, scale: videoScale }}
@@ -71,6 +227,7 @@ const HeroSection = () => {
           muted
           loop
           playsInline
+          aria-hidden="true"
           className="w-full h-full object-cover"
         >
           <source
@@ -78,33 +235,35 @@ const HeroSection = () => {
             type="video/mp4"
           />
         </video>
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
-        {/* Blue tint overlay */}
         <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
       </motion.div>
 
+      {/* Particle network overlay */}
+      <ParticleField />
 
       {/* Content with parallax */}
       <motion.div
-        className="relative z-10 mx-auto max-w-[1200px] px-6 pt-[290px] flex flex-col items-center gap-8"
+        className="relative z-10 mx-auto max-w-[1200px] px-6 pt-[30vh] sm:pt-[35vh] md:pt-[38vh] flex flex-col items-center gap-6 sm:gap-8"
         style={{ y: contentY, opacity: contentOpacity }}
       >
-        {/* Badge */}
+        {/* Role badge */}
         <motion.div
           className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/60 backdrop-blur-md px-4 py-1.5"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={0}
+          aria-label={`Rola: ${typewriterText}`}
         >
-          <Code2 className="h-4 w-4 text-primary" />
-          <span className="font-['Geist'] text-xs font-medium text-primary min-w-[140px]">
+          <Code2 className="h-4 w-4 text-primary" aria-hidden="true" />
+          <span className="font-['Geist'] text-xs font-medium text-primary min-w-[140px]" aria-live="polite">
             {typewriterText}
             <motion.span
               className="inline-block w-[2px] h-3.5 bg-primary ml-0.5 align-middle"
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+              aria-hidden="true"
             />
           </span>
         </motion.div>
@@ -112,25 +271,26 @@ const HeroSection = () => {
         {/* Heading */}
         <motion.h1
           className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.05]"
-          style={{ fontSize: "clamp(40px, 5.5vw, 80px)" }}
+          style={{ fontSize: "clamp(36px, 5.5vw, 80px)" }}
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={1}
         >
-          <span className="inline-block min-w-[80px] md:min-w-[120px]">
+          <span className="inline-block min-w-[70px] md:min-w-[120px]" aria-live="polite">
             {greetingText}
             <motion.span
               className="inline-block w-[3px] ml-0.5 align-middle bg-foreground"
-              style={{ height: "clamp(30px, 4vw, 60px)" }}
+              style={{ height: "clamp(28px, 4vw, 60px)" }}
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+              aria-hidden="true"
             />
           </span>
-          , jestem{" "}
+          {", jestem "}
           <span
             className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent"
-            style={{ fontSize: "clamp(50px, 6.9vw, 100px)" }}
+            style={{ fontSize: "clamp(44px, 6.9vw, 100px)" }}
           >
             Grzegorz
           </span>
@@ -138,7 +298,7 @@ const HeroSection = () => {
 
         {/* Description */}
         <motion.p
-          className="text-center font-['Geist'] text-lg max-w-[554px] text-muted-foreground"
+          className="text-center font-['Geist'] text-base sm:text-lg max-w-[554px] px-4 text-muted-foreground"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -149,20 +309,20 @@ const HeroSection = () => {
 
         {/* CTA + Socials */}
         <motion.div
-          className="flex flex-col items-center gap-6"
+          className="flex flex-col items-center gap-5 sm:gap-6"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={3}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <a
               ref={magneticPrimary.ref as React.Ref<HTMLAnchorElement>}
               onMouseMove={magneticPrimary.onMouseMove}
               onMouseLeave={magneticPrimary.onMouseLeave}
               href="#projekty"
-              onClick={(e) => { e.preventDefault(); document.getElementById("projekty")?.scrollIntoView({ behavior: "smooth" }); }}
-              className="inline-block rounded-full bg-primary px-7 py-3.5 font-['Geist'] text-sm font-medium text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-shadow hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] active:scale-[0.98]"
+              onClick={scrollToSection("projekty")}
+              className="inline-block rounded-full bg-primary px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-shadow hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               Zobacz projekty
             </a>
@@ -171,28 +331,51 @@ const HeroSection = () => {
               onMouseMove={magneticSecondary.onMouseMove}
               onMouseLeave={magneticSecondary.onMouseLeave}
               href="#kontakt"
-              onClick={(e) => { e.preventDefault(); document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" }); }}
-              className="inline-block rounded-full border border-primary/20 bg-background/60 backdrop-blur-sm px-7 py-3.5 font-['Geist'] text-sm font-medium text-foreground transition-shadow hover:bg-background/80 hover:border-primary/30 active:scale-[0.98]"
+              onClick={scrollToSection("kontakt")}
+              className="inline-block rounded-full border border-primary/20 bg-background/60 backdrop-blur-sm px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-foreground transition-shadow hover:bg-background/80 hover:border-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               Kontakt
             </a>
           </div>
 
-          <div className="flex items-center gap-5">
-            {[
-              { icon: Github, href: "#", label: "GitHub" },
-              { icon: Linkedin, href: "#", label: "LinkedIn" },
-              { icon: Mail, href: "mailto:GK@example.com", label: "Email" },
-            ].map(({ icon: Icon, href, label }) => (
+          <div className="flex items-center gap-5" role="list" aria-label="Linki społecznościowe">
+            {socialLinks.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
                 aria-label={label}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                role="listitem"
+                target={href.startsWith("mailto") ? undefined : "_blank"}
+                rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+                className="text-muted-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
               >
-                <Icon className="h-5 w-5" strokeWidth={1.6} />
+                <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
               </a>
             ))}
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
+        aria-hidden="true"
+      >
+        <motion.div
+          className="flex flex-col items-center gap-2 text-muted-foreground/50"
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <span className="text-[10px] font-['Geist'] tracking-[0.2em] uppercase">Scroll</span>
+          <div className="w-5 h-8 rounded-full border border-muted-foreground/30 flex items-start justify-center pt-1.5">
+            <motion.div
+              className="w-1 h-1.5 rounded-full bg-muted-foreground/50"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
           </div>
         </motion.div>
       </motion.div>

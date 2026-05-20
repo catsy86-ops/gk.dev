@@ -126,6 +126,30 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+
+  /* ─── Accessibility: visible focus ring ──────────────────────────────────── */
+  /* Remove default outline only when using mouse (pointer: fine).
+     Keyboard users always see a clear focus indicator. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip-to-content link — visible only on keyboard focus */
+  .skip-link:focus {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
 }
 
 /* Glitch logo effect */
@@ -190,5 +214,15 @@ All colors MUST be HSL.
 @media (pointer: coarse) {
   .custom-cursor {
     display: none !important;
+  }
+}
+
+/* Reduced motion: disable heavy animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

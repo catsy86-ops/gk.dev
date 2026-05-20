@@ -122,7 +122,7 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
 
 const TechMarquee = () => {
   return (
-    <section className="relative z-10 py-20 overflow-hidden">
+    <section className="relative z-10 py-20 overflow-hidden" id="tech-stack">
       <div className="mx-auto max-w-[1200px] px-6 mb-10">
         <motion.div
           className="text-center"

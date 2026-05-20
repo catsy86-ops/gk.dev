@@ -1,6 +1,7 @@
 import { motion, useInView, AnimatePresence } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Quote, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Quote, ChevronLeft, ChevronRight, Star, Pause, Play } from "lucide-react";
+import { EASE_STANDARD } from "@/constants/animations";
 
 const testimonials = [
   {
@@ -52,13 +53,18 @@ const testimonials = [
     rating: 5,
     photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
   },
-];
+] as const;
+
+const AUTOPLAY_INTERVAL = 5000;
 
 const TestimonialsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
+  // Unique id for aria-live region
+  const liveId = "testimonials-live";
 
   const next = useCallback(() => {
     setDirection(1);
@@ -70,10 +76,16 @@ const TestimonialsSection = () => {
     setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   }, []);
 
+  const goTo = useCallback((index: number) => {
+    setDirection(index > current ? 1 : -1);
+    setCurrent(index);
+  }, [current]);
+
   useEffect(() => {
-    const interval = setInterval(next, 5000);
+    if (isPaused) return;
+    const interval = setInterval(next, AUTOPLAY_INTERVAL);
     return () => clearInterval(interval);
-  }, [next]);
+  }, [next, isPaused]);
 
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0, scale: 0.95 }),
@@ -84,9 +96,18 @@ const TestimonialsSection = () => {
   const t = testimonials[current];
 
   return (
-    <section ref={sectionRef} className="relative py-28 overflow-hidden" id="opinie">
+    <section
+      ref={sectionRef}
+      className="relative py-28 overflow-hidden"
+      id="opinie"
+      aria-label="Opinie klientów"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
       {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
       </div>
 
@@ -116,7 +137,21 @@ const TestimonialsSection = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          <div className="relative min-h-[320px] flex items-center justify-center">
+          {/* Live region for screen readers */}
+          <div
+            id={liveId}
+            aria-live="polite"
+            aria-atomic="true"
+            className="sr-only"
+          >
+            Opinia {current + 1} z {testimonials.length}: {t.name}, {t.role} — {t.text}
+          </div>
+
+          <div
+            className="relative min-h-[320px] flex items-center justify-center"
+            role="region"
+            aria-label={`Opinia ${current + 1} z ${testimonials.length}`}
+          >
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={current}
@@ -125,25 +160,29 @@ const TestimonialsSection = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+                transition={{ duration: 0.5, ease: EASE_STANDARD }}
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <div className="w-full rounded-2xl border border-border/50 bg-card/60 backdrop-blur-md p-8 md:p-10 shadow-lg">
                   {/* Quote icon */}
-                  <div className="mb-6 flex justify-center">
+                  <div className="mb-6 flex justify-center" aria-hidden="true">
                     <div className="rounded-full bg-primary/10 p-3">
                       <Quote className="h-6 w-6 text-primary" />
                     </div>
                   </div>
 
                   {/* Stars */}
-                  <div className="flex justify-center gap-1 mb-6">
+                  <div
+                    className="flex justify-center gap-1 mb-6"
+                    aria-label={`Ocena: ${t.rating} na 5 gwiazdek`}
+                  >
                     {Array.from({ length: t.rating }).map((_, i) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.08, type: "spring", stiffness: 300 }}
+                        aria-hidden="true"
                       >
                         <Star className="h-4 w-4 fill-primary text-primary" />
                       </motion.div>
@@ -151,16 +190,19 @@ const TestimonialsSection = () => {
                   </div>
 
                   {/* Text */}
-                  <p className="text-center font-['Geist'] text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
+                  <blockquote className="text-center font-['Geist'] text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                     "{t.text}"
-                  </p>
+                  </blockquote>
 
                   {/* Author */}
                   <div className="flex items-center justify-center gap-3">
                     <img
                       src={t.photo}
-                      alt={t.name}
+                      alt={`Zdjęcie profilowe: ${t.name}`}
                       className="h-11 w-11 rounded-full object-cover border-2 border-primary/20 shadow-sm"
+                      loading="lazy"
+                      width={44}
+                      height={44}
                     />
                     <div className="text-left">
                       <p className="font-['Geist'] text-sm font-semibold text-foreground">{t.name}</p>
@@ -173,34 +215,49 @@ const TestimonialsSection = () => {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-center gap-6 mt-8">
+          <div className="flex items-center justify-center gap-4 mt-8" role="group" aria-label="Kontrolki slidera">
             <button
               onClick={prev}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Poprzednia opinia"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
             </button>
 
-            <div className="flex items-center gap-2">
-              {testimonials.map((_, i) => (
+            <div className="flex items-center gap-2" role="tablist" aria-label="Wybierz opinię">
+              {testimonials.map((testimonial, i) => (
                 <button
-                  key={i}
-                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-                  className={`h-2 rounded-full transition-all duration-300 ${
+                  key={testimonial.name}
+                  role="tab"
+                  aria-selected={i === current}
+                  aria-label={`Opinia ${i + 1}: ${testimonial.name}`}
+                  onClick={() => goTo(i)}
+                  className={`h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     i === current ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
                   }`}
-                  aria-label={`Opinia ${i + 1}`}
                 />
               ))}
             </div>
 
+            {/* Pause/Play button — important for accessibility (WCAG 2.1 criterion 2.2.2) */}
+            <button
+              onClick={() => setIsPaused((p) => !p)}
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label={isPaused ? "Wznów automatyczne przewijanie" : "Zatrzymaj automatyczne przewijanie"}
+              aria-pressed={isPaused}
+            >
+              {isPaused
+                ? <Play className="h-4 w-4" aria-hidden="true" />
+                : <Pause className="h-4 w-4" aria-hidden="true" />
+              }
+            </button>
+
             <button
               onClick={next}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Następna opinia"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </motion.div>

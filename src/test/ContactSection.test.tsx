@@ -61,4 +61,26 @@ describe("ContactSection rendering", () => {
     fireEvent.change(input, { target: { value: "Janek" } });
     expect(input.value).toBe("Janek");
   });
+
+  it("has accessible labels for form fields", () => {
+    render(<ContactSection />);
+    expect(screen.getByLabelText(/Imię/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Wiadomość/i)).toBeInTheDocument();
+  });
+
+  it("shows validation errors with role=alert", () => {
+    render(<ContactSection />);
+    const submitBtn = screen.getByRole("button", { name: /wyślij/i });
+    fireEvent.click(submitBtn);
+    const alerts = screen.getAllByRole("alert");
+    expect(alerts.length).toBeGreaterThan(0);
+  });
+
+  it("submit button is accessible", () => {
+    render(<ContactSection />);
+    const btn = screen.getByRole("button", { name: /wyślij wiadomość/i });
+    expect(btn).toBeInTheDocument();
+    expect(btn).not.toBeDisabled();
+  });
 });

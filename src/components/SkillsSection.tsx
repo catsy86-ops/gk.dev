@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
 import { Code2, Database, Cloud, Smartphone, Layout, GitBranch } from "lucide-react";
 import { useState, memo } from "react";
+import SectionWrapper from "@/components/ui/SectionWrapper";
+import SectionHeader from "@/components/ui/SectionHeader";
 
 const skills = [
   {
@@ -177,56 +179,13 @@ SkillCard.displayName = "SkillCard";
 
 const SkillsSection = () => {
   return (
-    <section className="relative z-10 bg-background py-28 px-6 overflow-hidden" id="umiejetnosci">
-      {/* Section animated accent */}
-      <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px]"
-        style={{
-          background: "linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent)",
-        }}
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.2 }}
-      />
-
+    <SectionWrapper id="umiejetnosci" label="Umiejętności">
       <div className="mx-auto max-w-[1200px]">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <motion.span
-            className="inline-block rounded-full border border-border bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground font-['Geist'] mb-5"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, type: "spring", stiffness: 300 }}
-          >
-            Czym się zajmuję
-          </motion.span>
-
-          <motion.h2
-            className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-5xl leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            Moje{" "}
-            <motion.span
-              className="font-['Instrument_Serif'] italic text-5xl md:text-6xl inline-block"
-              initial={{ opacity: 0, rotateY: 90 }}
-              whileInView={{ opacity: 1, rotateY: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            >
-              umiejętności
-            </motion.span>
-          </motion.h2>
-        </motion.div>
+        <SectionHeader
+          badge="Czym się zajmuję"
+          title="Moje"
+          highlight="umiejętności"
+        />
 
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
@@ -240,7 +199,7 @@ const SkillsSection = () => {
           ))}
         </motion.div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

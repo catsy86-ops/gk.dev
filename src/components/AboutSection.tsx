@@ -253,7 +253,8 @@ const AboutSection = () => {
                       ref={magneticCv.ref as React.Ref<HTMLAnchorElement>}
                       onMouseMove={magneticCv.onMouseMove}
                       onMouseLeave={magneticCv.onMouseLeave}
-                      href="#"
+                      href="/cv.pdf"
+                      download
                       className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground font-['Geist'] shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] transition-shadow"
                     >
                       <Download className="h-3.5 w-3.5" />

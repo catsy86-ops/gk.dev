@@ -4,12 +4,11 @@ import { Calendar, Rocket, Code2, Users } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, MeshTransmissionMaterial, Sphere, Torus, Icosahedron } from "@react-three/drei";
 import * as THREE from "three";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { EASE_STANDARD } from "@/constants/animations";
+import SectionWrapper from "@/components/ui/SectionWrapper";
 
-/* ============================================================
-   Three.js Background Scene
-   ============================================================ */
-
-const Particles = ({ count = 180 }: { count?: number }) => {
+const Particles = ({ count }: { count: number }) => {
   const points = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -39,7 +38,7 @@ const Particles = ({ count = 180 }: { count?: number }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.022}
+        size={count < 100 ? 0.03 : 0.022}
         color="hsl(217, 91%, 60%)"
         sizeAttenuation
         transparent
@@ -51,16 +50,18 @@ const Particles = ({ count = 180 }: { count?: number }) => {
   );
 };
 
-const FloatingGeometries = () => {
+const FloatingGeometries = ({ isMobile }: { isMobile: boolean }) => {
   const geometryRefs = useRef<THREE.Group[]>([]);
 
   const shapes = useMemo(() => [
-    { pos: [-2.4, 1.2, -2], rot: [0.3, 0.5, 0], scale: 0.45, color: "hsl(217, 91%, 60%)", speed: 0.3 },
-    { pos: [1.8, -1.0, -1.5], rot: [0.5, 0.2, 0.3], scale: 0.55, color: "hsl(262, 80%, 60%)", speed: 0.25 },
-    { pos: [-1.0, -1.4, -2.5], rot: [0.1, 0.8, 0.4], scale: 0.35, color: "hsl(170, 60%, 55%)", speed: 0.35 },
-    { pos: [2.6, 0.8, -1], rot: [0.7, 0.1, 0.5], scale: 0.5, color: "hsl(30, 90%, 60%)", speed: 0.2 },
-    { pos: [0.2, 1.6, -3], rot: [0.4, 0.3, 0.6], scale: 0.3, color: "hsl(200, 80%, 58%)", speed: 0.4 },
-  ] as const, []);
+    { pos: [-2.4, 1.2, -2] as const, rot: [0.3, 0.5, 0] as const, scale: 0.45, color: "hsl(217, 91%, 60%)", speed: 0.3 },
+    { pos: [1.8, -1.0, -1.5] as const, rot: [0.5, 0.2, 0.3] as const, scale: 0.55, color: "hsl(262, 80%, 60%)", speed: 0.25 },
+    { pos: [-1.0, -1.4, -2.5] as const, rot: [0.1, 0.8, 0.4] as const, scale: 0.35, color: "hsl(170, 60%, 55%)", speed: 0.35 },
+    ...(isMobile ? [] : [
+      { pos: [2.6, 0.8, -1] as const, rot: [0.7, 0.1, 0.5] as const, scale: 0.5, color: "hsl(30, 90%, 60%)", speed: 0.2 },
+      { pos: [0.2, 1.6, -3] as const, rot: [0.4, 0.3, 0.6] as const, scale: 0.3, color: "hsl(200, 80%, 58%)", speed: 0.4 },
+    ]),
+  ], [isMobile]);
 
   return (
     <>
@@ -92,7 +93,7 @@ const FloatingGeometries = () => {
   );
 };
 
-const WireframeRing = () => {
+const WireframeRing = ({ isMobile }: { isMobile: boolean }) => {
   const ref = useRef<THREE.Mesh>(null!);
 
   useFrame((state) => {
@@ -100,6 +101,8 @@ const WireframeRing = () => {
     ref.current.rotation.x = state.clock.elapsedTime * 0.06;
     ref.current.rotation.y = state.clock.elapsedTime * 0.1;
   });
+
+  if (isMobile) return null;
 
   return (
     <mesh ref={ref}>
@@ -121,7 +124,7 @@ const WireframeRing = () => {
   );
 };
 
-const Scene = () => {
+const Scene = ({ isMobile }: { isMobile: boolean }) => {
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     state.camera.position.x = Math.sin(t * 0.08) * 1.2;
@@ -134,9 +137,9 @@ const Scene = () => {
       <ambientLight intensity={0.2} />
       <pointLight position={[3, 2, 3]} intensity={0.5} color="hsl(217, 91%, 60%)" />
       <pointLight position={[-3, -1, -2]} intensity={0.3} color="hsl(262, 80%, 60%)" />
-      <Particles />
-      <FloatingGeometries />
-      <WireframeRing />
+      <Particles count={isMobile ? 60 : 180} />
+      <FloatingGeometries isMobile={isMobile} />
+      <WireframeRing isMobile={isMobile} />
     </>
   );
 };
@@ -184,7 +187,7 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
       className="group relative flex flex-col items-center gap-3 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 sm:p-8 transition-all duration-500 hover:border-primary/25 hover:bg-card/70 hover:shadow-[0_8px_40px_-12px_rgba(59,130,246,0.15)] hover:-translate-y-1"
       initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
       animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.25, 0.4, 0.25, 1] }}
+      transition={{ duration: 0.65, delay, ease: EASE_STANDARD }}
     >
       {/* Card glow */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -196,6 +199,7 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
         animate={inView ? { scale: 1, rotate: 0 } : {}}
         transition={{ duration: 0.5, delay: delay + 0.12, type: "spring", stiffness: 200, damping: 18 }}
         whileHover={{ scale: 1.15, rotate: 5 }}
+        aria-hidden="true"
       >
         {icon}
       </motion.div>
@@ -207,6 +211,7 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
           initial={{ opacity: 0, filter: "blur(4px)" }}
           animate={inView ? { opacity: 1, filter: "blur(0px)" } : {}}
           transition={{ duration: 0.4, delay: delay + 0.25 }}
+          aria-label={`${value}${suffix}`}
         >
           {count}
           <motion.span
@@ -214,6 +219,7 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
             initial={{ opacity: 0, x: -4 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.3, delay: delay + 0.5 }}
+            aria-hidden="true"
           >
             {suffix}
           </motion.span>
@@ -235,35 +241,46 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
 StatItem.displayName = "StatItem";
 
 const stats = [
-  { icon: <Calendar className="h-5 w-5" strokeWidth={1.6} />, value: 3, suffix: "+", label: "Lata doświadczenia" },
+  { icon: <Calendar className="h-5 w-5" strokeWidth={1.6} />, value: 7, suffix: "+", label: "Lat doświadczenia" },
   { icon: <Rocket className="h-5 w-5" strokeWidth={1.6} />, value: 25, suffix: "+", label: "Ukończone projekty" },
   { icon: <Code2 className="h-5 w-5" strokeWidth={1.6} />, value: 12, suffix: "+", label: "Technologie" },
   { icon: <Users className="h-5 w-5" strokeWidth={1.6} />, value: 15, suffix: "+", label: "Zadowolonych klientów" },
 ];
 
+const ThreeBackground = ({ isMobile }: { isMobile: boolean }) => (
+  <div className="absolute inset-0 z-0 opacity-40" role="presentation" aria-hidden="true">
+    <Canvas
+      dpr={isMobile ? 1 : [1, 1.5]}
+      gl={{ antialias: !isMobile, alpha: true, powerPreference: "low-power" }}
+      camera={{ position: [0, 0, 5], fov: 60, near: 0.1, far: 20 }}
+      style={{ pointerEvents: "none" }}
+    >
+      <Scene isMobile={isMobile} />
+    </Canvas>
+  </div>
+);
+
 const StatsSection = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.15 });
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   return (
-    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
-      {/* Three.js Background */}
-      <div className="absolute inset-0 z-0 opacity-40">
-        <Canvas
-          dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: true }}
-          camera={{ position: [0, 0, 5], fov: 60, near: 0.1, far: 20 }}
-          style={{ pointerEvents: "none" }}
-        >
-          <Scene />
-        </Canvas>
-      </div>
+    <section
+      ref={ref}
+      className="relative py-20 md:py-28 overflow-hidden"
+      id="statystyki"
+      aria-label="Statystyki"
+    >
+      {/* Three.js Background — skip on reduced motion */}
+      {!prefersReduced && <ThreeBackground isMobile={isMobile} />}
 
       {/* Gradient fades at edges */}
-      <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background)/0.6)_100%)]" />
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background)/0.6)_100%)]" aria-hidden="true" />
 
       {/* Subtle divider */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto max-w-[1200px] px-6">
         {/* Header */}
@@ -283,6 +300,7 @@ const StatsSection = () => {
               className="h-1 w-1 rounded-full bg-primary inline-block"
               animate={{ opacity: [1, 0.3, 1], scale: [1, 1.5, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
+              aria-hidden="true"
             />
             W liczbach
           </motion.span>
@@ -297,7 +315,11 @@ const StatsSection = () => {
         </motion.div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5"
+          role="list"
+          aria-label="Statystyki"
+        >
           {stats.map((stat, i) => (
             <StatItem
               key={stat.label}

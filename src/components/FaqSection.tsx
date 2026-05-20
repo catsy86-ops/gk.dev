@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import SectionWrapper from "@/components/ui/SectionWrapper";
 
 const faqs = [
   {
@@ -37,11 +38,11 @@ const faqs = [
     answer:
       "Oczywiście. Każdy projekt ma dedykowane środowisko stagingowe, gdzie na bieżąco widzisz zmiany. Organizuję też cotygodniowe demo, żebyś zawsze był na bieżąco.",
   },
-];
+] as const;
 
 const FaqSection = () => {
   return (
-    <section className="relative z-10 py-28 px-6" id="faq">
+    <SectionWrapper id="faq" label="Często zadawane pytania" divider={false}>
       <div className="mx-auto max-w-[720px]">
         <motion.div
           className="text-center mb-14"
@@ -68,7 +69,7 @@ const FaqSection = () => {
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
               <motion.div
-                key={i}
+                key={faq.question}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -90,7 +91,7 @@ const FaqSection = () => {
           </Accordion>
         </motion.div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 
