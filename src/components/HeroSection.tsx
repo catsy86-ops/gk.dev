@@ -2,6 +2,8 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
 import { useRef, useState, useEffect, useMemo } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { RippleButton } from "@/components/ui/ripple-button";
 import {
   EASE_STANDARD,
   TYPEWRITER_TYPING_SPEED,
@@ -89,9 +91,7 @@ interface Particle {
  */
 const ParticleField = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const isMobile =
-    typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const particles = useMemo<Particle[]>(() => {
     const count = isMobile ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP;
@@ -204,6 +204,9 @@ const HeroSection = () => {
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const orbY1 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+  const orbY2 = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
+  const orbY3 = useTransform(scrollYProgress, [0, 1], ["0%", "-120%"]);
 
   const scrollToSection = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -238,6 +241,20 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
         <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
       </motion.div>
+
+      {/* Parallax background orbs */}
+      <motion.div
+        className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-[120px] pointer-events-none z-[1]"
+        style={{ y: orbY1 }}
+      />
+      <motion.div
+        className="absolute bottom-1/3 -right-32 w-72 h-72 rounded-full bg-violet-500/5 blur-[100px] pointer-events-none z-[1]"
+        style={{ y: orbY2 }}
+      />
+      <motion.div
+        className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-blue-400/5 blur-[90px] pointer-events-none z-[1]"
+        style={{ y: orbY3 }}
+      />
 
       {/* Particle network overlay */}
       <ParticleField />
@@ -316,16 +333,18 @@ const HeroSection = () => {
           custom={3}
         >
           <div className="flex items-center gap-3 sm:gap-4">
-            <a
-              ref={magneticPrimary.ref as React.Ref<HTMLAnchorElement>}
+            <div
+              ref={magneticPrimary.ref as React.Ref<HTMLDivElement>}
               onMouseMove={magneticPrimary.onMouseMove}
               onMouseLeave={magneticPrimary.onMouseLeave}
-              href="#projekty"
-              onClick={scrollToSection("projekty")}
-              className="inline-block rounded-full bg-primary px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-shadow hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              Zobacz projekty
-            </a>
+              <RippleButton
+                onClick={scrollToSection("projekty")}
+                className="rounded-full bg-primary px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-shadow hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                Zobacz projekty
+              </RippleButton>
+            </div>
             <a
               ref={magneticSecondary.ref as React.Ref<HTMLAnchorElement>}
               onMouseMove={magneticSecondary.onMouseMove}

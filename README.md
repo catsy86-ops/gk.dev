@@ -51,3 +51,16 @@ estowanie:
 🧪 Playwright – E2E testing
 🧬 @testing-library/react – Testing utilities
 To jest portfolio/strona prezentacyjna z bogatymi animacjami, 3D elementami i responsywnym designem!
+
+todo\_>
+
+[ ] 12. Grain / noise overlay na tle
+[ ] 13. Focus trap w mobile menu
+[ ] 14. Project cards dostępność z klawiatury
+[ ] 15. Reactive isMobile w HeroSection (useMediaQuery)
+[ ] 16. Scroll-to-top button z progiem widoczności
+[ ] 17. Custom cursor detekcja pointer: coarse
+[ ] 18. Dark mode tokens --hero-star, --hero-input
+[ ] 19. Conditional Three.js loading na podstawie connection
+[ ] 20. Obrazy projektów - WebP/source-set/blur placeholder
+[ ] 21. Refaktoring dużych komponentów na podkomponenty

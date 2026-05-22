@@ -1,6 +1,7 @@
 import { motion, useInView, AnimatePresence } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Quote, ChevronLeft, ChevronRight, Star, Pause, Play } from "lucide-react";
+import { ImageReveal } from "@/components/ui/image-reveal";
 import { EASE_STANDARD } from "@/constants/animations";
 
 const testimonials = [
@@ -196,13 +197,13 @@ const TestimonialsSection = () => {
 
                   {/* Author */}
                   <div className="flex items-center justify-center gap-3">
-                    <img
+                    <ImageReveal
                       src={t.photo}
                       alt={`Zdjęcie profilowe: ${t.name}`}
-                      className="h-11 w-11 rounded-full object-cover border-2 border-primary/20 shadow-sm"
-                      loading="lazy"
-                      width={44}
-                      height={44}
+                      containerClassName="h-11 w-11 rounded-full"
+                      className="rounded-full object-cover border-2 border-primary/20 shadow-sm"
+                      direction="up"
+                      delay={0.2}
                     />
                     <div className="text-left">
                       <p className="font-['Geist'] text-sm font-semibold text-foreground">{t.name}</p>

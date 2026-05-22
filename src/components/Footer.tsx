@@ -1,5 +1,6 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Github, Linkedin, Mail, Heart, ArrowUp, Code2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const socialLinks = [
   { icon: Github, href: "https://github.com/gkdev", label: "GitHub" },
@@ -8,6 +9,17 @@ const socialLinks = [
 ] as const;
 
 const Footer = () => {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > window.innerHeight * 0.5);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -85,15 +97,23 @@ const Footer = () => {
           </motion.nav>
 
           {/* Back to top */}
-          <motion.button
-            onClick={scrollToTop}
-            className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-secondary text-muted-foreground hover:text-primary hover:border-primary/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            whileHover={{ y: -4, scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            aria-label="Wróć na górę strony"
-          >
-            <ArrowUp className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={1.8} aria-hidden="true" />
-          </motion.button>
+          <AnimatePresence>
+            {showScrollTop && (
+              <motion.button
+                key="scroll-top"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={scrollToTop}
+                className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-secondary text-muted-foreground hover:text-primary hover:border-primary/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                whileHover={{ y: -4, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Wróć na górę strony"
+              >
+                <ArrowUp className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={1.8} aria-hidden="true" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Divider */}

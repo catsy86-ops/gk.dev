@@ -1,5 +1,7 @@
 import { type ReactNode } from "react";
 import { motion } from "motion/react";
+import { TextReveal } from "@/components/ui/text-reveal";
+import { cn } from "@/lib/utils";
 import { EASE_STANDARD } from "@/constants/animations";
 
 interface SectionHeaderProps {
@@ -54,31 +56,19 @@ const SectionHeader = ({
     </motion.span>
 
     {/* Heading */}
-    <motion.h2
-      className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-5xl leading-tight"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: 0.15, ease: EASE_STANDARD }}
-    >
-      {title}{" "}
-      <motion.span
-        className={[
-          "font-['Instrument_Serif'] italic text-5xl md:text-6xl inline-block",
-          gradient
-            ? "bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent"
-            : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        initial={{ opacity: 0, rotateY: 90 }}
-        whileInView={{ opacity: 1, rotateY: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.3, ease: EASE_STANDARD }}
-      >
-        {highlight}
-      </motion.span>
-    </motion.h2>
+    <h2 className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-5xl leading-tight">
+      <TextReveal text={title} delay={0.15} splitBy="word" />
+      {" "}
+      <TextReveal
+        text={highlight}
+        delay={0.35}
+        splitBy="char"
+        className={cn(
+          "font-['Instrument_Serif'] italic text-5xl md:text-6xl",
+          gradient && "bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent"
+        )}
+      />
+    </h2>
   </motion.div>
 );
 

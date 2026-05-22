@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sun, Moon, ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useTheme } from "next-themes";
 import { NAVBAR_SCROLL_THRESHOLD, EASE_STANDARD } from "@/constants/animations";
 
@@ -31,6 +32,7 @@ const Navbar = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const toggle = useCallback(() => setTheme(isDark ? "light" : "dark"), [isDark, setTheme]);
+  const mobileMenuRef = useFocusTrap(mobileOpen, () => setMobileOpen(false));
   // Ref for focus management — focus first nav link when mobile menu opens
   const firstNavLinkRef = useRef<HTMLAnchorElement>(null);
 
@@ -221,6 +223,7 @@ const Navbar = () => {
 
             {/* Menu panel */}
             <motion.div
+              ref={mobileMenuRef}
               id="mobile-menu"
               role="dialog"
               aria-modal="true"
