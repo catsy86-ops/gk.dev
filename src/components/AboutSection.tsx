@@ -67,7 +67,7 @@ const AboutSection = () => {
   const parallaxYInverse = useTransform(scrollYProgress, [0, 1], ["5%", "-8%"]);
 
   return (
-    <section ref={sectionRef} className="relative bg-background py-32 px-6 overflow-hidden" id="o-mnie">
+    <section ref={sectionRef} className="relative bg-secondary/30 py-32 px-6 overflow-hidden" id="o-mnie">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Noise/grid texture */}
@@ -118,7 +118,7 @@ const AboutSection = () => {
           </motion.span>
 
           <motion.h2
-            className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-6xl leading-tight"
+            className="font-['Geist'] font-medium tracking-[-0.02em] text-foreground text-4xl md:text-6xl leading-tight"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -147,12 +147,18 @@ const AboutSection = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="sticky top-28">
-              {/* Main bio card */}
+              {/* Main bio card with gradient border */}
               <motion.div
                 className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl p-8 md:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden group"
-                whileHover={{ borderColor: "hsl(var(--primary) / 0.3)", boxShadow: "0 12px 40px rgba(59,130,246,0.08)" }}
+                whileHover={{ boxShadow: "0 20px 60px -10px rgba(59,130,246,0.12), 0 0 0 1px hsl(var(--primary)/0.2)" }}
                 transition={{ duration: 0.3 }}
               >
+                {/* Animated gradient border */}
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-accent-blue/10" />
+                  <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-primary/30 via-transparent to-accent-blue/20" style={{ WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
+                </div>
+
                 {/* Card glow on hover */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
@@ -340,12 +346,18 @@ const AboutSection = () => {
 
                   {/* Card */}
                   <motion.div
-                    className={`rounded-2xl border transition-all duration-300 p-5 ${
+                    className={`relative rounded-2xl border transition-all duration-300 p-5 overflow-hidden ${
                       hoveredTimeline === i
-                        ? "border-primary/20 bg-card/80 shadow-lg shadow-primary/3 translate-x-1"
+                        ? "border-primary/20 bg-card/80 shadow-[0_8px_30px_-6px_rgba(59,130,246,0.08)] translate-x-1"
                         : "border-transparent bg-transparent"
                     }`}
                   >
+                    {/* Hover glow */}
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/[0.03] via-transparent to-transparent pointer-events-none"
+                      animate={{ opacity: hoveredTimeline === i ? 1 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    />
                     {/* Year badge */}
                     <motion.span
                       className={`inline-block text-[11px] font-semibold tracking-[0.15em] uppercase mb-2 font-['Geist'] ${

@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Star, Globe } from "lucide-react";
 import { useState, forwardRef, useRef } from "react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { EASE_STANDARD } from "@/constants/animations";
 
 interface Project {
@@ -38,6 +39,7 @@ const ProjectCard = forwardRef<
   { project: Project; index: number }
 >(({ project, index }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isHoverDevice = useMediaQuery("(hover: hover)");
   const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -46,14 +48,27 @@ const ProjectCard = forwardRef<
   const parallaxY = useTransform(scrollYProgress, [0, 1], [40, -40]);
   const imgParallax = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
 
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+
+    // 3D tilt calculation
+    const tiltX = ((e.clientY - rect.top) / rect.height - 0.5) * -12;
+    const tiltY = ((e.clientX - rect.left) / rect.width - 0.5) * 12;
+    setTilt({ x: tiltX, y: tiltY });
   };
 
-  const handleMouseLeave = () => {};
+  const handleMouseLeave = () => {
+    setMousePos({ x: 50, y: 50 });
+    setTilt({ x: 0, y: 0 });
+    setIsHovered(false);
+  };
 
   return (
     <motion.div
@@ -69,13 +84,30 @@ const ProjectCard = forwardRef<
       onMouseLeave={handleMouseLeave}
       whileHover={{ y: -8, transition: { duration: 0.3 } }}
       tabIndex={0}
-      style={{ y: parallaxY }}
+      style={{
+        y: parallaxY,
+        rotateX: tilt.x,
+        rotateY: tilt.y,
+        transformPerspective: 1000,
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
+      {/* Mouse-following spotlight */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl pointer-events-none z-[5]"
+        animate={{
+          background: isHoverDevice && isHovered
+            ? `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(255,255,255,0.06), transparent 40%)`
+            : "transparent",
+        }}
+        transition={{ duration: 0.2 }}
+      />
+
       {/* Enhanced shadow on hover */}
       <motion.div
         className="absolute inset-0 rounded-2xl pointer-events-none z-0"
         animate={{
-          boxShadow: isHovered
+          boxShadow: isHoverDevice && isHovered
             ? `0 20px 60px -10px rgba(0,0,0,0.15), ${project.accentGlow}`
             : "0 4px 20px -5px rgba(0,0,0,0.08)",
         }}
@@ -86,7 +118,7 @@ const ProjectCard = forwardRef<
       <motion.div
         className={`absolute inset-0 bg-gradient-to-br ${project.accent}`}
         initial={{ opacity: 0 }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
+        animate={{ opacity: isHoverDevice && isHovered ? 1 : 0 }}
         transition={{ duration: 0.5 }}
       />
 
@@ -98,7 +130,7 @@ const ProjectCard = forwardRef<
             "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 45%, transparent 50%)",
         }}
         initial={{ x: "-100%" }}
-        animate={isHovered ? { x: "200%" } : { x: "-100%" }}
+        animate={isHoverDevice && isHovered ? { x: "200%" } : { x: "-100%" }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
 
@@ -106,7 +138,7 @@ const ProjectCard = forwardRef<
       <motion.div
         className="absolute inset-0 rounded-2xl pointer-events-none z-10"
         animate={{
-          boxShadow: isHovered
+          boxShadow: isHoverDevice && isHovered
             ? `inset 0 0 0 1px rgba(255,255,255,0.15), ${project.accentGlow}`
             : "inset 0 0 0 1px rgba(255,255,255,0)",
         }}
@@ -165,7 +197,7 @@ const ProjectCard = forwardRef<
         />
         <motion.div
           className="absolute inset-0 pointer-events-none"
-          animate={{ scale: isHovered ? 1.12 : 1 }}
+          animate={{ scale: isHoverDevice && isHovered ? 1.12 : 1 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
           style={{ y: imgParallax }}
         />
@@ -173,7 +205,7 @@ const ProjectCard = forwardRef<
         {/* Overlay gradient */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent"
-          animate={{ opacity: isHovered ? 0.95 : 0.4 }}
+          animate={{ opacity: isHoverDevice && isHovered ? 0.95 : 0.4 }}
           transition={{ duration: 0.4 }}
         />
 
@@ -182,8 +214,8 @@ const ProjectCard = forwardRef<
           className="absolute bottom-4 right-4 flex items-center gap-2"
           initial={false}
           animate={{
-            opacity: isHovered ? 1 : 0,
-            y: isHovered ? 0 : 12,
+            opacity: isHoverDevice && isHovered ? 1 : 0,
+            y: isHoverDevice && isHovered ? 0 : 12,
           }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
@@ -217,9 +249,9 @@ const ProjectCard = forwardRef<
             target="_blank"
             rel="noopener noreferrer"
             animate={{
-              opacity: isHovered ? 1 : 0,
-              x: isHovered ? 0 : -4,
-              y: isHovered ? 0 : 4,
+              opacity: isHoverDevice && isHovered ? 1 : 0,
+              x: isHoverDevice && isHovered ? 0 : -4,
+              y: isHoverDevice && isHovered ? 0 : 4,
             }}
             transition={{ duration: 0.3 }}
             className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"

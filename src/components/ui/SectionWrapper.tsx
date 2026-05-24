@@ -31,6 +31,11 @@ const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
       aria-label={label}
       className={`relative z-10 bg-background py-28 px-6 overflow-hidden ${className}`}
     >
+      {/* Subtle mesh gradient background orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute top-0 -left-40 w-[500px] h-[500px] rounded-full bg-primary/[0.02] blur-[120px]" />
+        <div className="absolute bottom-0 -right-40 w-[400px] h-[400px] rounded-full bg-accent-blue/[0.02] blur-[100px]" />
+      </div>
       {divider && <SectionDivider />}
       <ErrorBoundary section={label}>
         {children}

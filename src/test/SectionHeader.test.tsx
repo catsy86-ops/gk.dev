@@ -11,8 +11,9 @@ describe("SectionHeader", () => {
 
   it("renders title and highlight", () => {
     render(<SectionHeader badge="Test" title="Moje" highlight="umiejętności" />);
-    expect(screen.getByText("Moje")).toBeInTheDocument();
-    expect(screen.getByText("umiejętności")).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { level: 2 });
+    expect(heading).toHaveTextContent("Moje");
+    expect(heading).toHaveTextContent("umiejętności");
   });
 
   it("renders badge icon when provided", () => {
@@ -28,15 +29,15 @@ describe("SectionHeader", () => {
   });
 
   it("applies gradient class when gradient prop is true", () => {
-    render(<SectionHeader badge="Test" title="Moje" highlight="projekty" gradient />);
-    const highlight = screen.getByText("projekty");
-    expect(highlight.className).toContain("bg-gradient-to-r");
+    const { container } = render(<SectionHeader badge="Test" title="Moje" highlight="projekty" gradient />);
+    const gradientEl = container.querySelector(".bg-gradient-to-r");
+    expect(gradientEl).toBeTruthy();
   });
 
   it("does not apply gradient class by default", () => {
-    render(<SectionHeader badge="Test" title="Moje" highlight="projekty" />);
-    const highlight = screen.getByText("projekty");
-    expect(highlight.className).not.toContain("bg-gradient-to-r");
+    const { container } = render(<SectionHeader badge="Test" title="Moje" highlight="projekty" />);
+    const gradientEl = container.querySelector(".bg-gradient-to-r");
+    expect(gradientEl).toBeFalsy();
   });
 
   it("renders as h2 heading", () => {

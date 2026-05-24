@@ -134,7 +134,7 @@ const TechMarquee = () => {
           <span className="inline-block font-['Geist'] text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">
             Tech Stack
           </span>
-          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
             Technologie, z którymi{" "}
             <span className="font-['Instrument_Serif'] italic">pracuję</span>
           </h2>

@@ -49,15 +49,15 @@ describe("ContactSection rendering", () => {
 
   it("renders all form fields", () => {
     render(<ContactSection />);
-    expect(screen.getByPlaceholderText("Imię")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Wiadomość")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Imię/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Wiadomość/i)).toBeInTheDocument();
     expect(screen.getByText("Wyślij wiadomość")).toBeInTheDocument();
   });
 
   it("updates input value on change", () => {
     render(<ContactSection />);
-    const input = screen.getByPlaceholderText("Imię") as HTMLInputElement;
+    const input = screen.getByLabelText(/Imię/i) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "Janek" } });
     expect(input.value).toBe("Janek");
   });

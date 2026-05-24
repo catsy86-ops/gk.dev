@@ -13,6 +13,18 @@ const navLinks = [
   { label: "Kontakt", href: "#kontakt", num: "04" },
 ];
 
+const sectionLabelMap: Record<string, string> = {
+  hero: "Strona główna",
+  "o-mnie": "O mnie",
+  statystyki: "Statystyki",
+  umiejetnosci: "Umiejętności",
+  "tech-stack": "Tech Stack",
+  projekty: "Projekty",
+  opinie: "Opinie",
+  kontakt: "Kontakt",
+  faq: "FAQ",
+};
+
 const socialLinks = [
   { icon: Github, href: "https://github.com/gkdev", label: "GitHub" },
   { icon: Linkedin, href: "https://linkedin.com/in/gkdev", label: "LinkedIn" },
@@ -114,6 +126,22 @@ const Navbar = () => {
             .dev
           </motion.span>
         </motion.a>
+
+        {/* Mobile section label */}
+        <AnimatePresence>
+          {scrolled && (
+            <motion.span
+              key={activeSection}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden absolute left-1/2 -translate-x-1/2 text-xs font-medium text-muted-foreground font-['Geist'] tracking-wide"
+            >
+              {sectionLabelMap[activeSection] || ""}
+            </motion.span>
+          )}
+        </AnimatePresence>
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-1" role="list">

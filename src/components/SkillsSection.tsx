@@ -1,8 +1,11 @@
-import { motion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { Code2, Database, Cloud, Smartphone, Layout, GitBranch } from "lucide-react";
-import { useState, memo } from "react";
+import { useState, memo, useRef, lazy, Suspense, useMemo } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
+import { useMediaQuery } from "@/hooks/use-media-query";
+
+const SkillsScene = lazy(() => import("./skills-scene"));
 
 const skills = [
   {
@@ -178,9 +181,36 @@ const SkillCard = memo(({ skill, index }: { skill: typeof skills[0]; index: numb
 SkillCard.displayName = "SkillCard";
 
 const SkillsSection = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { once: true, amount: 0.1 });
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  const handleMouseMove = useMemo(
+    () => (e: React.MouseEvent<HTMLElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    },
+    []
+  );
+
   return (
-    <SectionWrapper id="umiejetnosci" label="Umiejętności">
-      <div className="mx-auto max-w-[1200px]">
+    <SectionWrapper ref={sectionRef} id="umiejetnosci" label="Umiejętności" className="bg-secondary/30 relative overflow-hidden">
+      {/* Three.js Background */}
+      {!prefersReduced && inView && (
+        <div className="absolute inset-0 z-0 opacity-35" aria-hidden="true">
+          <Suspense fallback={null}>
+            <SkillsScene isMobile={isMobile} mouseRef={mouseRef} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background)/0.5)_100%)]" aria-hidden="true" />
+
+      <div className="relative z-10 mx-auto max-w-[1200px]" onMouseMove={handleMouseMove}>
         <SectionHeader
           badge="Czym się zajmuję"
           title="Moje"

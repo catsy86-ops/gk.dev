@@ -195,22 +195,75 @@ All colors MUST be HSL.
   animation: glitch-2 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-/* Smooth section transitions — removed blanket will-change to stay within GPU memory budget */
+/* ─── Utilities ─────────────────────────────────────────────────────────────── */
 
-/* Custom cursor - hide default on desktop (soft, allow override for accessibility) */
-@media (pointer: fine) {
-  body:has(.custom-cursor) {
-    cursor: none;
-  }
-  
-  body:has(.custom-cursor) a,
-  body:has(.custom-cursor) button,
-  body:has(.custom-cursor) [role="button"],
-  body:has(.custom-cursor) input,
-  body:has(.custom-cursor) textarea {
-    cursor: none;
-  }
+/* Text shadow for readability on video / bright backgrounds */
+.text-shadow-hero {
+  text-shadow: 0 2px 30px rgba(0,0,0,0.45), 0 1px 5px rgba(0,0,0,0.35);
 }
+.text-shadow-glow {
+  text-shadow: 0 0 40px hsl(var(--primary) / 0.15), 0 0 80px hsl(var(--primary) / 0.08);
+}
+
+/* Glassmorphism shortcut */
+.glass {
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* Gradient border via pseudo-element trick */
+.gradient-border {
+  position: relative;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent-blue) / 0.3), hsl(var(--violet-500, 258 90% 66%) / 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* ─── Animations ───────────────────────────────────────────────────────────── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+/* Smooth section transitions — removed blanket will-change to stay within GPU memory budget */
 
 /* Show default cursor on touch devices */
 @media (pointer: coarse) {

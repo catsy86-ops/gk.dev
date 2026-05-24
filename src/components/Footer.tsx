@@ -26,23 +26,29 @@ const Footer = () => {
 
   return (
     <footer className="relative z-10 bg-card border-t border-border overflow-hidden" aria-label="Stopka strony">
-      {/* Top gradient accent */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 h-[1px]"
-        style={{
-          background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), transparent)",
-        }}
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.5 }}
-        aria-hidden="true"
-      />
+      {/* Wave top border */}
+      <div className="absolute -top-[1px] left-0 right-0 overflow-hidden leading-none" aria-hidden="true">
+        <svg
+          className="relative block w-full h-[40px] md:h-[60px]"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+            className="fill-background"
+            opacity="0.5"
+          />
+          <path
+            d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,172.6-46C576,5.7,637.61,27,752.63,59.79c70.05,18.48,146.53,26.09,214.34,3V0Z"
+            className="fill-background"
+          />
+        </svg>
+      </div>
 
       {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
 
-      <div className="mx-auto max-w-[1200px] px-6 py-16 relative">
+      <div className="mx-auto max-w-[1200px] px-6 pt-20 pb-16 relative">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Logo & tagline */}
           <motion.div
@@ -52,19 +58,40 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <motion.a
-              href="#hero"
-              onClick={(e) => { e.preventDefault(); scrollToTop(); }}
-              className="logo-glitch text-xl font-semibold tracking-[-0.03em] text-foreground font-['Geist'] inline-block mb-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
-              data-text="GK.dev"
-              whileHover={{ scale: 1.05 }}
-              aria-label="GK.dev — wróć na górę"
-            >
-              GK<span className="text-primary/50">.dev</span>
-            </motion.a>
-            <p className="font-['Geist'] text-sm text-muted-foreground max-w-[280px]">
-              Tworzę nowoczesne aplikacje webowe i mobilne z pasją do czystego kodu.
-            </p>
+          <motion.a
+            href="#hero"
+            onClick={(e) => { e.preventDefault(); scrollToTop(); }}
+            className="logo-glitch text-xl font-semibold tracking-[-0.03em] text-foreground font-['Geist'] inline-block mb-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+            data-text="GK.dev"
+            whileHover={{ scale: 1.05 }}
+            aria-label="GK.dev — wróć na górę"
+          >
+            GK<span className="text-primary/50">.dev</span>
+          </motion.a>
+          <p className="font-['Geist'] text-sm text-muted-foreground max-w-[280px] mb-5">
+            Tworzę nowoczesne aplikacje webowe i mobilne z pasją do czystego kodu.
+          </p>
+          <nav aria-label="Szybka nawigacja" className="flex flex-wrap gap-x-5 gap-y-2">
+            {[
+              { label: "O mnie", href: "#o-mnie" },
+              { label: "Projekty", href: "#projekty" },
+              { label: "Kontakt", href: "#kontakt" },
+              { label: "FAQ", href: "#faq" },
+            ].map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const id = link.href.replace("#", "");
+                  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors font-['Geist'] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
           </motion.div>
 
           {/* Social links */}

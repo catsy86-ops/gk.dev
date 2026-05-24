@@ -1,205 +1,169 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { CURSOR_TRAIL_MAX, CURSOR_TRAIL_MIN_DISTANCE } from "@/constants/animations";
-
-interface CursorState {
-  x: number;
-  y: number;
-  isHovering: boolean;
-  isClicking: boolean;
-}
-
-interface Trail {
-  id: number;
-  x: number;
-  y: number;
-}
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 /**
- * CustomCursor — decorative cursor with trail effect.
+ * CustomCursor — bulletproof decorative cursor.
+ *
+ * Renders via createPortal directly into document.body to avoid any
+ * stacking-context / overflow-hidden issues from parent React layout.
+ *
+ * Uses direct DOM translate3d (0 React re-renders on mouse move).
  *
  * Accessibility:
- * - Hidden on touch/coarse-pointer devices (CSS media query)
+ * - Hidden on touch/coarse-pointer devices
  * - Hidden when prefers-reduced-motion is set
  * - All elements are aria-hidden
- *
- * Performance:
- * - Uses RAF batching to avoid excessive re-renders
- * - Properly cancels RAF on unmount (no memory leak)
- * - Passive event listeners
  */
 const CustomCursor = () => {
-  const [cursor, setCursor] = useState<CursorState>({
-    x: -100,
-    y: -100,
-    isHovering: false,
-    isClicking: false,
-  });
-  const [trails, setTrails] = useState<Trail[]>([]);
-
-  const trailIdRef = useRef(0);
-  const lastPositionRef = useRef({ x: 0, y: 0 });
-  // Store RAF id — initialise to null so we can safely check
-  const rafIdRef = useRef<number | null>(null);
-  const posRef = useRef({ x: -100, y: -100 });
-  // Track mount state to prevent setState after unmount
-  const mountedRef = useRef(true);
-
-  const updateCursorPosition = useCallback(() => {
-    if (!mountedRef.current) return;
-
-    const { x: newX, y: newY } = posRef.current;
-
-    setCursor((prev) => ({ ...prev, x: newX, y: newY }));
-
-    const dist = Math.hypot(
-      newX - lastPositionRef.current.x,
-      newY - lastPositionRef.current.y,
-    );
-
-    if (dist > CURSOR_TRAIL_MIN_DISTANCE) {
-      trailIdRef.current += 1;
-      const id = trailIdRef.current;
-      setTrails((prev) => [...prev.slice(-CURSOR_TRAIL_MAX), { id, x: newX, y: newY }]);
-      lastPositionRef.current = { x: newX, y: newY };
-    }
-
-    rafIdRef.current = null;
-  }, []);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    mountedRef.current = true;
+    // Feature-gate: skip on touch / reduced-motion
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      posRef.current = { x: e.clientX, y: e.clientY };
-      if (rafIdRef.current === null) {
-        rafIdRef.current = requestAnimationFrame(updateCursorPosition);
-      }
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    if (!dot || !ring) return;
+
+    // Hide system cursor while component is mounted
+    document.body.classList.add("cursor-none");
+
+    let rafId = 0;
+    let pos = { x: -100, y: -100 };
+
+    const onMove = (e: MouseEvent) => {
+      pos = { x: e.clientX, y: e.clientY };
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        dot.style.transform = `translate3d(${pos.x - 10}px, ${pos.y - 10}px, 0)`;
+        ring.style.transform = `translate3d(${pos.x - 26}px, ${pos.y - 26}px, 0)`;
+        rafId = 0;
+      });
     };
 
-    const handleMouseDown = () => {
-      if (mountedRef.current) setCursor((prev) => ({ ...prev, isClicking: true }));
+    const onDown = () => {
+      dot.classList.add("cursor-clicking");
+      ring.classList.add("cursor-clicking");
     };
 
-    const handleMouseUp = () => {
-      if (mountedRef.current) setCursor((prev) => ({ ...prev, isClicking: false }));
+    const onUp = () => {
+      dot.classList.remove("cursor-clicking");
+      ring.classList.remove("cursor-clicking");
     };
 
-    const handleMouseOver = (e: MouseEvent) => {
-      if (!mountedRef.current) return;
+    const onOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const isInteractive =
-        target.tagName === "A" ||
-        target.tagName === "BUTTON" ||
-        target.closest("a") !== null ||
-        target.closest("button") !== null ||
-        target.getAttribute("role") === "button";
-
+      let isInteractive = false;
+      try {
+        isInteractive = window.getComputedStyle(target).cursor === "pointer";
+      } catch { /* SSR */ }
+      if (!isInteractive) {
+        const tag = target.tagName;
+        isInteractive =
+          tag === "A" || tag === "BUTTON" || tag === "INPUT" ||
+          tag === "TEXTAREA" || tag === "SELECT" || tag === "LABEL" ||
+          target.closest("a") !== null || target.closest("button") !== null ||
+          target.getAttribute("role") === "button" ||
+          target.getAttribute("contenteditable") === "true";
+      }
       if (isInteractive) {
-        setCursor((prev) => ({ ...prev, isHovering: true }));
+        dot.classList.add("cursor-hovering");
+        ring.classList.add("cursor-hovering");
       }
     };
 
-    const handleMouseOut = () => {
-      if (mountedRef.current) setCursor((prev) => ({ ...prev, isHovering: false }));
+    const onOut = () => {
+      dot.classList.remove("cursor-hovering");
+      ring.classList.remove("cursor-hovering");
     };
 
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mousedown", handleMouseDown, { passive: true });
-    window.addEventListener("mouseup", handleMouseUp, { passive: true });
-    document.addEventListener("mouseover", handleMouseOver, { passive: true });
-    document.addEventListener("mouseout", handleMouseOut, { passive: true });
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mousedown", onDown, { passive: true });
+    window.addEventListener("mouseup", onUp, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
 
     return () => {
-      mountedRef.current = false;
-
-      // Cancel any pending RAF before removing listeners
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
-      }
-
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mouseover", handleMouseOver);
-      document.removeEventListener("mouseout", handleMouseOut);
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
+      document.body.classList.remove("cursor-none");
     };
-  }, [updateCursorPosition]);
+  }, []);
 
-  return (
+  const cursorContent = (
     <>
       <style>{`
+        .cursor-none, .cursor-none * {
+          cursor: none !important;
+        }
         .custom-cursor {
           pointer-events: none;
           position: fixed;
           top: 0;
           left: 0;
-          z-index: 9999;
-          mix-blend-mode: difference;
+          z-index: 99999;
           will-change: transform;
         }
-        /* Hide on touch / coarse-pointer devices */
-        @media (pointer: coarse) {
-          .custom-cursor { display: none; }
+        .cursor-dot {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: hsl(var(--primary));
+          border: 2.5px solid hsl(var(--background));
+          box-shadow: 0 0 0 1.5px hsl(var(--primary) / 0.5), 0 0 14px 3px hsl(var(--primary) / 0.25);
+          transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease;
         }
-        /* Respect user's motion preference */
+        .cursor-ring {
+          width: 52px;
+          height: 52px;
+          border-radius: 50%;
+          border: 2px solid hsl(var(--primary));
+          background: transparent;
+          box-shadow: 0 0 0 1px hsl(var(--background)), 0 0 18px 3px hsl(var(--primary) / 0.2);
+          opacity: 0.35;
+          transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease, margin 0.2s ease;
+        }
+        .cursor-dot.cursor-hovering {
+          width: 30px;
+          height: 30px;
+          margin: -5px 0 0 -5px;
+        }
+        .cursor-ring.cursor-hovering {
+          width: 78px;
+          height: 78px;
+          margin: -13px 0 0 -13px;
+          opacity: 0.6;
+        }
+        .cursor-dot.cursor-clicking {
+          width: 14px;
+          height: 14px;
+          margin: 3px 0 0 3px;
+        }
+        .cursor-ring.cursor-clicking {
+          width: 40px;
+          height: 40px;
+          margin: 6px 0 0 6px;
+          opacity: 0.2;
+        }
+        @media (pointer: coarse) {
+          .custom-cursor { display: none !important; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .custom-cursor { display: none; }
+          .custom-cursor { display: none !important; }
         }
       `}</style>
-
-      {/* Trail particles */}
-      <AnimatePresence>
-        {trails.map((trail) => (
-          <motion.div
-            key={trail.id}
-            className="custom-cursor"
-            aria-hidden="true"
-            initial={{ x: trail.x - 4, y: trail.y - 4, opacity: 0.6, scale: 1 }}
-            animate={{ x: trail.x - 4, y: trail.y - 4, opacity: 0, scale: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{ width: 8, height: 8, borderRadius: "50%", background: "hsl(var(--primary))" }}
-          />
-        ))}
-      </AnimatePresence>
-
-      {/* Main cursor dot */}
-      <motion.div
-        className="custom-cursor"
-        aria-hidden="true"
-        animate={{
-          x: cursor.x - 6,
-          y: cursor.y - 6,
-          scale: cursor.isClicking ? 0.6 : cursor.isHovering ? 1.5 : 1,
-        }}
-        transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
-        style={{ width: 12, height: 12, borderRadius: "50%", background: "hsl(var(--primary))" }}
-      />
-
-      {/* Cursor ring */}
-      <motion.div
-        className="custom-cursor"
-        aria-hidden="true"
-        animate={{
-          x: cursor.x - 20,
-          y: cursor.y - 20,
-          scale: cursor.isHovering ? 1.8 : 1,
-          opacity: cursor.isHovering ? 0.8 : 0.4,
-          rotate: cursor.isClicking ? 45 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20, mass: 0.8 }}
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          border: "2px solid hsl(var(--primary))",
-          background: "transparent",
-        }}
-      />
+      <div ref={dotRef} className="custom-cursor cursor-dot" aria-hidden="true" />
+      <div ref={ringRef} className="custom-cursor cursor-ring" aria-hidden="true" />
     </>
   );
+
+  return createPortal(cursorContent, document.body);
 };
 
 export default CustomCursor;

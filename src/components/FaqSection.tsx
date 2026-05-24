@@ -40,9 +40,9 @@ const faqs = [
   },
 ] as const;
 
-const FaqSection = () => {
+const FaqSection = ({ className = "" }: { className?: string }) => {
   return (
-    <SectionWrapper id="faq" label="Często zadawane pytania" divider={false}>
+    <SectionWrapper id="faq" label="Często zadawane pytania" divider={false} className={className}>
       <div className="mx-auto max-w-[720px]">
         <motion.div
           className="text-center mb-14"
@@ -54,7 +54,7 @@ const FaqSection = () => {
           <span className="inline-block font-['Geist'] text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">
             FAQ
           </span>
-          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
             Często zadawane{" "}
             <span className="font-['Instrument_Serif'] italic">pytania</span>
           </h2>

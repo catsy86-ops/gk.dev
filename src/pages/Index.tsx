@@ -73,7 +73,7 @@ const Index = () => {
         <ProjectsSection />
         <TestimonialsSection />
         <ContactSection />
-        <FaqSection />
+        <FaqSection className="bg-secondary/30" />
       </main>
       <Footer />
     </>

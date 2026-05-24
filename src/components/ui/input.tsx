@@ -3,12 +3,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const inputVariants = cva(
-  "w-full rounded-xl border bg-card px-4 py-3.5 text-sm font-['Geist'] text-foreground placeholder:text-muted-foreground/60 outline-none transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)] focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60",
+  "w-full rounded-xl border bg-card px-4 py-3.5 text-sm font-['Geist'] text-foreground placeholder:text-transparent outline-none transition-all duration-300 focus:shadow-[0_0_0_4px_hsl(var(--primary)/0.2),0_0_20px_-5px_hsl(var(--primary)/0.15)] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60",
   {
     variants: {
       state: {
-        default: "border-border focus:border-foreground/20",
-        error: "border-destructive",
+        default: "border-border/60 focus:border-primary/40 hover:border-border",
+        error: "border-destructive focus:shadow-[0_0_0_4px_hsl(var(--destructive)/0.15)] focus-visible:ring-destructive",
       },
     },
     defaultVariants: {
@@ -35,12 +35,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = "Input";
 
 const textareaVariants = cva(
-  "w-full rounded-xl border bg-card px-4 py-3.5 text-sm font-['Geist'] text-foreground placeholder:text-muted-foreground/60 outline-none resize-none transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)] focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60",
+  "w-full rounded-xl border bg-card px-4 py-3.5 text-sm font-['Geist'] text-foreground placeholder:text-transparent outline-none resize-none transition-all duration-300 focus:shadow-[0_0_0_4px_hsl(var(--primary)/0.2),0_0_20px_-5px_hsl(var(--primary)/0.15)] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60",
   {
     variants: {
       state: {
-        default: "border-border focus:border-foreground/20",
-        error: "border-destructive",
+        default: "border-border/60 focus:border-primary/40 hover:border-border",
+        error: "border-destructive focus:shadow-[0_0_0_4px_hsl(var(--destructive)/0.15)] focus-visible:ring-destructive",
       },
     },
     defaultVariants: {

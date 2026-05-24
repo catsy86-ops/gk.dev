@@ -99,7 +99,7 @@ const TestimonialsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 overflow-hidden"
+      className="relative bg-secondary/30 py-28 overflow-hidden"
       id="opinie"
       aria-label="Opinie klientów"
       onMouseEnter={() => setIsPaused(true)}
@@ -123,7 +123,7 @@ const TestimonialsSection = () => {
           <span className="inline-block font-['Geist'] text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">
             Opinie klientów
           </span>
-          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
             Co mówią{" "}
             <span className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
               klienci

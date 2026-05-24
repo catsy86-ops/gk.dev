@@ -56,7 +56,7 @@ const SectionHeader = ({
     </motion.span>
 
     {/* Heading */}
-    <h2 className="font-['Geist'] font-medium tracking-[-0.03em] text-foreground text-4xl md:text-5xl leading-tight">
+    <h2 className="font-['Geist'] font-medium tracking-[-0.02em] text-foreground text-4xl md:text-5xl leading-tight">
       <TextReveal text={title} delay={0.15} splitBy="word" />
       {" "}
       <TextReveal

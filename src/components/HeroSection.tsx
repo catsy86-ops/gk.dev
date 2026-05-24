@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { RippleButton } from "@/components/ui/ripple-button";
@@ -9,10 +9,9 @@ import {
   TYPEWRITER_TYPING_SPEED,
   TYPEWRITER_DELETING_SPEED,
   TYPEWRITER_PAUSE_TIME,
-  PARTICLE_COUNT_DESKTOP,
-  PARTICLE_COUNT_MOBILE,
-  PARTICLE_CONNECTION_DISTANCE,
 } from "@/constants/animations";
+
+const HeroScene = lazy(() => import("./hero-scene"));
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
@@ -75,117 +74,6 @@ const useTypewriter = (
   return currentText;
 };
 
-// ─── ParticleField ─────────────────────────────────────────────────────────────
-
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  speed: number;
-  opacity: number;
-}
-
-/**
- * ParticleField — canvas-based particle network (extracted from HeroSection, SRP).
- * Respects prefers-reduced-motion.
- */
-const ParticleField = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
-
-  const particles = useMemo<Particle[]>(() => {
-    const count = isMobile ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP;
-    return Array.from({ length: count }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      size: Math.random() * 1.5 + 0.5,
-      speed: Math.random() * 0.0002 + 0.0001,
-      opacity: Math.random() * 0.4 + 0.1,
-    }));
-  }, [isMobile]);
-
-  useEffect(() => {
-    // Respect reduced-motion preference
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    const dpr = Math.min(window.devicePixelRatio, 2);
-
-    const setSize = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.scale(dpr, dpr);
-    };
-    setSize();
-
-    // Throttled resize handler
-    let resizeTimer: ReturnType<typeof setTimeout>;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(setSize, 150);
-    };
-    window.addEventListener("resize", handleResize, { passive: true });
-
-    const draw = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
-
-      for (const p of particles) {
-        p.y -= p.speed * 16;
-        if (p.y < -0.02) p.y = 1.02;
-
-        ctx.beginPath();
-        ctx.arc(p.x * w, p.y * h, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(217, 91%, 60%, ${p.opacity})`;
-        ctx.fill();
-      }
-
-      // O(n²) connections — acceptable for ≤80 particles
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = (particles[i].x - particles[j].x) * w;
-          const dy = (particles[i].y - particles[j].y) * h;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < PARTICLE_CONNECTION_DISTANCE) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x * w, particles[i].y * h);
-            ctx.lineTo(particles[j].x * w, particles[j].y * h);
-            ctx.strokeStyle = `hsla(217, 91%, 60%, ${0.08 * (1 - dist / PARTICLE_CONNECTION_DISTANCE)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      animId = requestAnimationFrame(draw);
-    };
-    animId = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      clearTimeout(resizeTimer);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [particles]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 z-[1] pointer-events-none"
-      aria-hidden="true"
-    />
-  );
-};
-
 // ─── HeroSection ───────────────────────────────────────────────────────────────
 
 const HeroSection = () => {
@@ -194,6 +82,9 @@ const HeroSection = () => {
   const magneticSecondary = useMagnetic(0.35);
   const typewriterText = useTypewriter(roles);
   const greetingText = useTypewriter(greetings, 100, 60, 2500);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -208,6 +99,12 @@ const HeroSection = () => {
   const orbY2 = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
   const orbY3 = useTransform(scrollYProgress, [0, 1], ["0%", "-120%"]);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  };
+
   const scrollToSection = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -219,6 +116,7 @@ const HeroSection = () => {
       className="relative min-h-screen overflow-hidden"
       id="hero"
       aria-label="Sekcja powitalna"
+      onMouseMove={handleMouseMove}
     >
       {/* Background Video */}
       <motion.div
@@ -238,9 +136,21 @@ const HeroSection = () => {
             type="video/mp4"
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
+        {/* Multi-layer overlay for maximum text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/20 via-transparent to-background/20" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)_/_0.3)_0%,_transparent_70%)]" />
         <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
       </motion.div>
+
+      {/* Three.js Background overlay */}
+      {!prefersReduced && (
+        <div className="absolute inset-0 z-[1] opacity-50" aria-hidden="true">
+          <Suspense fallback={null}>
+            <HeroScene isMobile={isMobile} mouseRef={mouseRef} />
+          </Suspense>
+        </div>
+      )}
 
       {/* Parallax background orbs */}
       <motion.div
@@ -256,9 +166,6 @@ const HeroSection = () => {
         style={{ y: orbY3 }}
       />
 
-      {/* Particle network overlay */}
-      <ParticleField />
-
       {/* Content with parallax */}
       <motion.div
         className="relative z-10 mx-auto max-w-[1200px] px-6 pt-[30vh] sm:pt-[35vh] md:pt-[38vh] flex flex-col items-center gap-6 sm:gap-8"
@@ -266,7 +173,7 @@ const HeroSection = () => {
       >
         {/* Role badge */}
         <motion.div
-          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/60 backdrop-blur-md px-4 py-1.5"
+          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/80 backdrop-blur-xl px-4 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.15)]"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
@@ -287,7 +194,7 @@ const HeroSection = () => {
 
         {/* Heading */}
         <motion.h1
-          className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.05]"
+          className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.05] text-shadow-hero"
           style={{ fontSize: "clamp(36px, 5.5vw, 80px)" }}
           variants={fadeUp}
           initial="hidden"
@@ -306,7 +213,7 @@ const HeroSection = () => {
           </span>
           {", jestem "}
           <span
-            className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent"
+            className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent text-shadow-glow"
             style={{ fontSize: "clamp(44px, 6.9vw, 100px)" }}
           >
             Grzegorz
@@ -315,7 +222,7 @@ const HeroSection = () => {
 
         {/* Description */}
         <motion.p
-          className="text-center font-['Geist'] text-base sm:text-lg max-w-[554px] px-4 text-muted-foreground"
+          className="text-center font-['Geist'] text-base sm:text-lg max-w-[554px] px-4 text-muted-foreground text-shadow-hero"
           variants={fadeUp}
           initial="hidden"
           animate="visible"
