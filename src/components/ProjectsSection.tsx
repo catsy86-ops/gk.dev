@@ -1,8 +1,12 @@
-import { motion } from "motion/react";
-import { ExternalLink, Star, Github } from "lucide-react";
+import { motion, useInView } from "motion/react";
+import { Star, Github } from "lucide-react";
+import { lazy, Suspense, useRef, useMemo } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ProjectCard } from "@/components/ProjectCard";
+import { useMediaQuery } from "@/hooks/use-media-query";
+
+const ProjectsScene = lazy(() => import("./projects-scene"));
 
 const projects = [
   {
@@ -93,10 +97,37 @@ const containerVariants = {
 };
 
 const ProjectsSection = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { once: true, amount: 0.1 });
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  const handleMouseMove = useMemo(
+    () => (e: React.MouseEvent<HTMLElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    },
+    []
+  );
+
   return (
-    <SectionWrapper id="projekty" label="Projekty">
+    <SectionWrapper ref={sectionRef} id="projekty" label="Projekty" className="relative overflow-hidden">
+      {/* Three.js Background */}
+      {!prefersReduced && inView && (
+        <div className="absolute inset-0 z-0 opacity-30" aria-hidden="true">
+          <Suspense fallback={null}>
+            <ProjectsScene isMobile={isMobile} mouseRef={mouseRef} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background)/0.6)_100%)]" aria-hidden="true" />
+
       {/* Enhanced background orbs with better positioning */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[2]">
         <motion.div
           className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-primary/4 blur-[150px]"
           initial={{ opacity: 0 }}
@@ -123,7 +154,7 @@ const ProjectsSection = () => {
         />
       </div>
 
-      <div className="mx-auto max-w-[1200px]">
+      <div className="relative z-10 mx-auto max-w-[1200px]" onMouseMove={handleMouseMove}>
         <SectionHeader
           badge="Wybrane realizacje"
           badgeIcon={<Star className="h-3 w-3" />}

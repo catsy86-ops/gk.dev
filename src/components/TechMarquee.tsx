@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { CanvasFlowBackground } from "@/components/ui/canvas-flow-background";
 
 const TechIcon = ({ name }: { name: string }) => {
   const icons: Record<string, JSX.Element> = {
@@ -123,7 +124,8 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
 const TechMarquee = () => {
   return (
     <section className="relative z-10 py-20 overflow-hidden" id="tech-stack">
-      <div className="mx-auto max-w-[1200px] px-6 mb-10">
+      <CanvasFlowBackground />
+      <div className="relative z-10 mx-auto max-w-[1200px] px-6 mb-10">
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 20 }}
@@ -141,7 +143,7 @@ const TechMarquee = () => {
         </motion.div>
       </div>
 
-      <div className="space-y-4">
+      <div className="relative z-10 space-y-4">
         <MarqueeRow />
         <MarqueeRow reverse />
       </div>

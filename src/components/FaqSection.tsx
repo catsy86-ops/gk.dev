@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import SectionWrapper from "@/components/ui/SectionWrapper";
+import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
 
 const faqs = [
   {
@@ -43,7 +44,8 @@ const faqs = [
 const FaqSection = ({ className = "" }: { className?: string }) => {
   return (
     <SectionWrapper id="faq" label="Często zadawane pytania" divider={false} className={className}>
-      <div className="mx-auto max-w-[720px]">
+      <CanvasGridBackground />
+      <div className="relative z-10 mx-auto max-w-[720px]">
         <motion.div
           className="text-center mb-14"
           initial={{ opacity: 0, y: 30 }}

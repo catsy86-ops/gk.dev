@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Github, Linkedin, Mail, Heart, ArrowUp, Code2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
 
 const socialLinks = [
   { icon: Github, href: "https://github.com/gkdev", label: "GitHub" },
@@ -26,6 +27,7 @@ const Footer = () => {
 
   return (
     <footer className="relative z-10 bg-card border-t border-border overflow-hidden" aria-label="Stopka strony">
+      <CanvasBubblesBackground />
       {/* Wave top border */}
       <div className="absolute -top-[1px] left-0 right-0 overflow-hidden leading-none" aria-hidden="true">
         <svg
