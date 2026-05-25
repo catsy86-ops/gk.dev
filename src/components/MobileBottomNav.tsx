@@ -89,7 +89,7 @@ export const MobileBottomNav = ({ onMenuOpen, menuOpen }: MobileBottomNavProps) 
     <>
       {/* ═══════ BOTTOM TAB BAR ═══════ */}
       <motion.nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[9998] w-full"
         initial={{ y: 120 }}
         animate={{ y: 0 }}
         transition={{ delay: 1, duration: 0.55, ease: EASE_STANDARD }}
