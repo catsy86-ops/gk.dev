@@ -8,6 +8,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { isSlowConnection } from "@/lib/utils";
 
 const ContactScene = lazy(() => import("./contact-scene"));
 
@@ -92,7 +93,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
     <SectionWrapper ref={ref} id="kontakt" label="Kontakt">
       <div className="relative overflow-hidden" ref={sectionRef} onMouseMove={handleMouseMove}>
         {/* Three.js Background */}
-        {!prefersReduced && inView && (
+        {!prefersReduced && !isSlowConnection() && inView && (
           <div className="absolute inset-0 z-0 opacity-30" aria-hidden="true">
             <Suspense fallback={null}>
               <ContactScene isMobile={isMobile} mouseRef={mouseRef} />
@@ -215,7 +216,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                       state={errors[field.key] ? "error" : "default"}
                       onFocus={() => setFocused(field.key)}
                       onBlur={() => setFocused("")}
-                      className="pt-5 pb-2"
+                      className="pt-5 pb-2 bg-[hsl(var(--hero-input))]"
                     />
                   </motion.div>
                   <label
@@ -256,7 +257,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   state={errors.message ? "error" : "default"}
                   onFocus={() => setFocused("message")}
                   onBlur={() => setFocused("")}
-                  className="pt-6 pb-2"
+                  className="pt-6 pb-2 bg-[hsl(var(--hero-input))]"
                 />
               </motion.div>
               <label

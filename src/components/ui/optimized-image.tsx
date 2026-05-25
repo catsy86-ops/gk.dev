@@ -22,25 +22,30 @@ export function OptimizedImage({
 }: OptimizedImageProps) {
   const [loaded, setLoaded] = useState(false);
 
+  const buildUrl = (raw: string, w?: number) => {
+    const url = new URL(raw);
+    if (w) url.searchParams.set("w", String(w));
+    url.searchParams.set("auto", "format");
+    return url.toString();
+  };
+
+  const optimizedSrc = buildUrl(src);
+
   const srcSet = widths
-    .map((w) => {
-      const url = new URL(src);
-      url.searchParams.set("w", String(w));
-      return `${url.toString()} ${w}w`;
-    })
+    .map((w) => `${buildUrl(src, w)} ${w}w`)
     .join(", ");
 
   return (
     <div className={cn("relative overflow-hidden", containerClassName)}>
       <img
-        src={src}
+        src={optimizedSrc}
         srcSet={srcSet}
         sizes={sizes}
         alt={alt}
         loading={loading}
         className={cn(
-          "transition-opacity duration-500",
-          loaded ? "opacity-100" : "opacity-0",
+          "transition-all duration-700 ease-out",
+          loaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-lg scale-105",
           className
         )}
         onLoad={() => setLoaded(true)}

@@ -99,7 +99,7 @@ const Navbar = () => {
       role="navigation"
       aria-label="Główna nawigacja"
     >
-      <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between">
+      <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between" inert={mobileOpen}>
         <motion.a
           href="#hero"
           onClick={(e) => handleClick(e, "#hero")}

@@ -5,6 +5,7 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ProjectCard } from "@/components/ProjectCard";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { isSlowConnection } from "@/lib/utils";
 
 const ProjectsScene = lazy(() => import("./projects-scene"));
 
@@ -115,7 +116,7 @@ const ProjectsSection = () => {
   return (
     <SectionWrapper ref={sectionRef} id="projekty" label="Projekty" className="relative overflow-hidden">
       {/* Three.js Background */}
-      {!prefersReduced && inView && (
+      {!prefersReduced && !isSlowConnection() && inView && (
         <div className="absolute inset-0 z-0 opacity-30" aria-hidden="true">
           <Suspense fallback={null}>
             <ProjectsScene isMobile={isMobile} mouseRef={mouseRef} />

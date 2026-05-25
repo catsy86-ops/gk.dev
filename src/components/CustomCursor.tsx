@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 /**
  * CustomCursor — bulletproof decorative cursor.
@@ -15,14 +16,15 @@ import { createPortal } from "react-dom";
  * - All elements are aria-hidden
  */
 const CustomCursor = () => {
+  const isTouch = useMediaQuery("(pointer: coarse)");
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Feature-gate: skip on touch / reduced-motion
-    if (window.matchMedia("(pointer: coarse)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // Feature-gate: skip on touch / reduced-motion
+  if (isTouch || prefersReduced) return null;
 
+  useEffect(() => {
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;

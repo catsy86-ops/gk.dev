@@ -1,17 +1,17 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { Code2, Github, Linkedin, Mail } from "lucide-react";
-import { useRef, useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { RippleButton } from "@/components/ui/ripple-button";
+import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
+import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
 import {
   EASE_STANDARD,
   TYPEWRITER_TYPING_SPEED,
   TYPEWRITER_DELETING_SPEED,
   TYPEWRITER_PAUSE_TIME,
 } from "@/constants/animations";
-
-const HeroScene = lazy(() => import("./hero-scene"));
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
@@ -84,7 +84,6 @@ const HeroSection = () => {
   const greetingText = useTypewriter(greetings, 100, 60, 2500);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const mouseRef = useRef({ x: 0, y: 0 });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -98,12 +97,8 @@ const HeroSection = () => {
   const orbY1 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
   const orbY2 = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
   const orbY3 = useTransform(scrollYProgress, [0, 1], ["0%", "-120%"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-  };
+  const orbY4 = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
+  const orbY5 = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
 
   const scrollToSection = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -116,7 +111,6 @@ const HeroSection = () => {
       className="relative min-h-screen overflow-hidden"
       id="hero"
       aria-label="Sekcja powitalna"
-      onMouseMove={handleMouseMove}
     >
       {/* Background Video */}
       <motion.div
@@ -143,12 +137,11 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
       </motion.div>
 
-      {/* Three.js Background overlay */}
+      {/* Animated canvas backgrounds (no Three.js) */}
       {!prefersReduced && (
-        <div className="absolute inset-0 z-[1] opacity-50" aria-hidden="true">
-          <Suspense fallback={null}>
-            <HeroScene isMobile={isMobile} mouseRef={mouseRef} />
-          </Suspense>
+        <div className="absolute inset-0 z-[1] pointer-events-none" aria-hidden="true">
+          <CanvasGridBackground />
+          <CanvasBubblesBackground />
         </div>
       )}
 
@@ -156,15 +149,37 @@ const HeroSection = () => {
       <motion.div
         className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-[120px] pointer-events-none z-[1]"
         style={{ y: orbY1 }}
+        animate={{ x: [0, 30, 0], scale: [1, 1.15, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute bottom-1/3 -right-32 w-72 h-72 rounded-full bg-violet-500/5 blur-[100px] pointer-events-none z-[1]"
         style={{ y: orbY2 }}
+        animate={{ x: [0, -25, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
-        className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-blue-400/5 blur-[90px] pointer-events-none z-[1]"
-        style={{ y: orbY3 }}
-      />
+      {!isMobile && (
+        <>
+          <motion.div
+            className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-blue-400/5 blur-[90px] pointer-events-none z-[1]"
+            style={{ y: orbY3 }}
+            animate={{ x: [0, 20, 0], scale: [1, 1.12, 1] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-emerald-500/5 blur-[110px] pointer-events-none z-[1]"
+            style={{ y: orbY4 }}
+            animate={{ x: [0, -20, 0], scale: [1, 1.08, 1] }}
+            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-1/4 left-1/4 w-56 h-56 rounded-full bg-rose-500/5 blur-[100px] pointer-events-none z-[1]"
+            style={{ y: orbY5 }}
+            animate={{ x: [0, 15, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </>
+      )}
 
       {/* Content with parallax */}
       <motion.div

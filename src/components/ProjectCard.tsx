@@ -84,6 +84,14 @@ const ProjectCard = forwardRef<
       onMouseLeave={handleMouseLeave}
       whileHover={{ y: -8, transition: { duration: 0.3 } }}
       tabIndex={0}
+      role="link"
+      aria-label={`Projekt ${project.title} — otwórz demo`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          window.open(project.demo, "_blank", "noopener,noreferrer");
+        }
+      }}
       style={{
         y: parallaxY,
         rotateX: tilt.x,
@@ -148,7 +156,7 @@ const ProjectCard = forwardRef<
       {/* Featured badge */}
       {project.featured && (
         <motion.div
-          className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent-blue backdrop-blur-sm px-3 py-1.5 text-[11px] font-semibold text-white font-['Geist'] shadow-lg"
+          className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-accent-blue backdrop-blur-sm px-3 py-1.5 text-[11px] font-semibold text-[hsl(var(--hero-star))] font-['Geist'] shadow-lg"
           initial={{ opacity: 0, y: -10, scale: 0.8 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
