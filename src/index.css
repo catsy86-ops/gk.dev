@@ -273,15 +273,12 @@ All colors MUST be HSL.
 }
 
 /* Safe area utilities for mobile bottom nav */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .safe-area-pb {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
-  }
+.safe-area-pb {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
 }
 
-/* Mobile bottom nav spacing for main content */
-.pb-mobile-nav {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+.safe-area-content {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Hide scrollbar but keep functionality */
