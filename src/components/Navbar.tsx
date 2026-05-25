@@ -120,7 +120,7 @@ const Navbar = ({ mobileOpen: externalMobileOpen, setMobileOpen: externalSetMobi
       role="navigation"
       aria-label="Główna nawigacja"
     >
-      <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between" inert={mobileOpen}>
+      <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between" {...(mobileOpen ? { inert: "" } : {})}>
         <motion.a
           href="#hero"
           onClick={(e) => handleClick(e, "#hero")}

@@ -24,7 +24,7 @@ const Particles = ({ count }: { count: number }) => {
   return (
     <points ref={ref}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={points} itemSize={3} />
+        <bufferAttribute attach="attributes-position" args={[points, 3]} />
       </bufferGeometry>
       <pointsMaterial
         size={0.028}

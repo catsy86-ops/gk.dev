@@ -36,7 +36,7 @@ const FloatingBubbles = ({ count }: { count: number }) => {
   return (
     <points ref={ref}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
         size={0.045}
@@ -222,8 +222,8 @@ const ConnectionNodes = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <lineSegments ref={ref}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={maxLines * 2} array={linePositions} itemSize={3} />
-        <bufferAttribute attach="attributes-color" count={maxLines * 2} array={lineColors} itemSize={3} />
+        <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[lineColors, 3]} />
       </bufferGeometry>
       <lineBasicMaterial vertexColors transparent opacity={0.5} blending={THREE.AdditiveBlending} depthWrite={false} />
     </lineSegments>

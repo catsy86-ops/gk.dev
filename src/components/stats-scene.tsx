@@ -126,9 +126,7 @@ const FloatingDust = ({ count }: { count: number }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
       </bufferGeometry>
       <pointsMaterial
@@ -226,15 +224,11 @@ const ConnectionLines = ({ isMobile }: { isMobile: boolean }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={maxLines * 2}
-          array={linePositions}
-          itemSize={3}
+          args={[linePositions, 3]}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={maxLines * 2}
-          array={lineColors}
-          itemSize={3}
+          args={[lineColors, 3]}
         />
       </bufferGeometry>
       <lineBasicMaterial

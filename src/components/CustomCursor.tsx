@@ -21,10 +21,9 @@ const CustomCursor = () => {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
-  // Feature-gate: skip on touch / reduced-motion
-  if (isTouch || prefersReduced) return null;
-
   useEffect(() => {
+    if (isTouch || prefersReduced) return;
+
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
@@ -97,6 +96,9 @@ const CustomCursor = () => {
       document.body.classList.remove("cursor-none");
     };
   }, []);
+
+  // Feature-gate: skip rendering on touch / reduced-motion
+  if (isTouch || prefersReduced) return null;
 
   const cursorContent = (
     <>
