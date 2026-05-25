@@ -64,6 +64,7 @@ const TestimonialsSection = () => {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
   // Unique id for aria-live region
   const liveId = "testimonials-live";
 
@@ -87,6 +88,20 @@ const TestimonialsSection = () => {
     const interval = setInterval(next, AUTOPLAY_INTERVAL);
     return () => clearInterval(interval);
   }, [next, isPaused]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) prev();
+      else next();
+    }
+    touchStartX.current = null;
+  };
 
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0, scale: 0.95 }),
@@ -149,9 +164,11 @@ const TestimonialsSection = () => {
           </div>
 
           <div
-            className="relative min-h-[320px] flex items-center justify-center"
+            className="relative min-h-[320px] flex items-center justify-center touch-pan-y"
             role="region"
             aria-label={`Opinia ${current + 1} z ${testimonials.length}`}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div

@@ -4,6 +4,7 @@ import { useState, forwardRef, useRef } from "react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { EASE_STANDARD } from "@/constants/animations";
+import { cn } from "@/lib/utils";
 
 interface Project {
   title: string;
@@ -217,13 +218,16 @@ const ProjectCard = forwardRef<
           transition={{ duration: 0.4 }}
         />
 
-        {/* Hover action buttons */}
+        {/* Action buttons — visible on hover (desktop) or always on touch */}
         <motion.div
-          className="absolute bottom-4 right-4 flex items-center gap-2"
+          className={cn(
+            "absolute bottom-4 right-4 flex items-center gap-2",
+            !isHoverDevice && "opacity-100"
+          )}
           initial={false}
           animate={{
-            opacity: isHoverDevice && isHovered ? 1 : 0,
-            y: isHoverDevice && isHovered ? 0 : 12,
+            opacity: isHoverDevice ? (isHovered ? 1 : 0) : 1,
+            y: isHoverDevice ? (isHovered ? 0 : 12) : 0,
           }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >

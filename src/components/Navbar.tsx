@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sun, Moon, ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
+import { Sun, Moon, ArrowUpRight, Github, Linkedin, Mail, FileText, Copy, Check, Sparkles, ExternalLink } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useTheme } from "next-themes";
 import { NAVBAR_SCROLL_THRESHOLD, EASE_STANDARD } from "@/constants/animations";
+import { toast } from "@/hooks/use-toast";
 
 const navLinks = [
   { label: "O mnie", href: "#o-mnie", num: "01" },
@@ -36,10 +37,19 @@ const overlayVariants = {
   open: { opacity: 1 },
 };
 
-const Navbar = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+interface NavbarProps {
+  mobileOpen?: boolean;
+  setMobileOpen?: (open: boolean) => void;
+}
+
+const Navbar = ({ mobileOpen: externalMobileOpen, setMobileOpen: externalSetMobileOpen }: NavbarProps = {}) => {
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+  const mobileOpen = externalMobileOpen ?? internalMobileOpen;
+  const setMobileOpen = externalSetMobileOpen ?? setInternalMobileOpen;
+
   const [scrolled, setScrolled] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
+  const [copied, setCopied] = useState(false);
   const activeSection = useActiveSection();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -85,6 +95,17 @@ const Navbar = () => {
     },
     []
   );
+
+  const handleCopyEmail = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText("kontakt@gkdev.pl");
+      setCopied(true);
+      toast({ title: "Skopiowano!", description: "Adres email został skopiowany do schowka." });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Błąd", description: "Nie udało się skopiować adresu.", variant: "destructive" });
+    }
+  }, []);
 
   return (
     <motion.nav
@@ -356,36 +377,84 @@ const Navbar = () => {
                   })}
                 </nav>
 
-                {/* Theme toggle */}
+                {/* Quick Actions Grid */}
+                <motion.div
+                  className="mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ delay: 0.32, duration: 0.4 }}
+                >
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 font-medium mb-3 px-1">
+                    Szybkie akcje
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <motion.button
+                      onClick={() => {
+                        toast({ title: "CV", description: "Pobieranie CV..." });
+                        window.open("/cv.pdf", "_blank");
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-sm text-foreground hover:bg-secondary/70 hover:border-primary/20 transition-all text-left"
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <FileText className="h-3.5 w-3.5" strokeWidth={1.8} />
+                      </div>
+                      <span className="font-medium text-xs">Pobierz CV</span>
+                    </motion.button>
+
+                    <motion.button
+                      onClick={handleCopyEmail}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border/30 text-sm text-foreground hover:bg-secondary/70 hover:border-primary/20 transition-all text-left"
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        {copied ? (
+                          <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" strokeWidth={1.8} />
+                        )}
+                      </div>
+                      <span className="font-medium text-xs">{copied ? "Skopiowano!" : "Kopiuj email"}</span>
+                    </motion.button>
+                  </div>
+                </motion.div>
+
+                {/* Theme Toggle */}
                 <motion.div
                   className="flex items-center justify-between px-4 py-3 rounded-xl bg-secondary/40 border border-border/30 mb-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: 0.35, duration: 0.4 }}
+                  transition={{ delay: 0.38, duration: 0.4 }}
                 >
-                  <span className="text-sm text-muted-foreground">
-                    {isDark ? "Tryb ciemny" : "Tryb jasny"}
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary">
+                      <Sparkles className="h-3.5 w-3.5" strokeWidth={1.8} />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {isDark ? "Tryb ciemny" : "Tryb jasny"}
+                    </span>
+                  </div>
                   <motion.button
                     onClick={toggle}
-                    className="relative h-8 w-14 rounded-full bg-secondary border border-border/50 flex items-center p-1"
+                    className="relative h-7 w-12 rounded-full bg-secondary border border-border/50 flex items-center p-0.5"
                     whileTap={{ scale: 0.95 }}
                     aria-label="Przełącz motyw"
                   >
                     <motion.div
-                      className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-sm"
-                      animate={{ x: isDark ? 22 : 0 }}
+                      className="h-5.5 w-5.5 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-sm"
+                      animate={{ x: isDark ? 20 : 0 }}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     >
                       <AnimatePresence mode="wait">
                         {isDark ? (
                           <motion.div key="sun-toggle" initial={{ rotate: -90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: 90, scale: 0 }} transition={{ duration: 0.15 }}>
-                            <Sun className="h-3.5 w-3.5" />
+                            <Sun className="h-3 w-3" />
                           </motion.div>
                         ) : (
                           <motion.div key="moon-toggle" initial={{ rotate: 90, scale: 0 }} animate={{ rotate: 0, scale: 1 }} exit={{ rotate: -90, scale: 0 }} transition={{ duration: 0.15 }}>
-                            <Moon className="h-3.5 w-3.5" />
+                            <Moon className="h-3 w-3" />
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -401,7 +470,7 @@ const Navbar = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: 0.42, duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
+                  transition={{ delay: 0.44, duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Napisz do mnie
@@ -414,7 +483,7 @@ const Navbar = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ delay: 0.5, duration: 0.4 }}
+                  transition={{ delay: 0.52, duration: 0.4 }}
                 >
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-border/50 to-transparent mb-6" />
 
@@ -431,7 +500,7 @@ const Navbar = () => {
                         whileTap={{ scale: 0.95 }}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.55 + i * 0.06 }}
+                        transition={{ delay: 0.58 + i * 0.06 }}
                       >
                         <Icon className="h-4 w-4" strokeWidth={1.6} />
                       </motion.a>

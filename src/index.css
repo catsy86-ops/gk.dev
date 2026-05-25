@@ -272,6 +272,27 @@ All colors MUST be HSL.
   }
 }
 
+/* Safe area utilities for mobile bottom nav */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-pb {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Mobile bottom nav spacing for main content */
+.pb-mobile-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Reduced motion: disable heavy animations */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
