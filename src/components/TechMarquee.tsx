@@ -107,7 +107,7 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
           {technologies.map((name) => (
             <div
               key={name}
-              className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap text-foreground/70"
+              className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap text-foreground dark:text-foreground/70"
             >
               <TechIcon name={name} />
               <span className="font-['Geist'] text-sm font-medium">{name}</span>
@@ -128,7 +128,7 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
         {items.map((name, i) => (
           <div
             key={`${name}-${i}`}
-            className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap hover:border-primary/30 hover:bg-primary/5 transition-colors duration-300 text-foreground/70 hover:text-foreground"
+            className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap hover:border-primary/30 hover:bg-primary/5 transition-colors duration-300 text-foreground dark:text-foreground/70 hover:text-foreground"
           >
             <TechIcon name={name} />
             <span className="font-['Geist'] text-sm font-medium">

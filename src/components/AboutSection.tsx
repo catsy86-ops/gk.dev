@@ -75,11 +75,11 @@ const AboutSection = () => {
 
         {/* Orb glows */}
         <motion.div
-          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-[150px]"
+          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/10 dark:bg-primary/5 blur-[150px]"
           style={{ y: parallaxY }}
         />
         <motion.div
-          className="absolute bottom-1/4 -right-32 w-72 h-72 rounded-full bg-violet-500/4 blur-[120px]"
+          className="absolute bottom-1/4 -right-32 w-72 h-72 rounded-full bg-violet-500/10 dark:bg-violet-500/4 blur-[120px]"
           style={{ y: parallaxYInverse }}
         />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[1px] bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
@@ -160,7 +160,7 @@ const AboutSection = () => {
                 </div>
 
                 {/* Card glow on hover */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 dark:from-primary/5 via-transparent to-violet-500/10 dark:to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                 <div className="relative z-10">
                   {/* Profile avatar row */}
@@ -176,7 +176,7 @@ const AboutSection = () => {
                       whileHover={{ scale: 1.08, rotate: 3 }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <span className="font-bold text-white font-['Geist']">GK</span>
+                      <span className="font-bold text-primary-foreground font-['Geist']">GK</span>
                       <motion.div
                         className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-background flex items-center justify-center"
                         initial={{ scale: 0 }}
@@ -184,7 +184,7 @@ const AboutSection = () => {
                         viewport={{ once: true }}
                         transition={{ delay: 0.6, type: "spring" }}
                       >
-                        <span className="block h-1.5 w-1.5 rounded-full bg-white" />
+                        <span className="block h-1.5 w-1.5 rounded-full bg-primary-foreground" />
                       </motion.div>
                     </motion.div>
                     <div>
@@ -349,7 +349,7 @@ const AboutSection = () => {
                     className={`relative rounded-2xl border transition-all duration-300 p-5 overflow-hidden ${
                       hoveredTimeline === i
                         ? "border-primary/20 bg-card/80 shadow-[0_8px_30px_-6px_rgba(59,130,246,0.08)] translate-x-1"
-                        : "border-transparent bg-transparent"
+                        : "border-border/50 dark:border-transparent bg-card/40 dark:bg-transparent"
                     }`}
                   >
                     {/* Hover glow */}

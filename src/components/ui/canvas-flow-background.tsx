@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface FlowLine {
   y: number;
@@ -21,6 +22,7 @@ export function CanvasFlowBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hsla, hslaLight } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced || isMobile) return;
@@ -81,7 +83,7 @@ export function CanvasFlowBackground() {
       lines.forEach((line) => {
         const offset = (time * 0.001 * line.speed) % w;
         ctx.beginPath();
-        ctx.strokeStyle = `hsla(217, 91%, 60%, ${line.opacity})`;
+        ctx.strokeStyle = hsla(line.opacity);
         ctx.lineWidth = line.width;
 
         // Dashed line effect with two segments
@@ -107,7 +109,7 @@ export function CanvasFlowBackground() {
 
         const pulse = 0.8 + Math.sin(time * 0.003 + p.lineIndex) * 0.2;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 70%, ${p.opacity * pulse})`;
+        ctx.fillStyle = hslaLight(p.opacity * pulse);
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -124,7 +126,7 @@ export function CanvasFlowBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hsla, hslaLight]);
 
   if (prefersReduced || isMobile) return null;
 

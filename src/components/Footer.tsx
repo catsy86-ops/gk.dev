@@ -48,7 +48,7 @@ const Footer = () => {
       </div>
 
       {/* Background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
 
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 pt-16 md:pt-20 pb-[max(4rem,env(safe-area-inset-bottom,4rem))] relative">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">

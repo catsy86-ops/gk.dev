@@ -118,7 +118,7 @@ const Navbar = () => {
                       <motion.div
                         key={`mtab-${tab.id}`}
                         layoutId="mobile-nav-pill"
-                        className="absolute inset-x-1 inset-y-0.5 rounded-lg bg-primary/[0.12]"
+                        className="absolute inset-x-1 inset-y-0.5 rounded-lg bg-primary/[0.15] dark:bg-primary/[0.12]"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -174,7 +174,7 @@ const Navbar = () => {
               >
                 {isActive && (
                   <motion.span
-                    className="absolute inset-0 rounded-full bg-secondary border border-border/50"
+                    className="absolute inset-0 rounded-full bg-secondary border border-border dark:border-border/50"
                     layoutId="nav-pill"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />

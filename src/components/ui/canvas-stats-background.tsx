@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface Particle {
   x: number;
@@ -16,6 +17,7 @@ export function CanvasStatsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hsla } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced || isMobile) return;
@@ -77,7 +79,7 @@ export function CanvasStatsBackground() {
 
         const pulse = 0.6 + Math.sin(t * p.pulseSpeed + p.pulse) * 0.4;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 60%, ${p.opacity * pulse})`;
+        ctx.fillStyle = hsla(p.opacity * pulse);
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
@@ -89,7 +91,7 @@ export function CanvasStatsBackground() {
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < connectionDist) {
               ctx.beginPath();
-              ctx.strokeStyle = `hsla(217, 91%, 60%, ${(1 - dist / connectionDist) * 0.04})`;
+              ctx.strokeStyle = hsla((1 - dist / connectionDist) * 0.04);
               ctx.lineWidth = 0.5;
               ctx.moveTo(p.x, p.y);
               ctx.lineTo(p2.x, p2.y);
@@ -111,7 +113,7 @@ export function CanvasStatsBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hsla]);
 
   if (prefersReduced || isMobile) return null;
 

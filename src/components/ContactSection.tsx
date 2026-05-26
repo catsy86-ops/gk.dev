@@ -169,7 +169,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
                 {/* Decorative gradient glow */}
-                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-primary/10 dark:bg-primary/5 blur-[100px] pointer-events-none" />
 
                 <motion.form
                   className="relative z-10 space-y-5"

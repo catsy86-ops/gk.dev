@@ -119,10 +119,10 @@ const SkillCard = memo(({ skill, index }: { skill: typeof skills[0]; index: numb
       {/* Glowing border on hover */}
       <motion.div
         className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1)" }}
+        style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0)" }}
         animate={{
           boxShadow: isHovered
-            ? "inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 30px -5px rgba(100,100,100,0.15)"
+            ? "inset 0 0 0 1px hsl(var(--primary) / 0.2), 0 8px 30px -5px hsl(var(--primary) / 0.1)"
             : "inset 0 0 0 1px rgba(255,255,255,0)",
         }}
         transition={{ duration: 0.3 }}

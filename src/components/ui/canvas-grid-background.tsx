@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface GridPoint {
   x: number;
@@ -12,6 +13,7 @@ export function CanvasGridBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hsla, hslaLight } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced || isMobile) return;
@@ -66,7 +68,6 @@ export function CanvasGridBackground() {
 
       const t = time * 0.001;
 
-      // Draw connections
       for (let i = 0; i < points.length; i++) {
         const p1 = points[i];
         for (let j = i + 1; j < points.length; j++) {
@@ -78,7 +79,7 @@ export function CanvasGridBackground() {
           if (dist < connectionDist) {
             const alpha = (1 - dist / connectionDist) * 0.035;
             ctx.beginPath();
-            ctx.strokeStyle = `hsla(217, 91%, 60%, ${alpha})`;
+            ctx.strokeStyle = hsla(alpha);
             ctx.lineWidth = 0.5;
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -87,12 +88,11 @@ export function CanvasGridBackground() {
         }
       }
 
-      // Draw points
       points.forEach((p) => {
         const pulse = 0.6 + Math.sin(t * 0.8 + p.phase) * 0.4;
         const alpha = p.baseOpacity * pulse;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 65%, ${alpha})`;
+        ctx.fillStyle = hslaLight(alpha);
         ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -109,7 +109,7 @@ export function CanvasGridBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hsla, hslaLight]);
 
   if (prefersReduced || isMobile) return null;
 

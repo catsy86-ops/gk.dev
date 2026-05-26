@@ -113,7 +113,7 @@ const ProjectsSection = () => {
       {/* Enhanced background orbs with better positioning */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-[2]">
         <motion.div
-          className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-primary/4 blur-[150px]"
+          className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-primary/8 dark:bg-primary/4 blur-[150px]"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -121,7 +121,7 @@ const ProjectsSection = () => {
           aria-hidden="true"
         />
         <motion.div
-          className="absolute bottom-1/3 -right-40 w-80 h-80 rounded-full bg-violet-500/4 blur-[140px]"
+          className="absolute bottom-1/3 -right-40 w-80 h-80 rounded-full bg-violet-500/8 dark:bg-violet-500/4 blur-[140px]"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -129,7 +129,7 @@ const ProjectsSection = () => {
           aria-hidden="true"
         />
         <motion.div
-          className="absolute top-2/3 left-1/3 w-72 h-72 rounded-full bg-cyan-500/3 blur-[120px]"
+          className="absolute top-2/3 left-1/3 w-72 h-72 rounded-full bg-cyan-500/6 dark:bg-cyan-500/3 blur-[120px]"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

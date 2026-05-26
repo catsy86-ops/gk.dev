@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface Bubble {
   x: number;
@@ -25,6 +26,7 @@ export function CanvasContactBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hsla, hslaLight } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced || isMobile) return;
@@ -102,7 +104,7 @@ export function CanvasContactBackground() {
           else ctx.lineTo(px, py);
         }
         ctx.closePath();
-        ctx.strokeStyle = `hsla(217, 91%, 60%, ${s.opacity})`;
+        ctx.strokeStyle = hsla(s.opacity);
         ctx.lineWidth = 0.5;
         ctx.stroke();
       });
@@ -116,7 +118,7 @@ export function CanvasContactBackground() {
         const driftX = Math.sin(t * 0.5 + b.driftPhase) * b.drift;
         const pulse = 0.7 + Math.sin(t * 1.2 + b.driftPhase) * 0.3;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 65%, ${b.opacity * pulse})`;
+        ctx.fillStyle = hslaLight(b.opacity * pulse);
         ctx.arc(b.x + driftX, b.y, b.r, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -133,7 +135,7 @@ export function CanvasContactBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hsla, hslaLight]);
 
   if (prefersReduced || isMobile) return null;
 

@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface Bubble {
   x: number;
@@ -15,6 +16,7 @@ export function CanvasBubblesBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hslaLight } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced || isMobile) return;
@@ -76,7 +78,7 @@ export function CanvasBubblesBackground() {
         const pulse = 0.7 + Math.sin(t * 1.2 + b.driftPhase) * 0.3;
 
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 65%, ${b.opacity * pulse})`;
+        ctx.fillStyle = hslaLight(b.opacity * pulse);
         ctx.arc(b.x + driftX, b.y, b.r, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -93,7 +95,7 @@ export function CanvasBubblesBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hslaLight]);
 
   if (prefersReduced || isMobile) return null;
 

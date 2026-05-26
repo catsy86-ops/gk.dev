@@ -54,11 +54,11 @@ const StatItem = memo(({ icon, value, suffix = "", label, delay, inView }: StatI
       transition={{ duration: 0.65, delay, ease: EASE_STANDARD }}
     >
       {/* Card glow */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 dark:from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
       {/* Icon */}
       <motion.div
-        className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-primary/8 text-primary border border-primary/10"
+        className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 dark:bg-primary/8 text-primary border border-primary/20 dark:border-primary/10"
         initial={{ scale: 0, rotate: -25 }}
         animate={inView ? { scale: 1, rotate: 0 } : {}}
         transition={{ duration: 0.5, delay: delay + 0.12, type: "spring", stiffness: 200, damping: 18 }}

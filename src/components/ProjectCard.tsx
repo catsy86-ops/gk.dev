@@ -108,7 +108,7 @@ const ProjectCard = forwardRef<
         className="absolute inset-0 rounded-2xl pointer-events-none z-[5]"
         animate={{
           background: isHoverDevice && isHovered
-            ? `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(255,255,255,0.06), transparent 40%)`
+            ? `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, hsl(var(--primary) / 0.06), transparent 40%)`
             : "transparent",
         }}
         transition={{ duration: 0.2 }}
@@ -138,7 +138,7 @@ const ProjectCard = forwardRef<
         className="absolute inset-0 pointer-events-none z-20"
         style={{
           background:
-            "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 45%, transparent 50%)",
+            "linear-gradient(105deg, transparent 40%, hsl(var(--foreground) / 0.06) 45%, transparent 50%)",
         }}
         initial={{ x: "-100%" }}
         animate={isHoverDevice && isHovered ? { x: "200%" } : { x: "-100%" }}
@@ -150,8 +150,8 @@ const ProjectCard = forwardRef<
         className="absolute inset-0 rounded-2xl pointer-events-none z-10"
         animate={{
           boxShadow: isHoverDevice && isHovered
-            ? `inset 0 0 0 1px rgba(255,255,255,0.15), ${project.accentGlow}`
-            : "inset 0 0 0 1px rgba(255,255,255,0)",
+            ? `inset 0 0 0 1px hsl(var(--primary) / 0.2), ${project.accentGlow}`
+            : "inset 0 0 0 1px hsl(var(--primary) / 0)",
         }}
         transition={{ duration: 0.4 }}
       />

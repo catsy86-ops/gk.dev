@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useThemeCanvasColor } from "@/hooks/use-theme-canvas-color";
 
 interface Particle {
   x: number;
@@ -23,6 +24,7 @@ export function CanvasSkillsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const { hsla, hslaLight } = useThemeCanvasColor();
 
   useEffect(() => {
     if (prefersReduced) return;
@@ -91,7 +93,7 @@ export function CanvasSkillsBackground() {
         ring.rotation += ring.rotationSpeed;
         ctx.beginPath();
         ctx.ellipse(ring.cx, ring.cy, ring.radius, ring.radius * 0.4, ring.rotation, 0, Math.PI * 2);
-        ctx.strokeStyle = `hsla(217, 91%, 60%, ${ring.opacity})`;
+        ctx.strokeStyle = hsla(ring.opacity);
         ctx.lineWidth = 0.8;
         ctx.stroke();
       });
@@ -99,7 +101,7 @@ export function CanvasSkillsBackground() {
       particles.forEach((p) => {
         const pulse = 0.6 + Math.sin(t * p.pulseSpeed + p.pulse) * 0.4;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(217, 91%, 65%, ${p.opacity * pulse})`;
+        ctx.fillStyle = hslaLight(p.opacity * pulse);
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -116,7 +118,7 @@ export function CanvasSkillsBackground() {
       cancelAnimationFrame(animId);
       ro.disconnect();
     };
-  }, [prefersReduced, isMobile]);
+  }, [prefersReduced, isMobile, hsla, hslaLight]);
 
   if (prefersReduced) return null;
 

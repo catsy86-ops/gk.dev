@@ -135,7 +135,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/20 via-transparent to-background/20" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)_/_0.3)_0%,_transparent_70%)]" />
-        <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-primary/10 dark:mix-blend-overlay" />
       </motion.div>
 
       {/* Animated canvas backgrounds (no Three.js) */}
@@ -148,13 +148,13 @@ const HeroSection = () => {
 
       {/* Parallax background orbs */}
       <motion.div
-        className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-[120px] pointer-events-none z-[1]"
+        className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/10 dark:bg-primary/5 blur-[120px] pointer-events-none z-[1]"
         style={{ y: isMobile ? 0 : orbY1 }}
         animate={isMobile ? {} : { x: [0, 30, 0], scale: [1, 1.15, 1] }}
         transition={isMobile ? {} : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-1/3 -right-32 w-72 h-72 rounded-full bg-violet-500/5 blur-[100px] pointer-events-none z-[1]"
+        className="absolute bottom-1/3 -right-32 w-72 h-72 rounded-full bg-violet-500/10 dark:bg-violet-500/5 blur-[100px] pointer-events-none z-[1]"
         style={{ y: isMobile ? 0 : orbY2 }}
         animate={isMobile ? {} : { x: [0, -25, 0], scale: [1, 1.1, 1] }}
         transition={isMobile ? {} : { duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -162,19 +162,19 @@ const HeroSection = () => {
       {!isMobile && (
         <>
           <motion.div
-            className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-blue-400/5 blur-[90px] pointer-events-none z-[1]"
+            className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-blue-400/10 dark:bg-blue-400/5 blur-[90px] pointer-events-none z-[1]"
             style={{ y: orbY3 }}
             animate={{ x: [0, 20, 0], scale: [1, 1.12, 1] }}
             transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-emerald-500/5 blur-[110px] pointer-events-none z-[1]"
+            className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 blur-[110px] pointer-events-none z-[1]"
             style={{ y: orbY4 }}
             animate={{ x: [0, -20, 0], scale: [1, 1.08, 1] }}
             transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-1/4 left-1/4 w-56 h-56 rounded-full bg-rose-500/5 blur-[100px] pointer-events-none z-[1]"
+            className="absolute bottom-1/4 left-1/4 w-56 h-56 rounded-full bg-rose-500/10 dark:bg-rose-500/5 blur-[100px] pointer-events-none z-[1]"
             style={{ y: orbY5 }}
             animate={{ x: [0, 15, 0], scale: [1, 1.1, 1] }}
             transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
@@ -244,7 +244,14 @@ const HeroSection = () => {
           animate="visible"
           custom={2}
         >
-          Tworzę nowoczesne aplikacje webowe i mobilne. Specjalizuję się w React, TypeScript i architekturze cloud.
+          siema, tu kaczy, zrobie Ci każdą aplikacje za grosze{" "}
+          <motion.span
+            className="inline-block"
+            animate={{ rotate: [0, 15, -10, 15, 0], scale: [1, 1.15, 0.95, 1.1, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
+          >
+            🦆
+          </motion.span>
         </motion.p>
 
         {/* CTA + Socials */}
@@ -306,15 +313,15 @@ const HeroSection = () => {
         transition={{ delay: 1.5, duration: 0.8 }}
         aria-hidden="true"
       >
-        <motion.div
-          className="flex flex-col items-center gap-2 text-muted-foreground/50"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <span className="text-[10px] font-['Geist'] tracking-[0.2em] uppercase">Scroll</span>
-          <div className="w-5 h-8 rounded-full border border-muted-foreground/30 flex items-start justify-center pt-1.5">
-            <motion.div
-              className="w-1 h-1.5 rounded-full bg-muted-foreground/50"
+<motion.div
+           className="flex flex-col items-center gap-2 text-muted-foreground/80 dark:text-muted-foreground/50"
+           animate={{ y: [0, 6, 0] }}
+           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+         >
+           <span className="text-[10px] font-['Geist'] tracking-[0.2em] uppercase">Scroll</span>
+           <div className="w-5 h-8 rounded-full border border-muted-foreground/50 dark:border-muted-foreground/30 flex items-start justify-center pt-1.5">
+             <motion.div
+               className="w-1 h-1.5 rounded-full bg-muted-foreground/80 dark:bg-muted-foreground/50"
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             />
