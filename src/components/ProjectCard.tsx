@@ -41,6 +41,7 @@ const ProjectCard = forwardRef<
 >(({ project, index }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const isHoverDevice = useMediaQuery("(hover: hover)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -79,11 +80,12 @@ const ProjectCard = forwardRef<
       custom={index}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
+      onTouchEnd={() => setIsHovered(false)}
       onFocusCapture={() => setIsHovered(true)}
       onBlurCapture={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      whileHover={{ y: -8, transition: { duration: 0.3 } }}
+      whileHover={isMobile ? {} : { y: -8, transition: { duration: 0.3 } }}
       tabIndex={0}
       role="link"
       aria-label={`Projekt ${project.title} — otwórz demo`}
@@ -94,7 +96,7 @@ const ProjectCard = forwardRef<
         }
       }}
       style={{
-        y: parallaxY,
+        y: isMobile ? 0 : parallaxY,
         rotateX: tilt.x,
         rotateY: tilt.y,
         transformPerspective: 1000,
@@ -208,7 +210,7 @@ const ProjectCard = forwardRef<
           className="absolute inset-0 pointer-events-none"
           animate={{ scale: isHoverDevice && isHovered ? 1.12 : 1 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          style={{ y: imgParallax }}
+          style={{ y: isMobile ? 0 : imgParallax }}
         />
 
         {/* Overlay gradient */}

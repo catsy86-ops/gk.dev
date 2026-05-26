@@ -111,6 +111,7 @@ const Navbar = () => {
                   onClick={() => scrollTo(tab.href)}
                   className="relative flex flex-col items-center justify-center w-full min-h-[48px] py-2 transition-colors"
                   aria-label={tab.label}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <AnimatePresence mode="wait">
                     {isActive && (

@@ -18,7 +18,7 @@ export function CanvasStatsBackground() {
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   useEffect(() => {
-    if (prefersReduced) return;
+    if (prefersReduced || isMobile) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -113,7 +113,7 @@ export function CanvasStatsBackground() {
     };
   }, [prefersReduced, isMobile]);
 
-  if (prefersReduced) return null;
+  if (prefersReduced || isMobile) return null;
 
   return (
     <canvas

@@ -33,8 +33,8 @@ function StatsSkeleton() {
   return (
     <section className="py-16 px-4 md:py-28 md:px-6">
       <div className="mx-auto max-w-[1200px]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
             <div key={i} className="rounded-2xl border border-border bg-card p-8 space-y-4">
               <Skeleton className="h-8 w-24" />
               <Skeleton className="h-12 w-16" />

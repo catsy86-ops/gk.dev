@@ -10,7 +10,7 @@ const ScrollProgress = () => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] bg-primary origin-left z-[100]"
+      className="fixed top-0 left-0 right-0 h-[3px] bg-primary origin-left z-[100] pointer-events-none"
       style={{ scaleX }}
       aria-hidden="true"
       role="presentation"

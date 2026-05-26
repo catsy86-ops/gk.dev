@@ -30,9 +30,15 @@ select {
   font-size: 16px;
 }
 
-/* Fix iOS Safari sticky positioning */
-nav[role="navigation"] {
-  -webkit-overflow-scrolling: touch;
+/* Scroll offset for fixed navbar */
+section[id] {
+  scroll-margin-top: 120px;
+}
+
+@media (min-width: 768px) {
+  section[id] {
+    scroll-margin-top: 80px;
+  }
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 

@@ -115,7 +115,7 @@ const HeroSection = () => {
       {/* Background Video */}
       <motion.div
         className="absolute inset-0 z-0"
-        style={{ y: videoY, scale: videoScale }}
+        style={{ y: isMobile ? 0 : videoY, scale: isMobile ? 1 : videoScale }}
       >
         <video
           autoPlay
@@ -149,15 +149,15 @@ const HeroSection = () => {
       {/* Parallax background orbs */}
       <motion.div
         className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-[120px] pointer-events-none z-[1]"
-        style={{ y: orbY1 }}
-        animate={{ x: [0, 30, 0], scale: [1, 1.15, 1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        style={{ y: isMobile ? 0 : orbY1 }}
+        animate={isMobile ? {} : { x: [0, 30, 0], scale: [1, 1.15, 1] }}
+        transition={isMobile ? {} : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute bottom-1/3 -right-32 w-72 h-72 rounded-full bg-violet-500/5 blur-[100px] pointer-events-none z-[1]"
-        style={{ y: orbY2 }}
-        animate={{ x: [0, -25, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        style={{ y: isMobile ? 0 : orbY2 }}
+        animate={isMobile ? {} : { x: [0, -25, 0], scale: [1, 1.1, 1] }}
+        transition={isMobile ? {} : { duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
       {!isMobile && (
         <>
@@ -185,7 +185,7 @@ const HeroSection = () => {
       {/* Content with parallax */}
       <motion.div
         className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-6 pt-[28vh] sm:pt-[32vh] md:pt-[38vh] flex flex-col items-center gap-5 sm:gap-8"
-        style={{ y: contentY, opacity: contentOpacity }}
+        style={{ y: isMobile ? 0 : contentY, opacity: isMobile ? 1 : contentOpacity }}
       >
         {/* Role badge */}
         <motion.div
