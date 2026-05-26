@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { CanvasFlowBackground } from "@/components/ui/canvas-flow-background";
 
 const TechIcon = ({ name }: { name: string }) => {
@@ -96,7 +97,26 @@ const technologies = [
 ];
 
 const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const items = [...technologies, ...technologies];
+
+  if (prefersReduced) {
+    return (
+      <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+        <div className="flex gap-4 py-2 shrink-0 flex-wrap">
+          {technologies.map((name) => (
+            <div
+              key={name}
+              className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap text-foreground/70"
+            >
+              <TechIcon name={name} />
+              <span className="font-['Geist'] text-sm font-medium">{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
@@ -123,7 +143,7 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
 
 const TechMarquee = () => {
   return (
-    <section className="relative z-10 py-20 overflow-hidden" id="tech-stack">
+    <section className="relative z-10 py-16 px-4 md:py-20 md:px-6 overflow-hidden" id="tech-stack">
       <CanvasFlowBackground />
       <div className="relative z-10 mx-auto max-w-[1200px] px-6 mb-10">
         <motion.div

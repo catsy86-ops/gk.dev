@@ -80,20 +80,20 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={toggle}
-              className="h-9 w-9 rounded-full border border-border/60 bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90 transition-all"
+              className="h-10 w-10 rounded-full border border-border/60 bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90 transition-all"
               aria-label="Przełącz motyw"
             >
               {isDark ? (
-                <Sun className="h-4 w-4" strokeWidth={1.8} />
+                <Sun className="h-[18px] w-[18px]" strokeWidth={1.8} />
               ) : (
-                <Moon className="h-4 w-4" strokeWidth={1.8} />
+                <Moon className="h-[18px] w-[18px]" strokeWidth={1.8} />
               )}
             </button>
 
             <a
               href="#kontakt"
               onClick={(e) => handleClick(e, "#kontakt")}
-              className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground shadow-[0_2px_10px_rgba(59,130,246,0.3)] active:scale-95 transition-transform"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-[0_2px_10px_rgba(59,130,246,0.3)] active:scale-95 transition-transform"
             >
               Kontakt
             </a>
@@ -109,7 +109,7 @@ const Navbar = () => {
                 <button
                   key={tab.id}
                   onClick={() => scrollTo(tab.href)}
-                  className="relative flex flex-col items-center justify-center w-full min-h-[44px] py-1.5 transition-colors"
+                  className="relative flex flex-col items-center justify-center w-full min-h-[48px] py-2 transition-colors"
                   aria-label={tab.label}
                 >
                   <AnimatePresence mode="wait">
@@ -132,7 +132,7 @@ const Navbar = () => {
                     strokeWidth={isActive ? 2.2 : 1.5}
                   />
                   <span
-                    className={`relative z-10 text-[10px] leading-tight mt-0.5 transition-colors duration-200 font-['Geist'] ${
+                    className={`relative z-10 text-[11px] leading-tight mt-1 transition-colors duration-200 font-['Geist'] ${
                       isActive ? "text-primary font-semibold" : "text-muted-foreground font-medium"
                     }`}
                   >

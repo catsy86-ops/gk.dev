@@ -108,7 +108,7 @@ const HeroSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen overflow-hidden"
+      className="relative min-h-[100dvh] overflow-hidden"
       id="hero"
       aria-label="Sekcja powitalna"
     >
@@ -122,6 +122,7 @@ const HeroSection = () => {
           muted
           loop
           playsInline
+          preload="metadata"
           aria-hidden="true"
           className="w-full h-full object-cover"
         >

@@ -139,7 +139,7 @@ const StatsSection = () => {
       {/* Subtle divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
+      <div className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Header */}
         <motion.div
           className="text-center mb-14"

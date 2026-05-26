@@ -7,7 +7,6 @@ import { AnimatePresence, motion } from "motion/react";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { GrainOverlay } from "@/components/ui/grain-overlay";
-import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index.tsx";
 
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -80,7 +79,6 @@ const App = () => {
           </ErrorBoundary>
         </BrowserRouter>
         <GrainOverlay />
-        <ScrollToTop />
       </TooltipProvider>
     </ThemeProvider>
   );

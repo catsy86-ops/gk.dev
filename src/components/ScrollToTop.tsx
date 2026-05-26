@@ -28,7 +28,7 @@ export function ScrollToTop() {
           transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
           onClick={scrollToTop}
           aria-label="Przewiń do góry"
-          className="fixed bottom-6 right-6 z-50 h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card/80 backdrop-blur-md text-foreground shadow-lg hover:bg-card hover:border-primary/40 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card/80 backdrop-blur-md text-foreground shadow-lg hover:bg-card hover:border-primary/40 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <ArrowUp className="h-5 w-5" strokeWidth={1.8} />
         </motion.button>

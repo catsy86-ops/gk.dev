@@ -236,7 +236,7 @@ const TestimonialsSection = () => {
           <div className="flex items-center justify-center gap-4 mt-8" role="group" aria-label="Kontrolki slidera">
             <button
               onClick={prev}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Poprzednia opinia"
             >
               <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -250,17 +250,21 @@ const TestimonialsSection = () => {
                   aria-selected={i === current}
                   aria-label={`Opinia ${i + 1}: ${testimonial.name}`}
                   onClick={() => goTo(i)}
-                  className={`h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                    i === current ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  className={`h-3 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center p-2 ${
+                    i === current ? "w-8" : ""
                   }`}
-                />
+                >
+                  <span className={`block rounded-full transition-all duration-300 ${
+                    i === current ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/30"
+                  }`} />
+                </button>
               ))}
             </div>
 
             {/* Pause/Play button — important for accessibility (WCAG 2.1 criterion 2.2.2) */}
             <button
               onClick={() => setIsPaused((p) => !p)}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={isPaused ? "Wznów automatyczne przewijanie" : "Zatrzymaj automatyczne przewijanie"}
               aria-pressed={isPaused}
             >
@@ -272,7 +276,7 @@ const TestimonialsSection = () => {
 
             <button
               onClick={next}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-2.5 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Następna opinia"
             >
               <ChevronRight className="h-5 w-5" aria-hidden="true" />
