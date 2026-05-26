@@ -2,7 +2,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GrainOverlay } from "@/components/ui/grain-overlay";
 import SkillsSection from "@/components/SkillsSection";
@@ -13,7 +13,7 @@ import ContactSection from "@/components/ContactSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 
@@ -31,7 +31,7 @@ function useShouldLoadHeavyContent() {
 
 function StatsSkeleton() {
   return (
-    <section className="py-28 px-6">
+    <section className="py-16 px-4 md:py-28 md:px-6">
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => (
@@ -49,7 +49,6 @@ function StatsSkeleton() {
 
 const Index = () => {
   const shouldLoadStats = useShouldLoadHeavyContent();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <>
@@ -60,6 +59,7 @@ const Index = () => {
       <CustomCursor />
       <ScrollProgress />
       <Navbar />
+      <ScrollToTop />
       <main id="main">
         <HeroSection />
         <AboutSection />
@@ -76,11 +76,8 @@ const Index = () => {
         <TestimonialsSection />
         <ContactSection />
         <FaqSection className="bg-secondary/30" />
-        {/* Spacer for mobile bottom nav */}
-        <div className="h-20 md:h-0" aria-hidden="true" />
       </main>
       <Footer />
-      <MobileBottomNav onMenuOpen={() => setMobileMenuOpen((p) => !p)} menuOpen={mobileMenuOpen} />
     </>
   );
 };

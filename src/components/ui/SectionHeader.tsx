@@ -37,7 +37,7 @@ const SectionHeader = ({
   className = "",
 }: SectionHeaderProps) => (
   <motion.div
-    className={`text-center mb-16 ${className}`}
+    className={`text-center mb-12 md:mb-16 ${className}`}
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}

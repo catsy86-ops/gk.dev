@@ -183,7 +183,7 @@ const HeroSection = () => {
 
       {/* Content with parallax */}
       <motion.div
-        className="relative z-10 mx-auto max-w-[1200px] px-6 pt-[30vh] sm:pt-[35vh] md:pt-[38vh] flex flex-col items-center gap-6 sm:gap-8"
+        className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-6 pt-[28vh] sm:pt-[32vh] md:pt-[38vh] flex flex-col items-center gap-5 sm:gap-8"
         style={{ y: contentY, opacity: contentOpacity }}
       >
         {/* Role badge */}
@@ -279,7 +279,7 @@ const HeroSection = () => {
             </a>
           </div>
 
-          <div className="flex items-center gap-5" role="list" aria-label="Linki społecznościowe">
+          <div className="flex items-center gap-3 sm:gap-5" role="list" aria-label="Linki społecznościowe">
             {socialLinks.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
@@ -288,7 +288,7 @@ const HeroSection = () => {
                 role="listitem"
                 target={href.startsWith("mailto") ? undefined : "_blank"}
                 rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
               </a>
@@ -299,7 +299,7 @@ const HeroSection = () => {
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-10"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5, duration: 0.8 }}

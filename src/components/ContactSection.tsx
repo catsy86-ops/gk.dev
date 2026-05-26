@@ -1,16 +1,13 @@
 import { motion, AnimatePresence, useInView } from "motion/react";
 import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useState, forwardRef, useCallback, useRef, lazy, Suspense, useMemo } from "react";
+import { useState, forwardRef, useCallback, useRef } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { isSlowConnection } from "@/lib/utils";
-
-const ContactScene = lazy(() => import("./contact-scene"));
+import { CanvasContactBackground } from "@/components/ui/canvas-contact-background";
 
 interface FormData {
   name: string;
@@ -43,18 +40,6 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const mouseRef = useRef({ x: 0, y: 0 });
-
-  const handleMouseMove = useMemo(
-    () => (e: React.MouseEvent<HTMLElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    },
-    []
-  );
 
   const updateField = useCallback((field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -91,13 +76,11 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
 
   return (
     <SectionWrapper ref={ref} id="kontakt" label="Kontakt">
-      <div className="relative overflow-hidden" ref={sectionRef} onMouseMove={handleMouseMove}>
-        {/* Three.js Background */}
-        {!prefersReduced && !isSlowConnection() && inView && (
+      <div className="relative overflow-hidden" ref={sectionRef}>
+        {/* Canvas Background */}
+        {inView && (
           <div className="absolute inset-0 z-0 opacity-30" aria-hidden="true">
-            <Suspense fallback={null}>
-              <ContactScene isMobile={isMobile} mouseRef={mouseRef} />
-            </Suspense>
+            <CanvasContactBackground />
           </div>
         )}
 
@@ -132,7 +115,8 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 + i * 0.1 }}
-                whileHover={{ scale: 1.05, y: -2 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <Icon className="h-4 w-4 text-primary/70" strokeWidth={1.6} aria-hidden="true" />
                 {text}
@@ -178,7 +162,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
             ) : (
               <motion.div
                 key="form-wrapper"
-                className="relative rounded-3xl border border-border/60 bg-card/40 backdrop-blur-xl p-8 md:p-10 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)]"
+                className="relative rounded-3xl border border-border/60 bg-card/40 backdrop-blur-xl p-6 md:p-10 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)]"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

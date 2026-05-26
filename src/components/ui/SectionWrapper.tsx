@@ -29,7 +29,7 @@ const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
       ref={ref}
       id={id}
       aria-label={label}
-      className={`relative z-10 bg-background py-28 px-6 overflow-hidden ${className}`}
+      className={`relative z-10 bg-background py-16 px-4 md:py-28 md:px-6 overflow-hidden ${className}`}
     >
       {/* Subtle mesh gradient background orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">

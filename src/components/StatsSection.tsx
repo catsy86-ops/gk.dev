@@ -1,10 +1,8 @@
 import { useRef, useEffect, useState, memo } from "react";
 import { motion, useInView } from "motion/react";
 import { Calendar, Rocket, Code2, Users } from "lucide-react";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { isSlowConnection } from "@/lib/utils";
 import { EASE_STANDARD } from "@/constants/animations";
-import { ThreeBackground } from "./stats-scene";
+import { CanvasStatsBackground } from "@/components/ui/canvas-stats-background";
 
 /* ============================================================
    Hooks
@@ -124,26 +122,16 @@ const stats = [
 const StatsSection = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.15 });
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const mouseRef = useRef({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-  };
 
   return (
     <section
       ref={ref}
-      className="relative bg-secondary/30 py-20 md:py-28 overflow-hidden"
+      className="relative bg-secondary/30 py-16 px-4 md:py-20 md:px-6 overflow-hidden"
       id="statystyki"
       aria-label="Statystyki"
-      onMouseMove={handleMouseMove}
     >
-      {/* Three.js Background — skip on reduced motion or slow connection */}
-      {!prefersReduced && !isSlowConnection() && <ThreeBackground isMobile={isMobile} mouseRef={mouseRef} />}
+      {/* Canvas Background */}
+      <CanvasStatsBackground />
 
       {/* Gradient fades at edges */}
       <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background)/0.6)_100%)]" aria-hidden="true" />

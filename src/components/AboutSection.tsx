@@ -67,7 +67,7 @@ const AboutSection = () => {
   const parallaxYInverse = useTransform(scrollYProgress, [0, 1], ["5%", "-8%"]);
 
   return (
-    <section ref={sectionRef} className="relative bg-secondary/30 py-32 px-6 overflow-hidden" id="o-mnie">
+    <section ref={sectionRef} className="relative bg-secondary/30 py-16 px-4 md:py-32 md:px-6 overflow-hidden" id="o-mnie">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Noise/grid texture */}
@@ -146,7 +146,7 @@ const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="sticky top-28">
+            <div className="lg:sticky lg:top-28">
               {/* Main bio card with gradient border */}
               <motion.div
                 className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl p-8 md:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden group"

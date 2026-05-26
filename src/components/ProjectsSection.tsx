@@ -1,13 +1,10 @@
 import { motion, useInView } from "motion/react";
 import { Star, Github } from "lucide-react";
-import { lazy, Suspense, useRef, useMemo } from "react";
+import { useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ProjectCard } from "@/components/ProjectCard";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { isSlowConnection } from "@/lib/utils";
-
-const ProjectsScene = lazy(() => import("./projects-scene"));
+import { CanvasProjectsBackground } from "@/components/ui/canvas-projects-background";
 
 const projects = [
   {
@@ -100,27 +97,13 @@ const containerVariants = {
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const mouseRef = useRef({ x: 0, y: 0 });
-
-  const handleMouseMove = useMemo(
-    () => (e: React.MouseEvent<HTMLElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    },
-    []
-  );
 
   return (
     <SectionWrapper ref={sectionRef} id="projekty" label="Projekty" className="relative overflow-hidden">
-      {/* Three.js Background */}
-      {!prefersReduced && !isSlowConnection() && inView && (
+      {/* Canvas Background */}
+      {inView && (
         <div className="absolute inset-0 z-0 opacity-30" aria-hidden="true">
-          <Suspense fallback={null}>
-            <ProjectsScene isMobile={isMobile} mouseRef={mouseRef} />
-          </Suspense>
+          <CanvasProjectsBackground />
         </div>
       )}
 
@@ -155,7 +138,7 @@ const ProjectsSection = () => {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1200px]" onMouseMove={handleMouseMove}>
+      <div className="relative z-10 mx-auto max-w-[1200px]">
         <SectionHeader
           badge="Wybrane realizacje"
           badgeIcon={<Star className="h-3 w-3" />}

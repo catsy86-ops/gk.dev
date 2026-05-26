@@ -114,7 +114,7 @@ const TestimonialsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-secondary/30 py-28 overflow-hidden"
+      className="relative bg-secondary/30 py-16 px-4 md:py-28 md:px-6 overflow-hidden"
       id="opinie"
       aria-label="Opinie klientów"
       onMouseEnter={() => setIsPaused(true)}

@@ -18,25 +18,18 @@ export default defineConfig({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
   build: {
-    // Raise warning threshold — Three.js is intentionally large and lazy-loaded
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {
         manualChunks: {
-          // Core React runtime
           "vendor-react": ["react", "react-dom"],
-          // Animation library
           "vendor-motion": ["motion"],
-          // Radix UI primitives
           "vendor-radix": [
             "@radix-ui/react-accordion",
             "@radix-ui/react-tooltip",
             "@radix-ui/react-toast",
           ],
-          // Router
           "vendor-router": ["react-router-dom"],
-          // Three.js ecosystem — lazy-loaded via StatsSection, keep separate
-          "vendor-three": ["three", "@react-three/fiber", "@react-three/drei"],
         },
       },
     },
