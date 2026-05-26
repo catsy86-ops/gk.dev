@@ -13,9 +13,9 @@ import Index from "./pages/Index.tsx";
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const pageVariants = {
-  initial: { opacity: 0, y: 24, scale: 0.98, filter: "blur(4px)" },
-  animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -24, scale: 0.98, filter: "blur(4px)" },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 const pageTransition = {
