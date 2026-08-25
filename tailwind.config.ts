@@ -68,9 +68,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Geist", "sans-serif"],
-        serif: ["Instrument Serif", "serif"],
-        mono: ["Geist Mono", "monospace"],
+        sans: ["'Plus Jakarta Sans'", "Geist", "system-ui", "-apple-system", "sans-serif"],
+        display: ["'Plus Jakarta Sans'", "Geist", "sans-serif"],
+        serif: ["'Instrument Serif'", "Georgia", "serif"],
+        mono: ["'JetBrains Mono'", "'Geist Mono'", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,63 +1,97 @@
-import { motion, useScroll, useTransform } from "motion/react";
-import { Briefcase, GraduationCap, Sparkles, Download, ArrowUpRight } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { Briefcase, GraduationCap, Sparkles, Download, ArrowUpRight, Award, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useRef, useState } from "react";
-import { useMagnetic } from "@/hooks/use-magnetic";
+import { GlowButton } from "@/components/ui/GlowButton";
+import { HolographicCard } from "@/components/ui/HolographicCard";
+import { soundEngine } from "@/lib/audio";
+import { hapticSelection } from "@/lib/haptics";
 
-const timeline = [
+const experienceTimeline = [
   {
     icon: Briefcase,
-    year: "2023 — teraz",
-    title: "Senior Fullstack Developer",
-    company: "Freelance / Własne projekty",
-    description: "Tworzę aplikacje webowe i mobilne dla klientów z Polski i zagranicy. React, TypeScript, Node.js.",
+    year: "2023 — TERAZ",
+    title: "Senior Fullstack Developer & Architekt",
+    company: "Freelance / Dedykowane Platformy SaaS",
+    description: "Projektowanie i wdrażanie kompletnych systemów webowych, aplikacji mobilnych i backendu API w chmurze.",
+    highlights: ["Wzrost konwersji klientów do +145%", "Optymalizacja Core Web Vitals do 98-100", "Architektura mikroserwisów & Serverless"],
+    tags: ["React 19", "Next.js", "TypeScript", "Node.js", "AWS", "PostgreSQL"],
     accent: "bg-primary/10 text-primary border-primary/20",
   },
   {
     icon: Briefcase,
     year: "2021 — 2023",
-    title: "Fullstack Developer",
-    company: "Software House",
-    description: "Budowanie platformy SaaS, integracje API, optymalizacja wydajności i architektura mikroserwisów.",
+    title: "Fullstack Software Engineer",
+    company: "Software House & Agencje UE",
+    description: "Budowanie platform SaaS dla e-commerce i enterprise, integracje bramek płatniczych oraz optymalizacja zapytań SQL.",
+    highlights: ["Obsługa 100k+ unikalnych sesji miesięcznie", "Projektowanie API GraphQL & REST", "Redukcja czasu ładowania aplikacji o 60%"],
+    tags: ["TypeScript", "NestJS", "PostgreSQL", "Docker", "Redis", "Tailwind"],
     accent: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
   },
   {
-    icon: GraduationCap,
+    icon: Briefcase,
     year: "2019 — 2021",
-    title: "Junior Developer",
-    company: "Startup technologiczny",
-    description: "Pierwsze komercyjne doświadczenie — frontend w React, backend w Node.js, praca w zespole Agile.",
+    title: "Frontend Developer",
+    company: "Startup Technologiczny",
+    description: "Rozwój interfejsów użytkownika w React i TypeScript, integracje z zewnętrznymi API oraz dbałość o responsywność i animacje.",
+    highlights: ["Wdrożenie biblioteki komponentów Design System", "Współpraca w metodyce Agile/Scrum", "100% Type-Safe TypeScript codebase"],
+    tags: ["React", "TypeScript", "Redux", "REST API", "SCSS"],
+    accent: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  },
+];
+
+const educationTimeline = [
+  {
+    icon: ShieldCheck,
+    year: "2024",
+    title: "AWS Certified Solutions Architect",
+    company: "Amazon Web Services",
+    description: "Międzynarodowy certyfikat poświadczający wiedzę z projektowania skalowalnych, bezpiecznych i bezawaryjnych architektur chmurowych.",
+    highlights: ["High Availability & Fault Tolerance", "Serverless & Containerized Workloads", "Cost Optimization & Security"],
+    tags: ["AWS", "Cloud Architecture", "S3", "Lambda", "ECS"],
     accent: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  },
+  {
+    icon: Award,
+    year: "2023",
+    title: "Meta Front-End Developer Professional",
+    company: "Meta Platforms",
+    description: "Zaawansowana certyfikacja obejmująca architekturę React, optymalizację renderowania, testy jednostkowe i dostępność WCAG.",
+    highlights: ["Test-Driven Development (TDD)", "Zaawansowane wzorce React", "Dostępność cyfrowa (a11y)"],
+    tags: ["React", "CI/CD", "Jest/Vitest", "Web Standards"],
+    accent: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
   },
   {
     icon: GraduationCap,
     year: "2015 — 2019",
-    title: "Informatyka",
-    company: "Politechnika Warszawska",
-    description: "Studia inżynierskie — programowanie, algorytmy, bazy danych, sieci komputerowe.",
+    title: "Inżynieria Oprogramowania & Informatyka",
+    company: "Studia Inżynierskie",
+    description: "Tytuł inżyniera informatyki ze specjalizacją w inżynierii systemów webowych, algorytmach i strukturach danych oraz bazach relacyjnych.",
+    highlights: ["Obrona pracy inżynierskiej z wyróżnieniem", "Algorytmika i bazy danych", "Projektowanie architektur SOLID"],
+    tags: ["Informatyka", "Algorytmy", "Bazy Danych", "Sieci"],
     accent: "bg-violet-500/10 text-violet-500 border-violet-500/20",
   },
 ];
 
 const passions = [
   { emoji: "🚀", label: "Nowe technologie" },
-  { emoji: "🎮", label: "Game dev" },
+  { emoji: "🎮", label: "Game dev & 3D" },
   { emoji: "📚", label: "Open source" },
   { emoji: "☕", label: "Kawa specialty" },
 ];
 
 const techStack = [
-  { name: "React" },
+  { name: "React 19" },
   { name: "TypeScript" },
   { name: "Node.js" },
-  { name: "Next.js" },
-  { name: "Tailwind" },
+  { name: "Next.js 15" },
+  { name: "AWS Cloud" },
   { name: "PostgreSQL" },
 ];
 
 const AboutSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeTab, setActiveTab] = useState<"experience" | "education">("experience");
   const [hoveredTimeline, setHoveredTimeline] = useState<number | null>(null);
-  const magneticCv = useMagnetic(0.3);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -67,14 +101,13 @@ const AboutSection = () => {
   const parallaxYInverse = useTransform(scrollYProgress, [0, 1], ["5%", "-8%"]);
   const timelineProgress = useTransform(scrollYProgress, [0.2, 0.85], [0, 1]);
 
+  const currentTimeline = activeTab === "experience" ? experienceTimeline : educationTimeline;
+
   return (
     <section ref={sectionRef} className="relative bg-secondary/30 py-16 px-4 md:py-32 md:px-6 overflow-hidden" id="o-mnie">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Noise/grid texture */}
         <div className="absolute inset-0 opacity-[0.015] bg-[radial-gradient(hsl(var(--foreground))_0.5px,transparent_0.5px)] bg-[length:24px_24px]" />
-
-        {/* Orb glows */}
         <motion.div
           className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/10 dark:bg-primary/5 blur-[150px]"
           style={{ y: parallaxY }}
@@ -83,311 +116,272 @@ const AboutSection = () => {
           className="absolute bottom-1/4 -right-32 w-72 h-72 rounded-full bg-violet-500/10 dark:bg-violet-500/4 blur-[120px]"
           style={{ y: parallaxYInverse }}
         />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[1px] bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
       </div>
 
-      {/* Top line */}
-      <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px]"
-        style={{
-          background: "linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent)",
-        }}
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.2 }}
-      />
-
-      <div className="relative z-10 mx-auto max-w-[1200px]">
-        {/* === HEADER === */}
+      <div className="relative z-10 mx-auto max-w-[1240px] px-2 sm:px-6">
+        {/* Header */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
           <motion.span
-            className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary font-['Geist'] mb-6"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary font-['Geist'] mb-4 uppercase tracking-widest shadow-sm"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 300 }}
           >
-            <Sparkles className="h-3 w-3" />
-            Kim jestem
+            <Sparkles className="h-3.5 w-3.5" />
+            Profil & Ścieżka Kariery
           </motion.span>
 
           <motion.h2
-            className="font-['Geist'] font-medium tracking-[-0.02em] text-foreground text-4xl md:text-6xl leading-tight"
+            className="font-['Geist'] font-black tracking-tight text-foreground text-3xl md:text-5xl"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
           >
-            O{" "}
-            <motion.span
-              className="font-['Instrument_Serif'] italic text-5xl md:text-7xl inline-block bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent"
-              initial={{ opacity: 0, rotateY: 90 }}
-              whileInView={{ opacity: 1, rotateY: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              mnie
-            </motion.span>
+            Inżynieria z pasją do <span className="text-primary">doskonałości</span>
           </motion.h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20">
-          {/* === BIO CARD === */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* Col 1: Bio Card */}
           <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: -40 }}
+            className="lg:col-span-5"
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: 0.7 }}
           >
-            <div className="lg:sticky lg:top-28">
-              {/* Main bio card with gradient border */}
-              <motion.div
-                className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl p-8 md:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden group"
-                whileHover={{ boxShadow: "0 20px 60px -10px rgba(59,130,246,0.12), 0 0 0 1px hsl(var(--primary)/0.2)" }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Animated gradient border */}
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-accent-blue/10" />
-                  <div className="absolute inset-0 rounded-3xl p-[1px] bg-gradient-to-br from-primary/30 via-transparent to-accent-blue/20" style={{ WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
+            <div className="lg:sticky lg:top-28 space-y-6">
+              <HolographicCard className="p-7 md:p-8">
+                {/* Glow */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-indigo-600 text-white font-black text-2xl shadow-md shadow-primary/30 border border-white/20">
+                    GK
+                  </div>
+                  <div>
+                    <h3 className="font-['Geist'] text-lg font-bold text-foreground">Grzegorz</h3>
+                    <p className="font-mono text-xs text-primary font-medium">Senior Fullstack Engineer</p>
+                  </div>
                 </div>
 
-                {/* Card glow on hover */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 dark:from-primary/5 via-transparent to-violet-500/10 dark:to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <p className="font-['Geist'] text-muted-foreground text-sm leading-relaxed mb-6">
+                  Specjalizuję się w tworzeniu zaawansowanych aplikacji SaaS, platform e-commerce oraz systemów chmurowych z bezkompromisowym naciskiem na wydajność, bezpieczeństwo i estetykę.
+                </p>
 
-                <div className="relative z-10">
-                  {/* Profile avatar row */}
-                  <motion.div
-                    className="flex items-center gap-4 mb-6"
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.35 }}
-                  >
-                    <motion.div
-                      className="relative h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent-blue flex items-center justify-center text-2xl shadow-lg shadow-primary/20"
-                      whileHover={{ scale: 1.08, rotate: 3 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <span className="font-bold text-primary-foreground font-['Geist']">GK</span>
-                      <motion.div
-                        className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-background flex items-center justify-center"
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.6, type: "spring" }}
+                {/* Tech Tags */}
+                <div className="mb-6">
+                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">Główny Stack:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {techStack.map((tech) => (
+                      <span
+                        key={tech.name}
+                        className="rounded-xl border border-border/60 bg-secondary/70 px-3 py-1 font-mono text-xs text-foreground font-medium"
                       >
-                        <span className="block h-1.5 w-1.5 rounded-full bg-primary-foreground" />
-                      </motion.div>
-                    </motion.div>
-                    <div>
-                      <p className="font-['Geist'] font-semibold text-foreground text-lg">Grzegorz</p>
-                      <p className="font-['Geist'] text-xs text-muted-foreground">Fullstack Developer</p>
-                    </div>
-                  </motion.div>
-
-                  {/* Bio text */}
-                  <p className="font-['Geist'] text-muted-foreground leading-relaxed mb-5 text-[15px]">
-                    Cześć! Jestem <span className="text-foreground font-semibold">Grzegorz</span> — fullstack
-                    developer z pasją do tworzenia nowoczesnych aplikacji webowych i mobilnych.
-                    Od kilku lat projektuję i buduję rozwiązania, które łączą piękny design z solidną architekturą.
-                  </p>
-                  <p className="font-['Geist'] text-muted-foreground leading-relaxed mb-8 text-[15px]">
-                    Specjalizuję się w ekosystemie React i TypeScript, ale nie boję się sięgać po nowe
-                    technologie. Wierzę, że najlepszy kod to taki, który jest czytelny, testowalny
-                    i łatwy do utrzymania.
-                  </p>
-
-                  {/* Tech stack pills */}
-                  <div className="mb-8">
-                    <p className="font-['Geist'] text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-3">
-                      Tech Stack
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {techStack.map((tech, i) => (
-                        <motion.span
-                          key={tech.name}
-                          className="inline-flex items-center rounded-lg border border-border/50 bg-secondary/60 px-3 py-1.5 text-xs font-['Geist'] text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.5 + i * 0.06, type: "spring", stiffness: 250 }}
-                          whileHover={{ y: -2, scale: 1.05 }}
-                        >
-                          {tech.name}
-                        </motion.span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Passions */}
-                  <p className="font-['Geist'] text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-3">
-                    Zainteresowania
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {passions.map((p, i) => (
-                      <motion.div
-                        key={p.label}
-                        className="flex items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-3.5 py-1.5 text-sm font-['Geist'] text-muted-foreground hover:text-foreground hover:border-primary/25 hover:bg-primary/5 transition-all cursor-default"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.6 + i * 0.06 }}
-                        whileHover={{ scale: 1.06, y: -3, boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
-                      >
-                        <motion.span
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3, delay: i * 0.3 }}
-                        >
-                          {p.emoji}
-                        </motion.span>
-                        {p.label}
-                      </motion.div>
+                        {tech.name}
+                      </span>
                     ))}
                   </div>
+                </div>
 
-                  {/* CTA Buttons */}
-                  <div className="flex items-center gap-3">
-                    <motion.a
-                      ref={magneticCv.ref as React.Ref<HTMLAnchorElement>}
-                      onMouseMove={magneticCv.onMouseMove}
-                      onMouseLeave={magneticCv.onMouseLeave}
-                      href="/cv.pdf"
-                      download
-                      className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground font-['Geist'] shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] transition-shadow"
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                      Pobierz CV
-                    </motion.a>
-                    <motion.a
-                      href="#kontakt"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-5 py-2.5 text-sm font-medium text-foreground font-['Geist'] hover:border-primary/30 hover:text-primary transition-all"
-                      whileHover={{ gap: "8px" }}
-                    >
-                      Napisz do mnie
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </motion.a>
+                {/* Passions */}
+                <div className="mb-8">
+                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">Pasje i rozwój:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {passions.map((p) => (
+                      <span
+                        key={p.label}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-secondary/50 border border-border/40 px-3 py-1 text-xs text-muted-foreground"
+                      >
+                        <span>{p.emoji}</span>
+                        <span>{p.label}</span>
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </motion.div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border/60">
+                  <GlowButton
+                    variant="glow"
+                    size="sm"
+                    href="/cv.pdf"
+                    download
+                    icon={<Download className="h-3.5 w-3.5" />}
+                  >
+                    Pobierz CV (PDF)
+                  </GlowButton>
+
+                  <GlowButton
+                    variant="glass"
+                    size="sm"
+                    href="#kontakt"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    icon={<ArrowUpRight className="h-3.5 w-3.5" />}
+                  >
+                    Napisz
+                  </GlowButton>
+                </div>
+              </HolographicCard>
             </div>
           </motion.div>
 
-          {/* === TIMELINE === */}
-          <div className="relative">
-            {/* Base track */}
-            <div className="absolute left-[22px] top-0 bottom-0 w-[1px] bg-border/40" />
-
-            {/* Dynamic animated progress line that fills as you scroll */}
-            <motion.div
-              className="absolute left-[21.5px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-accent-blue to-violet-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]"
-              style={{ scaleY: timelineProgress, originY: 0 }}
-            />
-
-            <div className="space-y-6">
-              {timeline.map((item, i) => (
-                <motion.div
-                  key={item.year}
-                  className="relative pl-16"
-                  initial={{ opacity: 0, x: 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.6,
-                    delay: 0.3 + i * 0.15,
-                    ease: [0.25, 0.4, 0.25, 1],
-                  }}
-                  onMouseEnter={() => setHoveredTimeline(i)}
-                  onMouseLeave={() => setHoveredTimeline(null)}
-                >
-                  {/* Timeline dot */}
+          {/* Col 2: Interactive Timeline & Tab Switcher */}
+          <motion.div
+            className="lg:col-span-7 space-y-6"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            {/* Timeline Tab Switcher */}
+            <div className="flex items-center justify-center sm:justify-start gap-2 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm w-fit">
+              <button
+                onClick={() => {
+                  soundEngine.playPop(750, 0.03);
+                  hapticSelection();
+                  setActiveTab("experience");
+                }}
+                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors ${
+                  activeTab === "experience"
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {activeTab === "experience" && (
                   <motion.div
-                    className={`absolute left-[9px] top-2 flex h-[27px] w-[27px] items-center justify-center rounded-full border-2 transition-all duration-300 ${item.accent}`}
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20,
-                      delay: 0.45 + i * 0.15,
-                    }}
-                    animate={{
-                      scale: hoveredTimeline === i ? 1.2 : 1,
-                      boxShadow: hoveredTimeline === i
-                        ? "0 0 20px 4px hsl(var(--primary) / 0.2)"
-                        : "0 0 0px 0px transparent",
-                    }}
-                  >
-                    <item.icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-                  </motion.div>
+                    layoutId="timeline-tab-pill"
+                    className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <Briefcase className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">Doświadczenie Komercyjne</span>
+              </button>
 
-                  {/* Pulse ring */}
-                  {i === 0 && (
-                    <motion.div
-                      className="absolute left-[9px] top-2 h-[27px] w-[27px] rounded-full border border-primary/30"
-                      initial={{ scale: 1, opacity: 1 }}
-                      animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                      transition={{ duration: 2.5, repeat: Infinity, delay: 1.5 }}
-                    />
-                  )}
-
-                  {/* Card */}
+              <button
+                onClick={() => {
+                  soundEngine.playPop(750, 0.03);
+                  hapticSelection();
+                  setActiveTab("education");
+                }}
+                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors ${
+                  activeTab === "education"
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {activeTab === "education" && (
                   <motion.div
-                    className={`relative rounded-2xl border transition-all duration-300 p-5 overflow-hidden ${
-                      hoveredTimeline === i
-                        ? "border-primary/20 bg-card/80 shadow-[0_8px_30px_-6px_rgba(59,130,246,0.08)] translate-x-1"
-                        : "border-border/50 dark:border-transparent bg-card/40 dark:bg-transparent"
-                    }`}
-                  >
-                    {/* Hover glow */}
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/[0.03] via-transparent to-transparent pointer-events-none"
-                      animate={{ opacity: hoveredTimeline === i ? 1 : 0 }}
-                      transition={{ duration: 0.3 }}
-                    />
-                    {/* Year badge */}
-                    <motion.span
-                      className={`inline-block text-[11px] font-semibold tracking-[0.15em] uppercase mb-2 font-['Geist'] ${
-                        hoveredTimeline === i ? item.accent.split(" ")[1] : "text-muted-foreground"
-                      }`}
-                    >
-                      {item.year}
-                    </motion.span>
-                    <h3 className="font-['Geist'] font-semibold text-foreground text-base mb-1">
-                      {item.title}
-                    </h3>
-                    <p className="font-['Geist'] text-sm text-muted-foreground/70 mb-2">
-                      {item.company}
-                    </p>
-                    <p className="font-['Geist'] text-sm text-muted-foreground leading-relaxed">
-                      {item.description}
-                    </p>
-
-                    {/* Decorative corner accent */}
-                    <motion.div
-                      className={`absolute top-0 right-0 w-16 h-16 rounded-bl-2xl opacity-0 transition-opacity duration-500 pointer-events-none ${
-                        item.accent.split(" ")[0].replace("/10", "/5")
-                      }`}
-                      animate={{ opacity: hoveredTimeline === i ? 1 : 0 }}
-                    />
-                  </motion.div>
-                </motion.div>
-              ))}
+                    layoutId="timeline-tab-pill"
+                    className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <GraduationCap className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">Certyfikaty & Edukacja</span>
+              </button>
             </div>
-          </div>
+
+            {/* Timeline Track & Cards */}
+            <div className="relative pl-6 sm:pl-8">
+              {/* Dynamic vertical progress line */}
+              <div className="absolute left-[11px] sm:left-[15px] top-0 bottom-0 w-[2px] bg-border/60" />
+              <motion.div
+                className="absolute left-[11px] sm:left-[15px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-blue-500 to-indigo-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"
+                style={{ scaleY: timelineProgress, originY: 0 }}
+              />
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  {currentTimeline.map((item, i) => (
+                    <motion.div
+                      key={item.title + item.year}
+                      className="relative pl-8 sm:pl-10"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: i * 0.1 }}
+                      onMouseEnter={() => setHoveredTimeline(i)}
+                      onMouseLeave={() => setHoveredTimeline(null)}
+                    >
+                      {/* Timeline Dot */}
+                      <div
+                        className={`absolute left-0 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 bg-background shadow-md transition-transform duration-300 ${
+                          hoveredTimeline === i ? "scale-125 border-primary text-primary" : "border-border text-muted-foreground"
+                        }`}
+                      >
+                        <item.icon className="h-3.5 w-3.5" />
+                      </div>
+
+                      {/* Card Content */}
+                      <div
+                        className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${
+                          hoveredTimeline === i
+                            ? "border-primary/40 bg-card/90 shadow-xl"
+                            : "border-border/70 bg-card/70 backdrop-blur-xl"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                          <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                            {item.year}
+                          </span>
+                          <span className="font-['Geist'] text-xs font-semibold text-muted-foreground">
+                            {item.company}
+                          </span>
+                        </div>
+
+                        <h4 className="font-['Geist'] text-base sm:text-lg font-bold text-foreground mb-2">
+                          {item.title}
+                        </h4>
+
+                        <p className="font-['Geist'] text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">
+                          {item.description}
+                        </p>
+
+                        {/* Achievements / Highlights */}
+                        <div className="space-y-1.5 mb-4">
+                          {item.highlights.map((h, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-foreground/85 font-['Geist']">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                              <span>{h}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Tech tags */}
+                        <div className="flex flex-wrap gap-1.5 pt-3 border-t border-border/50">
+                          {item.tags.map((t) => (
+                            <span
+                              key={t}
+                              className="rounded-lg bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

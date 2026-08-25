@@ -63,3 +63,36 @@ export function triggerIntersection(entries: { target: Element; isIntersecting: 
     );
   }
 }
+
+// Mock Canvas getContext for JSDOM
+if (typeof HTMLCanvasElement !== "undefined") {
+  HTMLCanvasElement.prototype.getContext = vi.fn().mockImplementation((contextId: string) => {
+    if (contextId === "2d") {
+      return {
+        clearRect: vi.fn(),
+        fillRect: vi.fn(),
+        save: vi.fn(),
+        restore: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn(),
+        scale: vi.fn(),
+        beginPath: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        closePath: vi.fn(),
+        createLinearGradient: vi.fn().mockReturnValue({ addColorStop: vi.fn() }),
+        createRadialGradient: vi.fn().mockReturnValue({ addColorStop: vi.fn() }),
+        canvas: { width: 800, height: 600 },
+        globalAlpha: 1,
+        fillStyle: "#000",
+        strokeStyle: "#000",
+        lineWidth: 1,
+      };
+    }
+    return null;
+  });
+}
+

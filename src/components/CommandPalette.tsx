@@ -16,9 +16,13 @@ import {
   Linkedin,
   ArrowRight,
   Sparkles,
+  Terminal,
+  Palette,
+  Bot,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
+import { setGlobalAccent } from "@/lib/theme";
 
 interface CommandItem {
   id: string;
@@ -33,9 +37,11 @@ interface CommandItem {
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenTerminal?: () => void;
+  onOpenAi?: () => void;
 }
 
-export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
+export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: CommandPaletteProps) => {
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
@@ -118,6 +124,78 @@ export const CommandPalette = ({ isOpen, onClose }: CommandPaletteProps) => {
       action: downloadCv,
       shortcut: "C",
       keywords: ["cv", "resume", "zyciorys", "pdf"],
+    },
+    {
+      id: "terminal",
+      label: "Otwórz Interaktywny Terminal CLI (Shell)",
+      category: "Akcje",
+      icon: Terminal,
+      action: () => {
+        onClose();
+        if (onOpenTerminal) onOpenTerminal();
+      },
+      shortcut: "~",
+      keywords: ["terminal", "cli", "shell", "hacker", "bash", "komendy"],
+    },
+    {
+      id: "ai",
+      label: "Zapytaj Asystenta GK AI Architect",
+      category: "Akcje",
+      icon: Bot,
+      action: () => {
+        onClose();
+        if (onOpenAi) onOpenAi();
+      },
+      shortcut: "AI",
+      keywords: ["ai", "bot", "asystent", "pytanie", "architekt", "pomoc", "rekrutacja", "stawki"],
+    },
+    {
+      id: "accent-blue",
+      label: "Akcent: Electric Blue (Klasyczny Niebieski)",
+      category: "Akcje",
+      icon: Palette,
+      action: () => {
+        setGlobalAccent("blue");
+        onClose();
+        toast({ title: "Zmieniono motyw", description: "Akcent zmieniony na Electric Blue." });
+      },
+      keywords: ["kolor", "niebieski", "blue", "akcent", "paleta"],
+    },
+    {
+      id: "accent-emerald",
+      label: "Akcent: Cyber Emerald (Matrix Szmaragd)",
+      category: "Akcje",
+      icon: Palette,
+      action: () => {
+        setGlobalAccent("emerald");
+        onClose();
+        toast({ title: "Zmieniono motyw", description: "Akcent zmieniony na Cyber Emerald." });
+      },
+      keywords: ["kolor", "zielony", "szmaragd", "emerald", "matrix", "akcent"],
+    },
+    {
+      id: "accent-violet",
+      label: "Akcent: Neon Violet (Aurora Fiolet)",
+      category: "Akcje",
+      icon: Palette,
+      action: () => {
+        setGlobalAccent("violet");
+        onClose();
+        toast({ title: "Zmieniono motyw", description: "Akcent zmieniony na Neon Violet." });
+      },
+      keywords: ["kolor", "fioletowy", "violet", "aurora", "akcent"],
+    },
+    {
+      id: "accent-amber",
+      label: "Akcent: Sunset Amber (Bursztyn / Pomarańcz)",
+      category: "Akcje",
+      icon: Palette,
+      action: () => {
+        setGlobalAccent("amber");
+        onClose();
+        toast({ title: "Zmieniono motyw", description: "Akcent zmieniony na Sunset Amber." });
+      },
+      keywords: ["kolor", "pomaranczowy", "bursztyn", "amber", "sunset", "akcent"],
     },
 
     // Społecznościowe

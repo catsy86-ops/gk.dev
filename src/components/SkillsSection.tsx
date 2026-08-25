@@ -4,6 +4,9 @@ import { useState, useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasSkillsBackground } from "@/components/ui/canvas-skills-background";
+import { TechRadar } from "@/components/TechRadar";
+import { soundEngine } from "@/lib/audio";
+import { hapticLight } from "@/lib/haptics";
 
 interface SkillItem {
   id: string;
@@ -125,6 +128,9 @@ const SkillsSection = () => {
           gradient
         />
 
+        {/* 360 Architecture Tech Radar */}
+        <TechRadar />
+
         {/* Bento Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {skills.map((skill, index) => {
@@ -136,7 +142,12 @@ const SkillsSection = () => {
                 key={skill.id}
                 onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
-                className={`group relative rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 overflow-hidden transition-all duration-300 flex flex-col justify-between ${
+                onClick={() => {
+                  soundEngine.playPop(750, 0.03);
+                  hapticLight();
+                  setHoveredSkill((prev) => (prev === skill.id ? null : skill.id));
+                }}
+                className={`group relative rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 overflow-hidden transition-all duration-300 flex flex-col justify-between cursor-pointer active:scale-[0.98] ${
                   isLarge ? "lg:col-span-2" : ""
                 }`}
                 initial={{ opacity: 0, y: 30 }}

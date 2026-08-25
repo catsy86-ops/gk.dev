@@ -3,14 +3,15 @@ import { createPortal } from "react-dom";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 /**
- * Smart Morphing CustomCursor (Awwwards 2026 standard)
- * Features dynamic contextual states, magnetic physics, and zero React re-renders on mousemove.
+ * Chromatic Morphing CustomCursor (Awwwards 2026 standard)
+ * Features dynamic contextual states, magnetic physics, chromatic trail glow, and zero React re-renders on mousemove.
  */
 const CustomCursor = () => {
   const isTouch = useMediaQuery("(pointer: coarse)");
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const trailRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLSpanElement>(null);
   const [badgeText, setBadgeText] = useState("");
 
@@ -19,8 +20,8 @@ const CustomCursor = () => {
 
     const dot = dotRef.current;
     const ring = ringRef.current;
-    const badge = badgeRef.current;
-    if (!dot || !ring) return;
+    const trail = trailRef.current;
+    if (!dot || !ring || !trail) return;
 
     // Hide system cursor
     document.body.classList.add("cursor-none");
@@ -30,6 +31,8 @@ const CustomCursor = () => {
     let mouseY = -100;
     let ringX = -100;
     let ringY = -100;
+    let trailX = -100;
+    let trailY = -100;
 
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
@@ -41,14 +44,24 @@ const CustomCursor = () => {
     };
 
     const render = () => {
-      // Elastic trailing for ring (smooth interpolation)
-      ringX += (mouseX - ringX) * 0.22;
-      ringY += (mouseY - ringY) * 0.22;
+      // Elastic trailing for ring (fast interpolation)
+      ringX += (mouseX - ringX) * 0.25;
+      ringY += (mouseY - ringY) * 0.25;
+
+      // Soft trailing for chromatic glow (slower interpolation)
+      trailX += (mouseX - trailX) * 0.12;
+      trailY += (mouseY - trailY) * 0.12;
 
       dot.style.transform = `translate3d(${mouseX - 6}px, ${mouseY - 6}px, 0)`;
       ring.style.transform = `translate3d(${ringX - 22}px, ${ringY - 22}px, 0)`;
+      trail.style.transform = `translate3d(${trailX - 40}px, ${trailY - 40}px, 0)`;
 
-      if (Math.abs(mouseX - ringX) > 0.1 || Math.abs(mouseY - ringY) > 0.1) {
+      if (
+        Math.abs(mouseX - ringX) > 0.1 ||
+        Math.abs(mouseY - ringY) > 0.1 ||
+        Math.abs(mouseX - trailX) > 0.1 ||
+        Math.abs(mouseY - trailY) > 0.1
+      ) {
         rafId = requestAnimationFrame(render);
       } else {
         rafId = 0;
@@ -134,21 +147,30 @@ const CustomCursor = () => {
           z-index: 999999;
           will-change: transform;
         }
+        .cursor-trail {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, rgba(147, 51, 234, 0.08) 50%, transparent 80%);
+          filter: blur(8px);
+          opacity: 0.8;
+          transition: opacity 0.3s ease;
+        }
         .cursor-dot {
           width: 12px;
           height: 12px;
           border-radius: 50%;
           background: hsl(var(--primary));
-          box-shadow: 0 0 16px 2px hsl(var(--primary) / 0.8), 0 0 30px 6px hsl(var(--primary) / 0.3);
+          box-shadow: 0 0 16px 2px hsl(var(--primary) / 0.9), 0 0 30px 6px hsl(var(--primary) / 0.4);
           transition: transform 0.15s ease, opacity 0.15s ease;
         }
         .cursor-ring {
           width: 44px;
           height: 44px;
           border-radius: 50%;
-          border: 1.5px solid hsl(var(--primary) / 0.5);
-          background: hsl(var(--primary) / 0.04);
-          backdrop-filter: blur(2px);
+          border: 1.5px solid hsl(var(--primary) / 0.6);
+          background: hsl(var(--primary) / 0.05);
+          backdrop-filter: blur(3px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -158,20 +180,20 @@ const CustomCursor = () => {
           width: 64px;
           height: 64px;
           margin: -10px 0 0 -10px;
-          background: hsl(var(--primary) / 0.12);
-          border-color: hsl(var(--primary) / 0.8);
-          box-shadow: 0 0 25px -4px hsl(var(--primary) / 0.3);
+          background: hsl(var(--primary) / 0.15);
+          border-color: hsl(var(--primary) / 0.9);
+          box-shadow: 0 0 30px -2px hsl(var(--primary) / 0.4);
         }
         .cursor-ring.cursor-project {
           width: 84px;
           height: 84px;
           margin: -20px 0 0 -20px;
-          background: hsl(var(--primary) / 0.85);
-          border-color: hsl(var(--primary-foreground) / 0.5);
-          box-shadow: 0 0 35px 5px hsl(var(--primary) / 0.5);
+          background: hsl(var(--primary) / 0.9);
+          border-color: hsl(var(--primary-foreground) / 0.6);
+          box-shadow: 0 0 40px 6px hsl(var(--primary) / 0.6);
         }
         .cursor-dot.cursor-hovering {
-          transform: scale(0.6);
+          transform: scale(0.5);
         }
         .cursor-dot.cursor-hidden {
           opacity: 0;
@@ -181,10 +203,10 @@ const CustomCursor = () => {
           transform: scale(0.85);
         }
         .cursor-badge-text {
-          font-family: 'Geist Mono', monospace;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.1em;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.12em;
           color: hsl(var(--primary-foreground));
           text-transform: uppercase;
         }
@@ -195,6 +217,7 @@ const CustomCursor = () => {
           .custom-cursor { display: none !important; }
         }
       `}</style>
+      <div ref={trailRef} className="custom-cursor cursor-trail" aria-hidden="true" />
       <div ref={dotRef} className="custom-cursor cursor-dot" aria-hidden="true" />
       <div ref={ringRef} className="custom-cursor cursor-ring" aria-hidden="true">
         {badgeText && (

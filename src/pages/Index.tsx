@@ -4,7 +4,6 @@ import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GrainOverlay } from "@/components/ui/grain-overlay";
 import SkillsSection from "@/components/SkillsSection";
 import TechMarquee from "@/components/TechMarquee";
 import ProjectsSection from "@/components/ProjectsSection";
@@ -14,9 +13,10 @@ import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ClickSpark } from "@/components/ui/ClickSpark";
+import { MobileDock } from "@/components/MobileDock";
+import { TerminalDialog } from "@/components/TerminalDialog";
 import { isSlowConnection } from "@/lib/utils";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
@@ -48,21 +48,35 @@ function StatsSkeleton() {
 }
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle terminal on ` or ~ key if not typing in form input
+      if (
+        (e.key === "`" || e.key === "~") &&
+        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
+      ) {
+        e.preventDefault();
+        setIsTerminalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
-      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9998] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm focus:font-medium">
         Przejdź do treści
       </a>
-      <GrainOverlay />
       <AmbientBackground />
       <ClickSpark />
       <CustomCursor />
       <ScrollProgress />
-      <Navbar />
+      <Navbar onOpenTerminal={() => setIsTerminalOpen(true)} />
+      <MobileDock />
       <ScrollToTop />
       <main id="main">
         <HeroSection />
@@ -82,6 +96,12 @@ const Index = () => {
         <FaqSection className="bg-secondary/30" />
       </main>
       <Footer />
+
+      {/* Easter Egg Terminal CLI */}
+      <TerminalDialog
+        isOpen={isTerminalOpen}
+        onClose={() => setIsTerminalOpen(false)}
+      />
     </>
   );
 };

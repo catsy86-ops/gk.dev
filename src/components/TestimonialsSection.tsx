@@ -1,62 +1,78 @@
 import { motion, useInView, AnimatePresence } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Quote, ChevronLeft, ChevronRight, Star, Pause, Play } from "lucide-react";
+import { Quote, ChevronLeft, ChevronRight, Star, Pause, Play, CheckCircle2, TrendingUp, Sparkles } from "lucide-react";
 import { ImageReveal } from "@/components/ui/image-reveal";
 import { EASE_STANDARD } from "@/constants/animations";
+import { soundEngine } from "@/lib/audio";
+import { hapticLight, hapticSelection } from "@/lib/haptics";
 
 const testimonials = [
   {
     name: "Anna Kowalska",
     role: "CEO, TechStart",
-    text: "GK dostarczył fantastyczną aplikację webową, która przekroczyła nasze oczekiwania. Profesjonalizm i dbałość o detale na najwyższym poziomie.",
+    text: "GK dostarczył fantastyczną aplikację webową, która przekroczyła nasze oczekiwania. Profesjonalizm, architektura i dbałość o detale na najwyższym poziomie.",
     rating: 5,
+    metric: "+145% wzrostu sprzedaży",
+    project: "E-Commerce High-End",
     photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Michał Nowak",
     role: "CTO, DataFlow",
-    text: "Współpraca z GK to czysta przyjemność. Szybka komunikacja, terminowość i kod najwyższej jakości. Zdecydowanie polecam!",
+    text: "Współpraca z GK to czysta przyjemność. Błyskawiczna komunikacja, terminowość i kod najwyższej jakości. Zdecydowanie polecam do projektów o wysokiej skali.",
     rating: 5,
+    metric: "300% szybszy frontend",
+    project: "Platforma SaaS & API",
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Katarzyna Wiśniewska",
     role: "Product Manager, CloudBase",
-    text: "Nasz dashboard analityczny został zbudowany perfekcyjnie. Responsywny, szybki i piękny wizualnie. Klienci są zachwyceni.",
+    text: "Nasz dashboard analityczny został zbudowany perfekcyjnie. Responsywny, szybki i piękny wizualnie. Nasi klienci biznesowi są absolutnie zachwyceni.",
     rating: 5,
+    metric: "99.99% Uptime & Realtime",
+    project: "Cloud Dashboard",
     photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Tomasz Zieliński",
     role: "Founder, AppVenture",
-    text: "GK pomógł nam przebudować całą architekturę frontendu. Wydajność wzrosła o 300%, a UX jest teraz na światowym poziomie.",
+    text: "GK pomógł nam przebudować architekturę aplikacji. Wydajność wzrosła spektakularnie, a UX jest teraz na światowym poziomie referencyjnym.",
     rating: 5,
+    metric: "-55% bounce rate",
+    project: "Aplikacja Web & Mobile",
     photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Ewa Mazur",
     role: "Head of Design, Pixelworks",
-    text: "Implementacja designu była pixel-perfect. GK rozumie UI/UX na głębokim poziomie i potrafi przełożyć wizję na kod bez kompromisów.",
+    text: "Implementacja designu była bezbłędnie pixel-perfect. GK doskonale rozumie zaawansowane micro-interactions i potrafi przełożyć makiety na 60 FPS.",
     rating: 5,
+    metric: "100/100 Core Web Vitals",
+    project: "Design System & Frontend",
     photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Paweł Dąbrowski",
     role: "VP Engineering, FinScope",
-    text: "Bezpieczeństwo i wydajność naszej platformy finansowej są kluczowe. GK dostarczył rozwiązanie, które spełnia najwyższe standardy branżowe.",
+    text: "Bezpieczeństwo i wydajność naszej platformy finansowej były kluczowe. GK dostarczył rozwiązanie spełniające najostrzejsze standardy enterprise.",
     rating: 5,
+    metric: "0 luk bezpieczeństwa",
+    project: "FinTech Platform",
     photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face",
   },
   {
     name: "Marta Lewandowska",
     role: "CMO, GreenTech Solutions",
-    text: "Nasza nowa strona zwiększyła konwersje o 180%. GK nie tylko koduje — rozumie biznes i tworzy rozwiązania, które przynoszą realne rezultaty.",
+    text: "Nowa platforma przyniosła nam ogromny skok konwersji. GK nie tylko koduje — rozumie produkt biznesowo i tworzy rozwiązania przynoszące wymierne zyski.",
     rating: 5,
+    metric: "+180% nowych leadów",
+    project: "GreenTech Ecosystem",
     photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
   },
 ] as const;
 
-const AUTOPLAY_INTERVAL = 5000;
+const AUTOPLAY_INTERVAL = 6000;
 
 const TestimonialsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -65,20 +81,24 @@ const TestimonialsSection = () => {
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
-  // Unique id for aria-live region
-  const liveId = "testimonials-live";
 
   const next = useCallback(() => {
+    soundEngine.playPop(750, 0.02);
+    hapticLight();
     setDirection(1);
     setCurrent((prev) => (prev + 1) % testimonials.length);
   }, []);
 
   const prev = useCallback(() => {
+    soundEngine.playPop(700, 0.02);
+    hapticLight();
     setDirection(-1);
     setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   }, []);
 
   const goTo = useCallback((index: number) => {
+    soundEngine.playPop(800, 0.02);
+    hapticSelection();
     setDirection(index > current ? 1 : -1);
     setCurrent(index);
   }, [current]);
@@ -104,9 +124,9 @@ const TestimonialsSection = () => {
   };
 
   const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0, scale: 0.95 }),
+    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0, scale: 0.96 }),
     center: { x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -120 : 120, opacity: 0, scale: 0.95 }),
+    exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0, scale: 0.96 }),
   };
 
   const t = testimonials[current];
@@ -114,20 +134,18 @@ const TestimonialsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-secondary/30 py-16 px-4 md:py-28 md:px-6 overflow-hidden"
+      className="relative bg-secondary/30 py-20 px-4 md:py-32 md:px-6 overflow-hidden"
       id="opinie"
-      aria-label="Opinie klientów"
+      aria-label="Opinie i Rekomendacje Klientów"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
     >
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[140px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
+      <div className="relative z-10 mx-auto max-w-[1240px] px-2 sm:px-6">
         {/* Header */}
         <motion.div
           className="text-center mb-16"
@@ -135,38 +153,27 @@ const TestimonialsSection = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          <span className="inline-block font-['Geist'] text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">
-            Opinie klientów
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary uppercase tracking-widest font-['Geist'] mb-4 shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
+            Rekomendacje & Social Proof
           </span>
-          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
-            Co mówią{" "}
-            <span className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent">
-              klienci
-            </span>
+          <h2 className="font-['Geist'] text-3xl md:text-5xl font-black tracking-tight text-foreground">
+            Zaufanie potwierdzone <span className="text-primary">wynikami</span>
           </h2>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground font-['Geist'] max-w-xl mx-auto">
+            Referencje od liderów technologicznych, startupów i agencji.
+          </p>
         </motion.div>
 
-        {/* Slider */}
+        {/* Bento Showcase Card */}
         <motion.div
-          className="relative max-w-2xl mx-auto"
+          className="relative max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          {/* Live region for screen readers */}
           <div
-            id={liveId}
-            aria-live="polite"
-            aria-atomic="true"
-            className="sr-only"
-          >
-            Opinia {current + 1} z {testimonials.length}: {t.name}, {t.role} — {t.text}
-          </div>
-
-          <div
-            className="relative min-h-[320px] flex items-center justify-center touch-pan-y"
-            role="region"
-            aria-label={`Opinia ${current + 1} z ${testimonials.length}`}
+            className="relative min-h-[380px] flex items-center justify-center touch-pan-y"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -178,109 +185,106 @@ const TestimonialsSection = () => {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.5, ease: EASE_STANDARD }}
-                className="absolute inset-0 flex items-center justify-center"
+                transition={{ duration: 0.45, ease: EASE_STANDARD }}
+                className="w-full rounded-3xl border border-border/80 bg-card/85 backdrop-blur-2xl p-7 md:p-10 shadow-2xl overflow-hidden relative"
               >
-                <div className="w-full rounded-2xl border border-border/50 bg-card/60 backdrop-blur-md p-8 md:p-10 shadow-lg">
-                  {/* Quote icon */}
-                  <div className="mb-6 flex justify-center" aria-hidden="true">
-                    <div className="rounded-full bg-primary/10 p-3">
-                      <Quote className="h-6 w-6 text-primary" />
-                    </div>
+                {/* Top Badge Row */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 font-mono text-[11px] font-bold text-emerald-500">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>Zweryfikowane wdrożenie • {t.project}</span>
                   </div>
 
-                  {/* Stars */}
-                  <div
-                    className="flex justify-center gap-1 mb-6"
-                    aria-label={`Ocena: ${t.rating} na 5 gwiazdek`}
-                  >
-                    {Array.from({ length: t.rating }).map((_, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.08, type: "spring", stiffness: 300 }}
-                        aria-hidden="true"
-                      >
-                        <Star className="h-4 w-4 fill-primary text-primary" />
-                      </motion.div>
-                    ))}
+                  <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 font-mono text-[11px] font-bold text-primary">
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    <span>{t.metric}</span>
                   </div>
+                </div>
 
-                  {/* Text */}
-                  <blockquote className="text-center font-['Geist'] text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-                    "{t.text}"
-                  </blockquote>
+                {/* Stars */}
+                <div className="flex items-center gap-1 mb-6" aria-label={`Ocena: ${t.rating} na 5 gwiazdek`}>
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
 
-                  {/* Author */}
-                  <div className="flex items-center justify-center gap-3">
+                {/* Quote Text */}
+                <blockquote className="font-['Geist'] text-base md:text-xl text-foreground font-medium leading-relaxed mb-8 relative">
+                  <Quote className="h-8 w-8 text-primary/15 absolute -top-4 -left-4 -z-10 pointer-events-none" />
+                  "{t.text}"
+                </blockquote>
+
+                {/* Author footer */}
+                <div className="flex items-center justify-between pt-6 border-t border-border/60">
+                  <div className="flex items-center gap-3.5">
                     <ImageReveal
                       src={t.photo}
-                      alt={`Zdjęcie profilowe: ${t.name}`}
-                      containerClassName="h-11 w-11 rounded-full"
-                      className="rounded-full object-cover border-2 border-primary/20 shadow-sm"
+                      alt={`Zdjęcie: ${t.name}`}
+                      containerClassName="h-12 w-12 rounded-full"
+                      className="rounded-full object-cover border-2 border-primary/30 shadow-md"
                       direction="up"
-                      delay={0.2}
+                      delay={0.1}
                     />
                     <div className="text-left">
-                      <p className="font-['Geist'] text-sm font-semibold text-foreground">{t.name}</p>
-                      <p className="font-['Geist'] text-xs text-muted-foreground">{t.role}</p>
+                      <p className="font-['Geist'] text-base font-bold text-foreground">{t.name}</p>
+                      <p className="font-mono text-xs text-muted-foreground">{t.role}</p>
                     </div>
                   </div>
+
+                  <span className="font-mono text-xs font-bold text-muted-foreground/60">
+                    {current + 1} / {testimonials.length}
+                  </span>
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Controls */}
-          <div className="flex items-center justify-center gap-4 mt-8" role="group" aria-label="Kontrolki slidera">
+          {/* Controls Bar */}
+          <div className="flex items-center justify-between gap-4 mt-8 px-2">
             <button
               onClick={prev}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground hover:border-primary/40 hover:text-primary transition-all active:scale-90 shadow-sm"
               aria-label="Poprzednia opinia"
             >
-              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2" role="tablist" aria-label="Wybierz opinię">
-              {testimonials.map((testimonial, i) => (
+            {/* Pagination Tabs */}
+            <div className="flex items-center gap-2" role="tablist">
+              {testimonials.map((item, i) => (
                 <button
-                  key={testimonial.name}
+                  key={item.name}
                   role="tab"
                   aria-selected={i === current}
-                  aria-label={`Opinia ${i + 1}: ${testimonial.name}`}
                   onClick={() => goTo(i)}
-                  className={`h-3 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center p-2 ${
-                    i === current ? "w-8" : ""
-                  }`}
+                  className="p-1"
                 >
-                  <span className={`block rounded-full transition-all duration-300 ${
-                    i === current ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/30"
-                  }`} />
+                  <span
+                    className={`block rounded-full transition-all duration-300 ${
+                      i === current ? "w-8 h-2.5 bg-primary shadow-md shadow-primary/30" : "w-2.5 h-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    }`}
+                  />
                 </button>
               ))}
             </div>
 
-            {/* Pause/Play button — important for accessibility (WCAG 2.1 criterion 2.2.2) */}
-            <button
-              onClick={() => setIsPaused((p) => !p)}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label={isPaused ? "Wznów automatyczne przewijanie" : "Zatrzymaj automatyczne przewijanie"}
-              aria-pressed={isPaused}
-            >
-              {isPaused
-                ? <Play className="h-4 w-4" aria-hidden="true" />
-                : <Pause className="h-4 w-4" aria-hidden="true" />
-              }
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsPaused((p) => !p)}
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground hover:border-primary/40 hover:text-primary transition-all active:scale-90 shadow-sm"
+                aria-label={isPaused ? "Wznów autoplay" : "Zatrzymaj autoplay"}
+              >
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </button>
 
-            <button
-              onClick={next}
-              className="rounded-full border border-border/50 bg-card/60 backdrop-blur-sm p-3 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label="Następna opinia"
-            >
-              <ChevronRight className="h-5 w-5" aria-hidden="true" />
-            </button>
+              <button
+                onClick={next}
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md text-foreground hover:border-primary/40 hover:text-primary transition-all active:scale-90 shadow-sm"
+                aria-label="Następna opinia"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>

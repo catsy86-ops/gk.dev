@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowUp } from "lucide-react";
+import { soundEngine } from "@/lib/audio";
+import { hapticLight } from "@/lib/haptics";
 
 const THRESHOLD = 500;
 
@@ -15,6 +17,8 @@ export function ScrollToTop() {
   }, []);
 
   const scrollToTop = useCallback(() => {
+    soundEngine.playChime();
+    hapticLight();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
@@ -28,9 +32,9 @@ export function ScrollToTop() {
           transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
           onClick={scrollToTop}
           aria-label="Przewiń do góry"
-          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card/80 backdrop-blur-md text-foreground shadow-lg hover:bg-card hover:border-primary/40 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] md:bottom-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))] right-4 md:right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-card/85 backdrop-blur-xl text-foreground shadow-lg hover:bg-card hover:border-primary/50 hover:text-primary active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          <ArrowUp className="h-5 w-5" strokeWidth={1.8} />
+          <ArrowUp className="h-5 w-5" strokeWidth={2} />
         </motion.button>
       )}
     </AnimatePresence>

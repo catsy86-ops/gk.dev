@@ -1,9 +1,8 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import { Code2, Github, Linkedin, Mail } from "lucide-react";
+import { Code2, Github, Linkedin, Mail, Sparkles, ArrowUpRight } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
-import { useMagnetic } from "@/hooks/use-magnetic";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { RippleButton } from "@/components/ui/ripple-button";
+import { GlowButton } from "@/components/ui/GlowButton";
 import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
 import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
@@ -139,8 +138,6 @@ const useTypewriter = (
 
 const HeroSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const magneticPrimary = useMagnetic(0.35);
-  const magneticSecondary = useMagnetic(0.35);
   const typewriterText = useTypewriter(roles);
   const greetingText = useTypewriter(greetings, 100, 60, 2500);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -329,29 +326,25 @@ const HeroSection = () => {
           initial="hidden"
           animate="visible"
         >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div
-              ref={magneticPrimary.ref as React.Ref<HTMLDivElement>}
-              onMouseMove={magneticPrimary.onMouseMove}
-              onMouseLeave={magneticPrimary.onMouseLeave}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <GlowButton
+              variant="glow"
+              size="lg"
+              onClick={scrollToSection("projekty")}
+              icon={<Sparkles className="h-4 w-4" />}
             >
-              <RippleButton
-                onClick={scrollToSection("projekty")}
-                className="rounded-full bg-primary px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-shadow hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                Zobacz projekty
-              </RippleButton>
-            </div>
-            <a
-              ref={magneticSecondary.ref as React.Ref<HTMLAnchorElement>}
-              onMouseMove={magneticSecondary.onMouseMove}
-              onMouseLeave={magneticSecondary.onMouseLeave}
+              Zobacz projekty
+            </GlowButton>
+
+            <GlowButton
+              variant="glass"
+              size="lg"
               href="#kontakt"
               onClick={scrollToSection("kontakt")}
-              className="inline-block rounded-full border border-primary/20 bg-background/60 backdrop-blur-sm px-6 sm:px-7 py-3 sm:py-3.5 font-['Geist'] text-sm font-medium text-foreground transition-shadow hover:bg-background/80 hover:border-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              icon={<ArrowUpRight className="h-4 w-4" />}
             >
-              Kontakt
-            </a>
+              Napisz do mnie
+            </GlowButton>
           </div>
 
           <motion.div
@@ -383,8 +376,40 @@ const HeroSection = () => {
           </motion.div>
         </motion.div>
 
-        {/* Interactive Code Terminal Widget */}
-        <HeroCodeTerminal />
+        {/* Interactive Code Terminal Widget with Floating Badges */}
+        <div className="relative w-full max-w-[560px] flex justify-center">
+          {/* Floating Trust Badge Left */}
+          <motion.div
+            className="hidden xl:flex absolute -left-28 top-12 items-center gap-2 rounded-2xl border border-emerald-500/30 bg-card/85 backdrop-blur-xl px-3.5 py-2 shadow-xl z-20"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0, y: [0, -6, 0] }}
+            transition={{
+              opacity: { delay: 1, duration: 0.6 },
+              x: { delay: 1, duration: 0.6 },
+              y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+            }}
+          >
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-mono text-xs font-bold text-emerald-500">100% Core Vitals</span>
+          </motion.div>
+
+          {/* Floating Trust Badge Right */}
+          <motion.div
+            className="hidden xl:flex absolute -right-24 bottom-12 items-center gap-2 rounded-2xl border border-primary/30 bg-card/85 backdrop-blur-xl px-3.5 py-2 shadow-xl z-20"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0, y: [0, 6, 0] }}
+            transition={{
+              opacity: { delay: 1.2, duration: 0.6 },
+              x: { delay: 1.2, duration: 0.6 },
+              y: { duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
+            }}
+          >
+            <span className="text-primary font-black text-xs">TS</span>
+            <span className="font-['Geist'] text-xs font-semibold text-foreground">Strict Clean Code</span>
+          </motion.div>
+
+          <HeroCodeTerminal />
+        </div>
       </motion.div>
 
       {/* Scroll indicator */}

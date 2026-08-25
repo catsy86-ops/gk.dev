@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Terminal, Check, Copy, Sparkles, Cpu, Activity } from "lucide-react";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 interface Tab {
   id: "code" | "stack" | "metrics";
@@ -57,11 +58,14 @@ export const HeroCodeTerminal = () => {
 
   return (
     <motion.div
-      className="w-full max-w-[560px] rounded-2xl border border-border/70 bg-card/60 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-300 hover:border-primary/40 group"
+      className="relative w-full max-w-[560px] rounded-2xl border border-border/70 bg-card/60 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-300 hover:border-primary/40 group"
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.8, delay: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
     >
+      {/* Laser Border Beam FX */}
+      <BorderBeam size={240} duration={10} delay={0} />
+
       {/* Top bar with mac-like dots and tabs */}
       <div className="flex items-center justify-between border-b border-border/50 bg-secondary/40 px-4 py-2.5">
         <div className="flex items-center gap-2">

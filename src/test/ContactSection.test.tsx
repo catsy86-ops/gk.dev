@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ContactSection, { validateForm } from "@/components/ContactSection";
+import ContactSection from "@/components/ContactSection";
+import { validateForm } from "@/lib/validation";
 
 vi.mock("@/hooks/use-toast", () => ({
   toast: vi.fn(),

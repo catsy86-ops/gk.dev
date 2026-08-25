@@ -1,0 +1,118 @@
+import { useState, useCallback } from "react";
+import { motion } from "motion/react";
+import { Home, User, Wrench, FolderOpen, Send, Sparkles } from "lucide-react";
+import { useActiveSection } from "@/hooks/use-active-section";
+import { MobileQuickActions } from "@/components/MobileQuickActions";
+import { soundEngine } from "@/lib/audio";
+import { hapticLight, hapticMedium } from "@/lib/haptics";
+
+const tabs = [
+  { id: "hero", label: "Start", href: "#hero", icon: Home },
+  { id: "o-mnie", label: "O mnie", href: "#o-mnie", icon: User },
+  { id: "umiejetnosci", label: "Stack", href: "#umiejetnosci", icon: Wrench },
+  { id: "projekty", label: "Projekty", href: "#projekty", icon: FolderOpen },
+] as const;
+
+export const MobileDock = () => {
+  const [isQuickOpen, setIsQuickOpen] = useState(false);
+  const activeSection = useActiveSection();
+
+  const scrollTo = useCallback((href: string) => {
+    soundEngine.playClick();
+    hapticLight();
+    const id = href.replace("#", "");
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  return (
+    <>
+      <aside className="md:hidden">
+        <motion.div
+          key="mobile-dock"
+          initial={{ y: 80, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 350, damping: 28 }}
+          className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-[400px] z-50 pointer-events-auto"
+          style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+          aria-label="Pływające menu mobilne"
+        >
+              <div className="relative flex items-center justify-between rounded-full border border-border/80 bg-background/90 backdrop-blur-2xl p-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.3)] dark:shadow-[0_16px_50px_-10px_rgba(0,0,0,0.8)]">
+                {/* Navigation Tabs */}
+                <div className="flex items-center flex-1 justify-around gap-1">
+                  {tabs.map((tab) => {
+                    const isActive =
+                      activeSection === tab.id || (tab.id === "hero" && !activeSection);
+
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => scrollTo(tab.href)}
+                        className={`relative flex flex-col items-center justify-center py-1.5 px-2.5 rounded-full transition-colors ${
+                          isActive
+                            ? "text-primary font-bold"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        aria-label={tab.label}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        {isActive && (
+                          <motion.span
+                            layoutId="mobile-dock-pill"
+                            className="absolute inset-0 rounded-full bg-primary/15 dark:bg-primary/20 border border-primary/25"
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          />
+                        )}
+                        <tab.icon
+                          className="relative z-10 h-4 w-4"
+                          strokeWidth={isActive ? 2.4 : 1.8}
+                        />
+                        <span className="relative z-10 text-[10px] font-['Geist'] mt-0.5 tracking-tight">
+                          {tab.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Action Hub Button */}
+                <button
+                  onClick={() => {
+                    soundEngine.playPop(850, 0.03);
+                    hapticLight();
+                    setIsQuickOpen(true);
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-1 active:scale-90"
+                  aria-label="Szybkie akcje"
+                  title="Szybkie akcje"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </button>
+
+                {/* Action Contact Button */}
+                <button
+                  onClick={() => {
+                    soundEngine.playChime();
+                    hapticMedium();
+                    scrollTo("#kontakt");
+                  }}
+                  className="relative flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-primary-foreground font-['Geist'] text-xs font-bold shadow-md shadow-primary/30 active:scale-95 transition-transform shrink-0 ml-1"
+                  aria-label="Napisz wiadomość"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Napisz</span>
+                </button>
+              </div>
+        </motion.div>
+      </aside>
+
+      {/* Mobile Quick Action Sheet */}
+      <MobileQuickActions
+        isOpen={isQuickOpen}
+        onClose={() => setIsQuickOpen(false)}
+      />
+    </>
+  );
+};

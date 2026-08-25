@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useInView } from "motion/react";
-import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2, Calculator } from "lucide-react";
 import { useState, forwardRef, useCallback, useRef } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { toast } from "@/hooks/use-toast";
@@ -8,40 +8,23 @@ import { Input, Textarea } from "@/components/ui/input";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasContactBackground } from "@/components/ui/canvas-contact-background";
-
-interface FormData {
-  name: string;
-  email: string;
-  message: string;
-}
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  message?: string;
-}
-
-export function validateForm(data: FormData): FormErrors {
-  const errors: FormErrors = {};
-  if (!data.name.trim()) errors.name = "Imię jest wymagane";
-  if (!data.email.trim()) errors.email = "Email jest wymagany";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = "Nieprawidłowy format email";
-  if (!data.message.trim()) errors.message = "Wiadomość jest wymagana";
-  return errors;
-}
+import { ProjectEstimatorModal } from "@/components/ProjectEstimatorModal";
+import { triggerConfetti } from "@/lib/confetti";
+import { validateForm, type ContactFormData, type ContactFormErrors } from "@/lib/validation";
 
 const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
   const [focused, setFocused] = useState("");
-  const [form, setForm] = useState<FormData>({ name: "", email: "", message: "" });
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [form, setForm] = useState<ContactFormData>({ name: "", email: "", message: "" });
+  const [errors, setErrors] = useState<ContactFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
   const magneticBtn = useMagnetic(0.35);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
-  const updateField = useCallback((field: keyof FormData, value: string) => {
+  const updateField = useCallback((field: keyof ContactFormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   }, []);
@@ -61,6 +44,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
       });
       if (!res.ok) throw new Error("Form submission failed");
       setIsSuccess(true);
+      triggerConfetti();
       toast({ title: "Wiadomość wysłana!", description: "Dziękuję za kontakt. Odpiszę najszybciej jak to możliwe." });
       setForm({ name: "", email: "", message: "" });
     } catch {
@@ -191,9 +175,19 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 >
                   {/* Topic Selector Chips */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-foreground/80 font-['Geist'] flex items-center gap-1.5">
-                      <span>Wybierz temat rozmowy:</span>
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-foreground/80 font-['Geist'] flex items-center gap-1.5">
+                        <span>Wybierz temat rozmowy:</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsEstimatorOpen(true)}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-1 font-mono text-[11px] font-bold text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        <Calculator className="h-3.5 w-3.5" />
+                        <span>Kalkulator Wyceny</span>
+                      </button>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {[
                         "Nowy Projekt SaaS",
@@ -335,6 +329,19 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Interactive Project Estimator Modal */}
+      <ProjectEstimatorModal
+        isOpen={isEstimatorOpen}
+        onClose={() => setIsEstimatorOpen(false)}
+        onApplyEstimate={(summary) => {
+          updateField("message", summary);
+          toast({
+            title: "Wycena wczytana do formularza!",
+            description: "Wypełnij swoje imię i email, a następnie wyślij zapytanie.",
+          });
+        }}
+      />
     </SectionWrapper>
   );
 });

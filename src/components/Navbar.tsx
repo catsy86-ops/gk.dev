@@ -4,11 +4,8 @@ import {
   Sun,
   Moon,
   ArrowUpRight,
-  Home,
   User,
   FolderOpen,
-  Mail,
-  Wrench,
   Search,
   Command,
   Volume2,
@@ -19,14 +16,18 @@ import {
   Code2,
   Cpu,
   FileText,
-  MessageSquare,
-  HelpCircle,
   Briefcase,
+  Menu,
+  X,
+  Bot,
 } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useTheme } from "next-themes";
 import { NAVBAR_SCROLL_THRESHOLD } from "@/constants/animations";
 import { CommandPalette } from "@/components/CommandPalette";
+import { AiAssistantDialog } from "@/components/AiAssistantDialog";
+import { GlowButton } from "@/components/ui/GlowButton";
+import { ThemeAccentPicker } from "@/components/ThemeAccentPicker";
 import { soundEngine } from "@/lib/audio";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
@@ -121,20 +122,16 @@ const navItems = [
   { label: "Kontakt", href: "#kontakt", id: "kontakt" },
 ];
 
-const mobileTabs = [
-  { icon: Home, label: "Start", href: "#hero", id: "hero" },
-  { icon: User, label: "O mnie", href: "#o-mnie", id: "o-mnie" },
-  { icon: Wrench, label: "Stack", href: "#umiejetnosci", id: "umiejetnosci" },
-  { icon: FolderOpen, label: "Projekty", href: "#projekty", id: "projekty" },
-  { icon: MessageSquare, label: "Opinie", href: "#opinie", id: "opinie" },
-  { icon: HelpCircle, label: "FAQ", href: "#faq", id: "faq" },
-  { icon: Mail, label: "Kontakt", href: "#kontakt", id: "kontakt" },
-] as const;
+interface NavbarProps {
+  onOpenTerminal?: () => void;
+}
 
-const Navbar = () => {
+const Navbar = ({ onOpenTerminal }: NavbarProps) => {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(true);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<number | null>(null);
@@ -227,8 +224,14 @@ const Navbar = () => {
           aria-label="Główna nawigacja"
         >
           {/* Logo with live status ping */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
+
+            {/* Mobile Live Availability Pill */}
+            <div className="flex md:hidden items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-500 font-bold">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Dostępny</span>
+            </div>
 
             {/* Availability subtle pill on desktop */}
             <div className="hidden xl:flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10.5px] text-emerald-500 font-medium">
@@ -336,14 +339,28 @@ const Navbar = () => {
           </div>
 
           {/* Action Tools Hub */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* AI Architect Assistant Trigger */}
+            <button
+              onClick={() => {
+                soundEngine.playPop(850, 0.03);
+                setIsAiOpen(true);
+              }}
+              className="relative flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 sm:px-3 py-1.5 text-xs text-primary font-bold hover:bg-primary/20 hover:border-primary transition-all font-['Geist'] shadow-sm active:scale-95 group"
+              aria-label="Otwórz asystenta GK AI Architect"
+              title="Zapytaj asystenta GK AI"
+            >
+              <Bot className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />
+              <span className="hidden sm:inline">AI Asystent</span>
+            </button>
+
             {/* Quick search button / Cmd+K trigger */}
             <button
               onClick={() => {
                 soundEngine.playClick();
                 setIsCommandOpen(true);
               }}
-              className="flex items-center gap-2 rounded-full border border-border/80 bg-secondary/80 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm"
+              className="flex items-center gap-2 rounded-full border border-border/80 bg-secondary/80 px-2.5 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm"
               aria-label="Otwórz menu poleceń (Cmd+K)"
             >
               <Search className="h-3.5 w-3.5 text-primary" />
@@ -398,76 +415,95 @@ const Navbar = () => {
               </AnimatePresence>
             </button>
 
-            {/* CTA Button */}
-            <a
-              href="#kontakt"
-              onClick={(e) => {
-                soundEngine.playChime();
-                handleClick(e, "#kontakt");
+            {/* Theme Color Accent Picker */}
+            <ThemeAccentPicker />
+
+            {/* Mobile Hamburger Menu Toggle */}
+            <button
+              onClick={() => {
+                soundEngine.playPop(750, 0.03);
+                setIsMobileNavOpen((prev) => !prev);
               }}
-              className="group hidden sm:flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground shadow-[0_4px_14px_0_rgba(59,130,246,0.35)] transition-all hover:shadow-[0_6px_20px_0_rgba(59,130,246,0.45)] hover:scale-[1.02] active:scale-[0.98]"
+              className="flex md:hidden h-8 w-8 rounded-full border border-border bg-secondary items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Otwórz menu nawigacji"
+              aria-expanded={isMobileNavOpen}
             >
-              <span>Napisz</span>
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
+              {isMobileNavOpen ? <X className="h-4 w-4 text-primary" /> : <Menu className="h-4 w-4" />}
+            </button>
+
+            {/* CTA Button */}
+            <div className="hidden sm:block">
+              <GlowButton
+                variant="glow"
+                size="sm"
+                href="#kontakt"
+                onClick={(e) => {
+                  handleClick(e, "#kontakt");
+                }}
+                icon={<ArrowUpRight className="h-3.5 w-3.5" />}
+              >
+                Napisz
+              </GlowButton>
+            </div>
           </div>
         </nav>
 
-        {/* Mobile bottom pill dock */}
-        <div className="md:hidden mt-2 pointer-events-auto">
-          <div className="rounded-2xl border border-border/70 bg-background/80 backdrop-blur-xl p-1 shadow-md">
-            <div className="flex items-center justify-around">
-              {mobileTabs.map((tab) => {
-                const isActive = activeSection === tab.id || (tab.id === "hero" && !activeSection);
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
+        {/* Mobile Dropdown Menu Sheet */}
+        <AnimatePresence>
+          {isMobileNavOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.96 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-auto mt-2 rounded-3xl border border-border/80 bg-background/95 backdrop-blur-2xl p-4 shadow-2xl space-y-3 md:hidden"
+            >
+              <div className="space-y-1">
+                {navItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => {
                       soundEngine.playClick();
-                      scrollTo(tab.href);
+                      setIsMobileNavOpen(false);
+                      handleClick(e, item.href);
                     }}
-                    className="relative flex flex-col items-center justify-center w-full py-1.5 transition-colors"
-                    aria-label={tab.label}
-                    aria-current={isActive ? "page" : undefined}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 hover:bg-secondary text-sm font-semibold text-foreground"
                   >
-                    <AnimatePresence mode="wait">
-                      {isActive && (
-                        <motion.div
-                          key={`mtab-${tab.id}`}
-                          layoutId="mobile-nav-pill"
-                          className="absolute inset-x-1 inset-y-0.5 rounded-lg bg-primary/[0.15] dark:bg-primary/[0.12]"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                    <tab.icon
-                      className={`relative z-10 h-4 w-4 transition-colors duration-200 ${
-                        isActive ? "text-primary" : "text-muted-foreground"
-                      }`}
-                      strokeWidth={isActive ? 2.2 : 1.5}
-                    />
-                    <span
-                      className={`relative z-10 text-[10px] leading-tight mt-0.5 transition-colors duration-200 font-['Geist'] ${
-                        isActive ? "text-primary font-bold" : "text-muted-foreground font-medium"
-                      }`}
-                    >
-                      {tab.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                    <span>{item.label}</span>
+                    <ArrowUpRight className="h-4 w-4 text-primary" />
+                  </a>
+                ))}
+                <a
+                  href="#kontakt"
+                  onClick={(e) => {
+                    soundEngine.playClick();
+                    setIsMobileNavOpen(false);
+                    handleClick(e, "#kontakt");
+                  }}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-primary text-primary-foreground text-sm font-bold shadow-md shadow-primary/30"
+                >
+                  <span>Napisz do mnie</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Command Palette Dialog */}
       <CommandPalette
         isOpen={isCommandOpen}
         onClose={() => setIsCommandOpen(false)}
+        onOpenTerminal={onOpenTerminal}
+        onOpenAi={() => setIsAiOpen(true)}
+      />
+
+      {/* GK AI Architect Assistant Dialog */}
+      <AiAssistantDialog
+        isOpen={isAiOpen}
+        onClose={() => setIsAiOpen(false)}
       />
     </header>
   );
