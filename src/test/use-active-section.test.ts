@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { triggerIntersection } from "./setup";
 
@@ -20,7 +20,9 @@ describe("useActiveSection", () => {
 
     const { result } = renderHook(() => useActiveSection());
 
-    triggerIntersection([{ target: el, isIntersecting: true, intersectionRatio: 0.5 }]);
+    act(() => {
+      triggerIntersection([{ target: el, isIntersecting: true, intersectionRatio: 0.5 }]);
+    });
 
     await waitFor(() => {
       expect(result.current).toBe("o-mnie");

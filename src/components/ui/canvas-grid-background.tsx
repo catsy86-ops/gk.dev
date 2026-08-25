@@ -97,8 +97,24 @@ export function CanvasGridBackground() {
         ctx.fill();
       });
 
-      animId = requestAnimationFrame(draw);
+      if (isVisible) {
+        animId = requestAnimationFrame(draw);
+      } else {
+        animId = 0;
+      }
     };
+
+    let isVisible = true;
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible && !animId) {
+        animId = requestAnimationFrame(draw);
+      } else if (!isVisible && animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    });
+    io.observe(canvas);
 
     animId = requestAnimationFrame(draw);
 
@@ -106,7 +122,8 @@ export function CanvasGridBackground() {
     ro.observe(canvas.parentElement!);
 
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
+      io.disconnect();
       ro.disconnect();
     };
   }, [prefersReduced, isMobile, hsla, hslaLight]);

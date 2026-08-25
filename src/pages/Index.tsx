@@ -14,17 +14,17 @@ import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { AmbientBackground } from "@/components/AmbientBackground";
+import { ClickSpark } from "@/components/ui/ClickSpark";
+import { isSlowConnection } from "@/lib/utils";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 
 function useShouldLoadHeavyContent() {
   const [shouldLoad, setShouldLoad] = useState(true);
   useEffect(() => {
-    const conn = (navigator as any).connection;
-    if (conn) {
-      const slow = conn.effectiveType === "2g" || conn.effectiveType === "slow-2g" || conn.saveData;
-      setShouldLoad(!slow);
-    }
+    setShouldLoad(!isSlowConnection());
   }, []);
   return shouldLoad;
 }
@@ -48,14 +48,18 @@ function StatsSkeleton() {
 }
 
 const Index = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   return (
     <>
+      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9998] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm focus:font-medium">
         Przejdź do treści
       </a>
       <GrainOverlay />
+      <AmbientBackground />
+      <ClickSpark />
       <CustomCursor />
       <ScrollProgress />
       <Navbar />

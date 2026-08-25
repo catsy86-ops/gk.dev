@@ -65,6 +65,7 @@ const AboutSection = () => {
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], ["-5%", "8%"]);
   const parallaxYInverse = useTransform(scrollYProgress, [0, 1], ["5%", "-8%"]);
+  const timelineProgress = useTransform(scrollYProgress, [0.2, 0.85], [0, 1]);
 
   return (
     <section ref={sectionRef} className="relative bg-secondary/30 py-16 px-4 md:py-32 md:px-6 overflow-hidden" id="o-mnie">
@@ -286,14 +287,13 @@ const AboutSection = () => {
 
           {/* === TIMELINE === */}
           <div className="relative">
-            {/* Vertical line with glow */}
+            {/* Base track */}
+            <div className="absolute left-[22px] top-0 bottom-0 w-[1px] bg-border/40" />
+
+            {/* Dynamic animated progress line that fills as you scroll */}
             <motion.div
-              className="absolute left-[22px] top-0 bottom-0 w-[1px]"
-              style={{ background: "linear-gradient(180deg, transparent, hsl(var(--border)), hsl(var(--primary)/0.2), hsl(var(--border)), transparent)" }}
-              initial={{ scaleY: 0, originY: 0 }}
-              whileInView={{ scaleY: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+              className="absolute left-[21.5px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-accent-blue to-violet-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]"
+              style={{ scaleY: timelineProgress, originY: 0 }}
             />
 
             <div className="space-y-6">

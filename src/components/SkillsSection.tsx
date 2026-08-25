@@ -1,186 +1,108 @@
 import { motion, useInView } from "motion/react";
-import { Code2, Database, Cloud, Smartphone, Layout, GitBranch } from "lucide-react";
-import { useState, memo, useRef } from "react";
+import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check } from "lucide-react";
+import { useState, useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasSkillsBackground } from "@/components/ui/canvas-skills-background";
 
-const skills = [
+interface SkillItem {
+  id: string;
+  icon: typeof Code2;
+  title: string;
+  subtitle: string;
+  description: string;
+  gradient: string;
+  accentColor: string;
+  tags: string[];
+  highlights: string[];
+  size: "large" | "medium" | "small";
+}
+
+const skills: SkillItem[] = [
   {
+    id: "frontend",
     icon: Code2,
-    title: "Frontend",
-    description: "React, Next.js, TypeScript, Tailwind CSS — tworzę szybkie i responsywne interfejsy.",
-    gradient: "from-blue-500/10 to-cyan-500/10",
+    title: "Frontend Engineering",
+    subtitle: "React • Next.js • TypeScript",
+    description:
+      "Tworzenie nowoczesnych, responsywnych interfejsów webowych z dbałością o 60 FPS, dostępność (a11y) i estetykę pixel-perfect.",
+    gradient: "from-blue-500/20 via-cyan-500/10 to-transparent",
+    accentColor: "hsl(var(--primary))",
+    tags: ["React 19", "Next.js 15", "TypeScript", "Tailwind CSS", "Motion", "Zustand", "Radix UI"],
+    highlights: ["Ultra-fast Core Web Vitals", "Server Components & SSR", "Type-safe State Management"],
+    size: "large",
   },
   {
+    id: "backend",
     icon: Database,
-    title: "Backend",
-    description: "Node.js, Python, PostgreSQL, REST & GraphQL API — solidne fundamenty każdej aplikacji.",
-    gradient: "from-emerald-500/10 to-green-500/10",
+    title: "Backend & Systemy API",
+    subtitle: "Node.js • PostgreSQL • Redis",
+    description:
+      "Skalowalne usługi backendowe, bezpieczne bazy danych, relacje, cache'owanie i architektura sterowana zdarzeniami.",
+    gradient: "from-emerald-500/20 via-green-500/10 to-transparent",
+    accentColor: "rgb(16, 185, 129)",
+    tags: ["Node.js", "Express", "PostgreSQL", "Prisma", "Redis", "GraphQL", "REST"],
+    highlights: ["Bezpieczne autoryzacje JWT/OAuth", "Transakcje i indeksy DB", "Sub-50ms API Latency"],
+    size: "medium",
   },
   {
+    id: "cloud",
     icon: Cloud,
     title: "Cloud & DevOps",
-    description: "AWS, Docker, CI/CD, Vercel — automatyzacja wdrożeń i skalowalna infrastruktura.",
-    gradient: "from-purple-500/10 to-violet-500/10",
+    subtitle: "AWS • Docker • CI/CD",
+    description:
+      "Automatyzacja procesów deploymentu, konteneryzacja, bezawaryjny hosting chmurowy i monitoring.",
+    gradient: "from-purple-500/20 via-violet-500/10 to-transparent",
+    accentColor: "rgb(168, 85, 247)",
+    tags: ["AWS S3/EC2", "Docker", "GitHub Actions", "Vercel", "Linux", "Nginx"],
+    highlights: ["Automatyczny pipeline CI/CD", "Skalowalność horyzontalna", "Zero-Downtime Releases"],
+    size: "medium",
   },
   {
-    icon: Smartphone,
-    title: "Aplikacje mobilne",
-    description: "React Native i Flutter — natywne doświadczenia na iOS i Androidzie.",
-    gradient: "from-orange-500/10 to-amber-500/10",
-  },
-  {
-    icon: Layout,
-    title: "UI/UX Design",
-    description: "Figma, prototypowanie, systemy projektowe — projekty zorientowane na użytkownika.",
-    gradient: "from-pink-500/10 to-rose-500/10",
-  },
-  {
+    id: "architecture",
     icon: GitBranch,
-    title: "Architektura",
-    description: "Mikroserwisy, monorepo, clean code — skalowalne rozwiązania dla zespołów.",
-    gradient: "from-indigo-500/10 to-sky-500/10",
+    title: "Architektura & Clean Code",
+    subtitle: "Design Patterns • Testing",
+    description:
+      "Struktury kodu łatwe w utrzymaniu, refaktoryzacji i skalowaniu zespołowym w oparciu o SOLID i Clean Architecture.",
+    gradient: "from-indigo-500/20 via-sky-500/10 to-transparent",
+    accentColor: "rgb(99, 102, 241)",
+    tags: ["SOLID", "Design Patterns", "Vitest", "Playwright", "Monorepo"],
+    highlights: ["95%+ Test Coverage", "Modułowość kodu", "Standardy ESLint/Prettier"],
+    size: "large",
+  },
+  {
+    id: "mobile",
+    icon: Smartphone,
+    title: "Mobile Development",
+    subtitle: "React Native • Cross-platform",
+    description:
+      "Aplikacje mobilne na platformy iOS i Android z natywną wydajnością i płynnymi animacjami gestów.",
+    gradient: "from-orange-500/20 via-amber-500/10 to-transparent",
+    accentColor: "rgb(245, 158, 11)",
+    tags: ["React Native", "Expo", "Mobile UX", "Async Storage"],
+    highlights: ["Płynna obsługa gestów", "Tryb Offline", "iOS & Android"],
+    size: "small",
+  },
+  {
+    id: "uiux",
+    icon: Layout,
+    title: "UI/UX & Design Systems",
+    subtitle: "Figma • Prototyping",
+    description:
+      "Projektowanie użytecznych i intuicyjnych systemów designu z naciskiem na konwersję i ergonomię użytkownika.",
+    gradient: "from-pink-500/20 via-rose-500/10 to-transparent",
+    accentColor: "rgb(236, 72, 153)",
+    tags: ["Figma", "Design Tokens", "Micro-interactions", "WCAG 2.1"],
+    highlights: ["Komponenty modułowe", "Dostępność cyfrowa", "Responsive Design"],
+    size: "small",
   },
 ];
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.9, rotateX: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    rotateX: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.25, 0.4, 0.25, 1] as [number, number, number, number],
-    },
-  },
-};
-
-const iconVariants = {
-  hidden: { scale: 0, rotate: -180 },
-  visible: {
-    scale: 1,
-    rotate: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 260,
-      damping: 20,
-      delay: 0.3,
-    },
-  },
-};
-
-const SkillCard = memo(({ skill, index }: { skill: typeof skills[0]; index: number }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <motion.div
-      className="group relative rounded-2xl border border-border bg-card overflow-hidden"
-      variants={cardVariants}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      whileHover={{
-        y: -8,
-        transition: { duration: 0.3, ease: "easeOut" },
-      }}
-      style={{ perspective: 800 }}
-    >
-      {/* Animated gradient bg on hover */}
-      <motion.div
-        className={`absolute inset-0 bg-gradient-to-br ${skill.gradient}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
-      />
-
-      {/* Shine effect */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 45%, transparent 50%)",
-        }}
-        initial={{ x: "-100%" }}
-        animate={isHovered ? { x: "200%" } : { x: "-100%" }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-      />
-
-      {/* Glowing border on hover */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0)" }}
-        animate={{
-          boxShadow: isHovered
-            ? "inset 0 0 0 1px hsl(var(--primary) / 0.2), 0 8px 30px -5px hsl(var(--primary) / 0.1)"
-            : "inset 0 0 0 1px rgba(255,255,255,0)",
-        }}
-        transition={{ duration: 0.3 }}
-      />
-
-      <div className="relative p-7">
-        {/* Animated icon */}
-        <motion.div
-          className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-foreground"
-          variants={iconVariants}
-          whileHover={{
-            rotate: [0, -10, 10, -5, 0],
-            transition: { duration: 0.5 },
-          }}
-        >
-          <skill.icon className="h-5 w-5" strokeWidth={1.8} />
-        </motion.div>
-
-        <motion.h3
-          className="font-['Geist'] font-medium text-foreground text-lg mb-2 tracking-[-0.01em]"
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: index * 0.08 + 0.4, duration: 0.5 }}
-        >
-          {skill.title}
-        </motion.h3>
-
-        <motion.p
-          className="font-['Geist'] text-sm text-muted-foreground leading-relaxed"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: index * 0.08 + 0.5, duration: 0.5 }}
-        >
-          {skill.description}
-        </motion.p>
-
-        {/* Animated underline */}
-        <motion.div
-          className="mt-4 h-[2px] bg-foreground/10 rounded-full overflow-hidden"
-        >
-          <motion.div
-            className="h-full bg-foreground/30 rounded-full"
-            initial={{ width: "0%" }}
-            animate={{ width: isHovered ? "100%" : "0%" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-});
-SkillCard.displayName = "SkillCard";
 
 const SkillsSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
+  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
 
   return (
     <SectionWrapper ref={sectionRef} id="umiejetnosci" label="Umiejętności" className="bg-secondary/30 relative overflow-hidden">
@@ -191,27 +113,101 @@ const SkillsSection = () => {
         </div>
       )}
 
-      {/* Gradient overlay for depth */}
+      {/* Depth Gradient Overlay */}
       <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background)/0.5)_100%)]" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto max-w-[1200px]">
         <SectionHeader
-          badge="Czym się zajmuję"
+          badge="Kompetencje & Stack"
+          badgeIcon={<Sparkles className="h-3 w-3" />}
           title="Moje"
           highlight="umiejętności"
+          gradient
         />
 
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {skills.map((skill, i) => (
-            <SkillCard key={skill.title} skill={skill} index={i} />
-          ))}
-        </motion.div>
+        {/* Bento Grid layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {skills.map((skill, index) => {
+            const isLarge = skill.size === "large";
+            const isHovered = hoveredSkill === skill.id;
+
+            return (
+              <motion.div
+                key={skill.id}
+                onMouseEnter={() => setHoveredSkill(skill.id)}
+                onMouseLeave={() => setHoveredSkill(null)}
+                className={`group relative rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 overflow-hidden transition-all duration-300 flex flex-col justify-between ${
+                  isLarge ? "lg:col-span-2" : ""
+                }`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                whileHover={{ y: -6 }}
+              >
+                {/* Dynamic Gradient Background on hover */}
+                <motion.div
+                  className={`absolute inset-0 bg-gradient-to-br ${skill.gradient}`}
+                  animate={{ opacity: isHovered ? 1 : 0 }}
+                  transition={{ duration: 0.4 }}
+                />
+
+                {/* Subtle top border glow */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ background: `linear-gradient(90deg, transparent, ${skill.accentColor}, transparent)` }}
+                />
+
+                <div className="relative z-10">
+                  {/* Icon & Subtitle Header */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-secondary/80 text-foreground transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                      style={{ color: skill.accentColor }}
+                    >
+                      <skill.icon className="h-6 w-6" strokeWidth={1.8} />
+                    </div>
+
+                    <span className="font-mono text-[11px] text-muted-foreground bg-secondary/60 backdrop-blur-sm px-3 py-1 rounded-full border border-border/40">
+                      {skill.subtitle}
+                    </span>
+                  </div>
+
+                  {/* Title & Description */}
+                  <h3 className="font-['Geist'] text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {skill.title}
+                  </h3>
+
+                  <p className="font-['Geist'] text-sm text-muted-foreground leading-relaxed mb-5">
+                    {skill.description}
+                  </p>
+
+                  {/* Highlights checklist */}
+                  <div className="space-y-2 mb-6">
+                    {skill.highlights.map((h, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs font-['Geist'] text-foreground/80">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>{h}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tags bottom row */}
+                <div className="relative z-10 pt-4 border-t border-border/40 flex flex-wrap gap-1.5">
+                  {skill.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-lg bg-secondary/80 border border-border/40 px-2.5 py-1 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </SectionWrapper>
   );

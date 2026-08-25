@@ -1,16 +1,159 @@
-import { motion } from "motion/react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { CanvasFlowBackground } from "@/components/ui/canvas-flow-background";
+import { Sparkles, Layers, Award } from "lucide-react";
+import { soundEngine } from "@/lib/audio";
+
+interface TechMeta {
+  name: string;
+  exp: string;
+  category: string;
+  stack: string;
+  projectsCount: string;
+  color: string;
+}
+
+const techDetails: Record<string, TechMeta> = {
+  React: {
+    name: "React",
+    exp: "6+ lat doświadczenia",
+    category: "Frontend Core",
+    stack: "React 19, Server Components, Hooks, Context API",
+    projectsCount: "20+ projektów",
+    color: "text-cyan-400",
+  },
+  TypeScript: {
+    name: "TypeScript",
+    exp: "6+ lat doświadczenia",
+    category: "Fullstack Type-Safety",
+    stack: "Strict Mode, Generics, Type-level Programming",
+    projectsCount: "25+ projektów",
+    color: "text-blue-400",
+  },
+  "Next.js": {
+    name: "Next.js",
+    exp: "5+ lat doświadczenia",
+    category: "Fullstack Framework",
+    stack: "Next 15, App Router, Server Actions, Turbopack",
+    projectsCount: "16+ projektów",
+    color: "text-white",
+  },
+  "Node.js": {
+    name: "Node.js",
+    exp: "6+ lat doświadczenia",
+    category: "Backend Engine",
+    stack: "NestJS, Express, Fastify, Microservices architecture",
+    projectsCount: "18+ projektów",
+    color: "text-emerald-400",
+  },
+  Python: {
+    name: "Python",
+    exp: "4+ lat doświadczenia",
+    category: "AI & Backend API",
+    stack: "FastAPI, Automation Scripts, Data Pipelines",
+    projectsCount: "10+ projektów",
+    color: "text-amber-400",
+  },
+  PostgreSQL: {
+    name: "PostgreSQL",
+    exp: "5+ lat doświadczenia",
+    category: "Relational Database",
+    stack: "Prisma ORM, Drizzle, Indexing, Complex Queries",
+    projectsCount: "15+ projektów",
+    color: "text-indigo-400",
+  },
+  Docker: {
+    name: "Docker",
+    exp: "5+ lat doświadczenia",
+    category: "DevOps & Containers",
+    stack: "Multi-stage Builds, Docker Compose, Microservices",
+    projectsCount: "14+ projektów",
+    color: "text-blue-400",
+  },
+  AWS: {
+    name: "AWS",
+    exp: "4+ lat doświadczenia",
+    category: "Cloud Infrastructure",
+    stack: "S3, CloudFront, Lambda, EC2, IAM, Route53",
+    projectsCount: "12+ projektów",
+    color: "text-amber-500",
+  },
+  Tailwind: {
+    name: "Tailwind CSS",
+    exp: "5+ lat doświadczenia",
+    category: "Design System & UI",
+    stack: "Tailwind v3/v4, CSS Variables, Responsive Layouts",
+    projectsCount: "25+ projektów",
+    color: "text-teal-400",
+  },
+  GraphQL: {
+    name: "GraphQL",
+    exp: "4+ lat doświadczenia",
+    category: "API Layer",
+    stack: "Apollo Server/Client, Schema Federation, Codegen",
+    projectsCount: "8+ projektów",
+    color: "text-pink-400",
+  },
+  Redis: {
+    name: "Redis",
+    exp: "4+ lat doświadczenia",
+    category: "In-memory Cache",
+    stack: "Pub/Sub, Session Store, Rate Limiting, Caching",
+    projectsCount: "9+ projektów",
+    color: "text-red-400",
+  },
+  Figma: {
+    name: "Figma",
+    exp: "6+ lat doświadczenia",
+    category: "UI/UX Design",
+    stack: "Design Systems, Auto-layout, Interactive Prototyping",
+    projectsCount: "30+ makiet",
+    color: "text-violet-400",
+  },
+  Git: {
+    name: "Git & GitHub",
+    exp: "7+ lat doświadczenia",
+    category: "Version Control & CI",
+    stack: "GitHub Actions, Trunk-based dev, Code Review",
+    projectsCount: "50+ repozytoriów",
+    color: "text-orange-400",
+  },
+  Flutter: {
+    name: "Flutter",
+    exp: "3+ lat doświadczenia",
+    category: "Cross-platform Mobile",
+    stack: "Dart, iOS & Android Apps, Riverpod, Bloc",
+    projectsCount: "5+ aplikacji",
+    color: "text-cyan-400",
+  },
+  Vercel: {
+    name: "Vercel",
+    exp: "5+ lat doświadczenia",
+    category: "Edge Deployment",
+    stack: "Edge Functions, Analytics, Zero-downtime Deploy",
+    projectsCount: "20+ wdrożeń",
+    color: "text-white",
+  },
+  MongoDB: {
+    name: "MongoDB",
+    exp: "4+ lat doświadczenia",
+    category: "NoSQL Database",
+    stack: "Atlas, Aggregations, Document Modeling",
+    projectsCount: "8+ projektów",
+    color: "text-emerald-500",
+  },
+};
 
 const TechIcon = ({ name }: { name: string }) => {
   const icons: Record<string, JSX.Element> = {
     React: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-cyan-400" fill="currentColor">
         <path d="M12 10.11c1.03 0 1.87.84 1.87 1.89 0 1-.84 1.85-1.87 1.85S10.13 13 10.13 12c0-1.05.84-1.89 1.87-1.89M7.37 20c.63.38 2.01-.2 3.6-1.7-.52-.59-1.03-1.23-1.51-1.9a22.7 22.7 0 01-2.4-.36c-.51 2.14-.32 3.61.31 3.96m.71-5.74l-.29-.51c-.11.29-.22.58-.29.86.27.06.57.11.88.16l-.3-.51m6.54-.76l.81-1.5-.81-1.5c-.3-.53-.62-1-.91-1.47C13.17 9 12.6 9 12 9s-1.17 0-1.71.03c-.29.47-.61.94-.91 1.47L8.57 12l.81 1.5c.3.53.62 1 .91 1.47.54.03 1.11.03 1.71.03s1.17 0 1.71-.03c.29-.47.61-.94.91-1.47M12 6.78c-.19.22-.39.45-.59.72h1.18c-.2-.27-.4-.5-.59-.72m0 10.44c.19-.22.39-.45.59-.72h-1.18c.2.27.4.5.59.72M16.62 4c-.62-.38-2 .2-3.59 1.7.52.59 1.03 1.23 1.51 1.9.82.08 1.63.2 2.4.36.51-2.14.32-3.61-.32-3.96m-.7 5.74l.29.51c.11-.29.22-.58.29-.86-.27-.06-.57-.11-.88-.16l.3.51m1.45-7.05c1.47.84 1.63 3.05 1.01 5.63 2.54.75 4.37 1.99 4.37 3.68s-1.83 2.93-4.37 3.68c.62 2.58.46 4.79-1.01 5.63-1.46.84-3.45-.12-5.37-1.95-1.92 1.83-3.91 2.79-5.38 1.95-1.46-.84-1.62-3.05-1-5.63-2.54-.75-4.37-1.99-4.37-3.68s1.83-2.93 4.37-3.68c-.62-2.58-.46-4.79 1-5.63 1.47-.84 3.46.12 5.38 1.95 1.92-1.83 3.91-2.79 5.37-1.95M17.08 12c.34.75.64 1.5.89 2.26 2.1-.63 3.28-1.53 3.28-2.26s-1.18-1.63-3.28-2.26c-.25.76-.55 1.51-.89 2.26M6.92 12c-.34-.75-.64-1.5-.89-2.26-2.1.63-3.28 1.53-3.28 2.26s1.18 1.63 3.28 2.26c.25-.76.55-1.51.89-2.26m9 2.26l-.3.51c.31-.05.61-.1.88-.16-.07-.28-.18-.57-.29-.86l-.29.51m-2.89 4.04c1.59 1.5 2.97 2.08 3.59 1.7.64-.35.83-1.82.32-3.96-.77.16-1.58.28-2.4.36-.48.67-.99 1.31-1.51 1.9M8.08 9.74l.3-.51c-.31.05-.61.1-.88.16.07.28.18.57.29.86l.29-.51m2.89-4.04C9.38 4.2 8 3.62 7.37 4c-.63.35-.82 1.82-.31 3.96a22.7 22.7 0 012.4-.36c.48-.67.99-1.31 1.51-1.9z" />
       </svg>
     ),
     TypeScript: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-blue-400" fill="currentColor">
         <path d="M3 3h18v18H3V3zm10.71 14.86c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.49 0 .8.21 1.09.73l1.31-.84c-.55-.96-1.33-1.33-2.4-1.33-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03l-1.38.8zM10 17.25H8.09v-5.75H6.06v-1.69h5.97v1.69H10v5.75z" />
       </svg>
     ),
@@ -20,58 +163,58 @@ const TechIcon = ({ name }: { name: string }) => {
       </svg>
     ),
     "Node.js": (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-emerald-400" fill="currentColor">
         <path d="M11.998 24c-.321 0-.641-.084-.922-.247l-2.936-1.737c-.438-.245-.224-.332-.08-.383.585-.203.703-.25 1.328-.604.065-.037.151-.023.218.017l2.256 1.339a.29.29 0 00.272 0l8.795-5.076a.277.277 0 00.134-.238V6.921a.28.28 0 00-.137-.242l-8.791-5.072a.278.278 0 00-.271 0L3.075 6.68a.28.28 0 00-.138.24v10.15c0 .099.053.19.138.236l2.409 1.392c1.307.654 2.108-.116 2.108-.89V7.787c0-.142.114-.253.256-.253h1.115c.139 0 .255.112.255.253v10.021c0 1.745-.95 2.745-2.604 2.745-.508 0-.909 0-2.026-.551L2.28 18.675a1.857 1.857 0 01-.922-1.604V6.921c0-.659.353-1.275.922-1.603L11.075.242a1.927 1.927 0 011.846 0l8.794 5.076c.57.329.924.944.924 1.603v10.15c0 .659-.354 1.273-.924 1.604l-8.794 5.078c-.28.163-.6.247-.923.247z" />
       </svg>
     ),
     Python: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-amber-400" fill="currentColor">
         <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09-.33.22z" />
         <path d="M21.1 6.11l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.89.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01.21.03zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08-.33.23z" />
       </svg>
     ),
     PostgreSQL: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-indigo-400" fill="currentColor">
         <path d="M17.128 0a10.134 10.134 0 00-2.755.403l-.063.02A10.922 10.922 0 0012.6.258C11.422.238 10.41.524 9.594 1 8.79.721 7.122.24 5.364.336 4.14.403 2.804.775 1.814 1.82.826 2.865.377 4.478.55 6.63c.052.627.2 1.312.405 2.04.612 2.168 1.605 4.674 2.696 5.904.543.614 1.094.973 1.66 1.023.32.028.604-.066.848-.259l.072-.076c.08.14.175.261.29.37l.046.05c.428.395 1.005.6 1.585.6.117 0 .233-.011.348-.034l.207-.042c-.078.588-.01 1.194.213 1.856l.063.147c.428.997 1.144 1.597 2.042 1.71a2.39 2.39 0 00.318.021c.69 0 1.433-.32 2.073-.914l.024-.023c.063 1.368.243 2.387.608 3.122.326.656.844 1.113 1.56 1.113.16 0 .33-.024.51-.077 1.263-.365 1.777-1.07 1.99-1.959.123-.51.174-1.095.213-1.775l.039-.63.065.18c.232.546.6.96 1.1 1.13.16.053.327.08.495.08.662 0 1.375-.376 1.91-1.108.675-.923 1.148-2.303 1.149-4.166v-.022c.003-.188-.01-.37-.017-.554l.022-.468c.092-1.986.15-3.252-.078-4.58a7.404 7.404 0 00-.308-1.189c.09-.063.18-.13.267-.2.792-.655 1.25-1.47 1.23-2.587a3.226 3.226 0 00-.187-1.003C22.636 1.89 21.084.481 19.18.123A7.42 7.42 0 0017.128 0z" />
       </svg>
     ),
     Docker: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-blue-400" fill="currentColor">
         <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.12a.186.186 0 00-.185.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.687 11.687 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.228 12.228 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z" />
       </svg>
     ),
     AWS: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-amber-500" fill="currentColor">
         <path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 01-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 01-.287-.375 6.18 6.18 0 01-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 01-.28.104.488.488 0 01-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 01.224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 011.246-.151c.95 0 1.644.216 2.091.647.44.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 00-.735-.136 6.02 6.02 0 00-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 01-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 01.32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 01.311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 01-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 01-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.216-.151-.248-.223a.563.563 0 01-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 00.415-.758.777.777 0 00-.215-.559c-.144-.151-.416-.287-.807-.414l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 01-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415a3.54 3.54 0 011.005-.144c.176 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 01.24.2.43.43 0 01.071.263v.375c0 .168-.064.256-.184.256a.83.83 0 01-.303-.096 3.652 3.652 0 00-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167zM21.698 16.207c-2.626 1.94-6.442 2.969-9.722 2.969-4.598 0-8.74-1.7-11.87-4.526-.247-.223-.024-.527.272-.351 3.384 1.963 7.559 3.153 11.877 3.153 2.914 0 6.114-.607 9.06-1.852.439-.2.814.287.383.607zM22.792 14.961c-.336-.43-2.22-.207-3.074-.103-.255.032-.295-.192-.063-.36 1.5-1.053 3.967-.75 4.254-.399.287.36-.08 2.826-1.485 4.007-.216.184-.423.088-.327-.151.32-.79 1.03-2.57.695-2.994z" />
       </svg>
     ),
     Tailwind: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-teal-400" fill="currentColor">
         <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
       </svg>
     ),
     GraphQL: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-pink-400" fill="currentColor">
         <path d="M12.002 0a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277zm-8.54 4.931a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277zm17.083 0a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277zm-8.541 1.89L5.554 10.78l-.002 7.924 6.45 3.724 6.45-3.724V10.78L12.003 6.82zM3.461 14.795a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277zm17.083 0a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277zM12.002 19.72a2.138 2.138 0 100 4.277 2.138 2.138 0 100-4.277z" />
       </svg>
     ),
     Redis: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-red-400" fill="currentColor">
         <path d="M10.5 2.661l.54.997-1.797.644 2.409.166.54.996-1.797.645 2.409.166.002.007L24 10.054 12 14.994 0 10.054l5.036-1.932-.002-.004 2.41.166.54.996-1.798.645 2.41.166.54.997-1.797.644 2.409.166L12 12.652l2.252-.864 2.41-.924-5.727-2.269-.372-.144 2.024-.777-5.09-1.963 3.003-1.15zM12 16.08l10.5-4.03v3.06L12 19.14l-10.5-4.03v-3.06zm0 5.1l10.5-4.03v3.06L12 24.24l-10.5-4.03v-3.06z" />
       </svg>
     ),
     Figma: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-violet-400" fill="currentColor">
         <path d="M15.852 8.981h-4.588V0h4.588c2.476 0 4.49 2.014 4.49 4.49s-2.014 4.491-4.49 4.491zM12.735 7.51h3.117c1.665 0 3.019-1.355 3.019-3.019s-1.355-3.019-3.019-3.019h-3.117V7.51zm0 8.943h-4.588c-2.476 0-4.49-2.014-4.49-4.49s2.014-4.49 4.49-4.49h4.588v8.981zM4.117 11.963c0 1.665 1.354 3.02 3.019 3.02h3.117V8.943H7.136c-1.665 0-3.019 1.355-3.019 3.02zm16.348 4.49c0 2.476-2.014 4.49-4.49 4.49h-4.588v-8.981h4.588c2.476.001 4.49 2.015 4.49 4.491zm-4.49 3.019c1.665 0 3.019-1.355 3.019-3.019s-1.354-3.02-3.019-3.02h-3.117v6.039h3.117zM4.117 20.943c0 2.476 2.014 4.49 4.49 4.49h3.117v-8.981H8.607c-2.476 0-4.49 2.014-4.49 4.491zm4.49 3.019c1.665 0 3.019-1.355 3.019-3.019v-3.02H8.607c-1.665 0-3.019 1.355-3.019 3.02s1.354 3.019 3.019 3.019z" />
       </svg>
     ),
     Git: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-orange-400" fill="currentColor">
         <path d="M23.546 10.93L13.067.452a1.55 1.55 0 00-2.188 0L8.708 2.627l2.76 2.76a1.838 1.838 0 012.327 2.341l2.66 2.66a1.838 1.838 0 011.933 3.072 1.84 1.84 0 01-2.609-2.596l-2.48-2.48v6.531a1.839 1.839 0 11-1.508-.079V8.858a1.838 1.838 0 01-.998-2.413L8.011 3.672.452 11.233a1.55 1.55 0 000 2.188l10.48 10.477a1.55 1.55 0 002.186 0l10.428-10.428a1.55 1.55 0 000-2.54z" />
       </svg>
     ),
     Flutter: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-cyan-400" fill="currentColor">
         <path d="M14.314 0L2.3 12 6.13 15.83 22.15 0H14.314zM14.314 11.908L8.208 18.012l6.106 6.104H22.15l-6.106-6.104 6.106-6.104z" />
       </svg>
     ),
@@ -81,7 +224,7 @@ const TechIcon = ({ name }: { name: string }) => {
       </svg>
     ),
     MongoDB: (
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-emerald-500" fill="currentColor">
         <path d="M17.193 9.555c-1.264-5.58-4.252-7.414-4.573-8.115-.28-.394-.53-.954-.735-1.44-.036.495-.055.685-.523 1.184-.723.566-4.438 3.682-4.74 10.02-.282 5.912 4.27 9.435 4.888 9.884l.07.05A73.49 73.49 0 0111.91 24h.481c.114-1.032.284-2.056.51-3.07.417-.296.604-.463.85-.693a11.342 11.342 0 003.639-8.464c.01-.814-.103-1.662-.197-2.218zm-5.336 8.195s0-8.291.275-8.29c.213 0 .49 10.695.49 10.695-.381-.045-.765-1.76-.765-2.405z" />
       </svg>
     ),
@@ -96,76 +239,163 @@ const technologies = [
   "Git", "Flutter", "Vercel", "MongoDB",
 ];
 
-const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
+const TechMarquee = () => {
+  const [selectedTech, setSelectedTech] = useState<TechMeta | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+
+  const handleTechHover = (name: string) => {
+    soundEngine.playPop(850, 0.03);
+    setSelectedTech(techDetails[name] || null);
+    setIsPaused(true);
+  };
+
+  const handleTechLeave = () => {
+    setIsPaused(false);
+  };
+
   const items = [...technologies, ...technologies];
 
-  if (prefersReduced) {
-    return (
-      <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-        <div className="flex gap-4 py-2 shrink-0 flex-wrap">
-          {technologies.map((name) => (
-            <div
-              key={name}
-              className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap text-foreground dark:text-foreground/70"
-            >
-              <TechIcon name={name} />
-              <span className="font-['Geist'] text-sm font-medium">{name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-      <motion.div
-        className="flex gap-4 py-2 shrink-0"
-        animate={{ x: reverse ? ["0%", "-50%"] : ["-50%", "0%"] }}
-        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
-      >
-        {items.map((name, i) => (
-          <div
-            key={`${name}-${i}`}
-            className="flex items-center gap-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm px-5 py-2.5 whitespace-nowrap hover:border-primary/30 hover:bg-primary/5 transition-colors duration-300 text-foreground dark:text-foreground/70 hover:text-foreground"
-          >
-            <TechIcon name={name} />
-            <span className="font-['Geist'] text-sm font-medium">
-              {name}
-            </span>
-          </div>
-        ))}
-      </motion.div>
-    </div>
-  );
-};
-
-const TechMarquee = () => {
-  return (
-    <section className="relative z-10 py-16 px-4 md:py-20 md:px-6 overflow-hidden" id="tech-stack">
+    <section className="relative z-10 py-20 px-4 md:py-24 md:px-6 overflow-hidden" id="tech-stack">
       <CanvasFlowBackground />
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6 mb-10">
+      
+      <div className="relative z-10 mx-auto max-w-[1240px] px-4 sm:px-6 mb-10 text-center">
         <motion.div
-          className="text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          className="space-y-3"
         >
-          <span className="inline-block font-['Geist'] text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">
-            Tech Stack
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary uppercase tracking-widest font-['Geist'] shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
+            Tech Stack & Ekosystem
           </span>
-          <h2 className="font-['Geist'] text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
-            Technologie, z którymi{" "}
-            <span className="font-['Instrument_Serif'] italic">pracuję</span>
+          <h2 className="font-['Geist'] text-3xl md:text-5xl font-black tracking-tight text-foreground">
+            Technologie, z którymi <span className="text-primary">buduję</span>
           </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground font-mono">
+            Najedź kursorem na technologię, aby wyświetlić szczegóły komercyjnego stażu
+          </p>
         </motion.div>
       </div>
 
-      <div className="relative z-10 space-y-4">
-        <MarqueeRow />
-        <MarqueeRow reverse />
+      {/* Floating Active Inspector Popup on Desktop */}
+      <div className="relative z-20 mx-auto max-w-xl px-4 min-h-[72px] mb-6 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {selectedTech ? (
+            <motion.div
+              key={selectedTech.name}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="w-full rounded-2xl border border-primary/30 bg-card/90 backdrop-blur-2xl p-4 shadow-xl flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/80 border border-border/60">
+                  <TechIcon name={selectedTech.name} />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-['Geist'] font-bold text-foreground text-sm sm:text-base">
+                      {selectedTech.name}
+                    </h3>
+                    <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 font-mono text-[10px] font-bold text-primary">
+                      {selectedTech.category}
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                    {selectedTech.stack}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right shrink-0 hidden sm:block">
+                <p className="font-mono text-xs font-bold text-foreground">
+                  {selectedTech.exp}
+                </p>
+                <p className="text-[11px] font-medium text-emerald-500 flex items-center justify-end gap-1">
+                  <Award className="h-3 w-3" />
+                  {selectedTech.projectsCount}
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs font-mono text-muted-foreground/60 flex items-center gap-2"
+            >
+              <Layers className="h-4 w-4 text-primary/40 animate-pulse" />
+              <span>Najedź na technologię, aby sprawdzić profil kompetencji</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Marquee Rows with hover pause */}
+      <div
+        className="relative z-10 space-y-4"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={handleTechLeave}
+      >
+        {/* Row 1 */}
+        <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <motion.div
+            className="flex gap-4 py-2 shrink-0"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{
+              duration: prefersReduced ? 0 : 35,
+              ease: "linear",
+              repeat: Infinity,
+              paused: isPaused,
+            }}
+          >
+            {items.map((name, i) => (
+              <button
+                key={`r1-${name}-${i}`}
+                onMouseEnter={() => handleTechHover(name)}
+                onClick={() => handleTechHover(name)}
+                className="group flex items-center gap-3 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl px-5 py-3 whitespace-nowrap hover:border-primary/50 hover:bg-card hover:scale-105 hover:shadow-lg transition-all duration-200 text-foreground"
+              >
+                <TechIcon name={name} />
+                <span className="font-['Geist'] text-sm font-semibold tracking-tight">
+                  {name}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Row 2 (Reverse) */}
+        <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <motion.div
+            className="flex gap-4 py-2 shrink-0"
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{
+              duration: prefersReduced ? 0 : 38,
+              ease: "linear",
+              repeat: Infinity,
+              paused: isPaused,
+            }}
+          >
+            {items.map((name, i) => (
+              <button
+                key={`r2-${name}-${i}`}
+                onMouseEnter={() => handleTechHover(name)}
+                onClick={() => handleTechHover(name)}
+                className="group flex items-center gap-3 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl px-5 py-3 whitespace-nowrap hover:border-primary/50 hover:bg-card hover:scale-105 hover:shadow-lg transition-all duration-200 text-foreground"
+              >
+                <TechIcon name={name} />
+                <span className="font-['Geist'] text-sm font-semibold tracking-tight">
+                  {name}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        </div>
       </div>
     </section>
   );

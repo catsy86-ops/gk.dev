@@ -1,0 +1,7 @@
+node_modules
+dist
+.devcontainer
+.git
+.gitignore
+*.md
+e2e

@@ -95,33 +95,45 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
             className="mb-12"
           />
 
-          {/* Contact info — glass pills */}
+          {/* Contact info & SLA banner */}
           <motion.div
-            className="flex flex-wrap justify-center gap-4 mb-12"
+            className="flex flex-col items-center gap-4 mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {[
-              { icon: Mail, text: "kontakt@gkdev.pl" },
-              { icon: MapPin, text: "Warszawa, PL" },
-              { icon: Phone, text: "+48 501 234 567" },
-            ].map(({ icon: Icon, text }, i) => (
-              <motion.div
-                key={text}
-                className="flex items-center gap-2.5 rounded-full border border-border/50 bg-card/60 backdrop-blur-md px-5 py-2.5 text-sm text-muted-foreground font-['Geist'] shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:border-primary/30 hover:text-foreground hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-300"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.1 }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+            {/* SLA badge */}
+            <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1 font-mono text-xs text-emerald-500 font-medium shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Dostępny do nowych wyzwań • Odpowiedź w &lt; 4h</span>
+            </div>
+
+            {/* Contact info — glass pills with copy */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText("kontakt@gkdev.pl");
+                  toast({ title: "Skopiowano email", description: "kontakt@gkdev.pl zapisano w schowku." });
+                }}
+                className="flex items-center gap-2.5 rounded-full border border-border/70 bg-card/70 backdrop-blur-md px-5 py-2 text-sm text-foreground font-['Geist'] shadow-sm hover:border-primary/40 hover:text-primary transition-all active:scale-95"
+                title="Kliknij, aby skopiować email"
               >
-                <Icon className="h-4 w-4 text-primary/70" strokeWidth={1.6} aria-hidden="true" />
-                {text}
-              </motion.div>
-            ))}
+                <Mail className="h-4 w-4 text-primary" strokeWidth={1.8} aria-hidden="true" />
+                <span>kontakt@gkdev.pl</span>
+              </button>
+
+              <div className="flex items-center gap-2.5 rounded-full border border-border/50 bg-card/60 backdrop-blur-md px-5 py-2 text-sm text-muted-foreground font-['Geist'] shadow-sm">
+                <MapPin className="h-4 w-4 text-primary/70" strokeWidth={1.8} aria-hidden="true" />
+                <span>Szczecin, PL</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 rounded-full border border-border/50 bg-card/60 backdrop-blur-md px-5 py-2 text-sm text-muted-foreground font-['Geist'] shadow-sm">
+                <Phone className="h-4 w-4 text-primary/70" strokeWidth={1.8} aria-hidden="true" />
+                <span>+48 501 234 567</span>
+              </div>
+            </div>
           </motion.div>
 
           {/* Form */}
@@ -177,7 +189,41 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   noValidate
                   aria-label="Formularz kontaktowy"
                 >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Topic Selector Chips */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-foreground/80 font-['Geist'] flex items-center gap-1.5">
+                      <span>Wybierz temat rozmowy:</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Nowy Projekt SaaS",
+                        "Audyt Architektury",
+                        "Aplikacja Web / Mobile",
+                        "Współpraca / Zespół",
+                      ].map((topic) => {
+                        const isSelected = form.message.includes(`[${topic}]`);
+                        return (
+                          <button
+                            key={topic}
+                            type="button"
+                            onClick={() => {
+                              const cleanMessage = form.message.replace(/^\[.*?\]\s*/, "");
+                              updateField("message", `[${topic}] ${cleanMessage}`);
+                            }}
+                            className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-all ${
+                              isSelected
+                                ? "border-primary bg-primary text-primary-foreground shadow-sm scale-105"
+                                : "border-border/70 bg-secondary/60 text-muted-foreground hover:text-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            {topic}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {([
                 { key: "name", label: "Imię", type: "text", autocomplete: "given-name" },
                 { key: "email", label: "Email", type: "email", autocomplete: "email" },

@@ -6,6 +6,8 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { RippleButton } from "@/components/ui/ripple-button";
 import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
 import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
+import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { HeroCodeTerminal } from "@/components/HeroCodeTerminal";
 import {
   EASE_STANDARD,
   TYPEWRITER_TYPING_SPEED,
@@ -22,6 +24,65 @@ const fadeUp = {
     y: 0,
     transition: { delay: i * 0.15, duration: 0.7, ease: EASE_STANDARD },
   }),
+};
+
+const badgeGlow = {
+  animate: {
+    boxShadow: [
+      "0 0 0px hsl(var(--primary) / 0)",
+      "0 0 20px hsl(var(--primary) / 0.25)",
+      "0 0 0px hsl(var(--primary) / 0)",
+    ],
+  },
+  transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+};
+
+const floatingBadge = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { delay: 0, duration: 0.8, ease: EASE_STANDARD },
+  },
+};
+
+const headingReveal = {
+  hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { delay: 0.15, duration: 0.8, ease: EASE_STANDARD },
+  },
+};
+
+const descReveal = {
+  hidden: { opacity: 0, y: 25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.45, duration: 0.7, ease: EASE_STANDARD },
+  },
+};
+
+const ctaReveal = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { delay: 0.65, duration: 0.6, ease: EASE_STANDARD },
+  },
+};
+
+const socialsReveal = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.85, duration: 0.5, ease: EASE_STANDARD },
+  },
 };
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -184,38 +245,44 @@ const HeroSection = () => {
 
       {/* Content with parallax */}
       <motion.div
-        className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-6 pt-[28vh] sm:pt-[32vh] md:pt-[38vh] flex flex-col items-center gap-5 sm:gap-8"
+        className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-6 pt-[20vh] sm:pt-[24vh] md:pt-[26vh] pb-16 flex flex-col items-center gap-6 sm:gap-8"
         style={{ y: isMobile ? 0 : contentY, opacity: isMobile ? 1 : contentOpacity }}
       >
-        {/* Role badge */}
-        <motion.div
-          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/80 backdrop-blur-xl px-4 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.15)]"
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          aria-label={`Rola: ${typewriterText}`}
-        >
-          <Code2 className="h-4 w-4 text-primary" aria-hidden="true" />
-          <span className="font-['Geist'] text-xs font-medium text-primary min-w-[140px]" aria-live="polite">
-            {typewriterText}
+        {/* Top Badges: Availability & Role */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <AvailabilityBadge />
+
+          <motion.div
+            className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/80 backdrop-blur-xl px-4 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.15)]"
+            variants={floatingBadge}
+            initial="hidden"
+            animate="visible"
+            aria-label={`Rola: ${typewriterText}`}
+          >
+            <Code2 className="h-4 w-4 text-primary" aria-hidden="true" />
+            <span className="font-['Geist'] text-xs font-medium text-primary min-w-[140px]" aria-live="polite">
+              {typewriterText}
+              <motion.span
+                className="inline-block w-[2px] h-3.5 bg-primary ml-0.5 align-middle"
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+                aria-hidden="true"
+              />
+            </span>
             <motion.span
-              className="inline-block w-[2px] h-3.5 bg-primary ml-0.5 align-middle"
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
-              aria-hidden="true"
+              className="absolute inset-0 rounded-full pointer-events-none"
+              {...badgeGlow}
             />
-          </span>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Heading */}
         <motion.h1
           className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.05] text-shadow-hero"
           style={{ fontSize: "clamp(36px, 5.5vw, 80px)" }}
-          variants={fadeUp}
+          variants={headingReveal}
           initial="hidden"
           animate="visible"
-          custom={1}
         >
           <span className="inline-block min-w-[70px] md:min-w-[120px]" aria-live="polite">
             {greetingText}
@@ -228,39 +295,39 @@ const HeroSection = () => {
             />
           </span>
           {", jestem "}
-          <span
-            className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary to-accent-blue bg-clip-text text-transparent text-shadow-glow"
+          <motion.span
+            className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent text-shadow-glow inline-block bg-[length:200%_auto]"
             style={{ fontSize: "clamp(44px, 6.9vw, 100px)" }}
+            animate={{ backgroundPosition: ["0% center", "200% center"] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           >
             Grzegorz
-          </span>
+          </motion.span>
         </motion.h1>
 
         {/* Description */}
         <motion.p
           className="text-center font-['Geist'] text-base sm:text-lg max-w-[554px] px-4 text-muted-foreground text-shadow-hero"
-          variants={fadeUp}
+          variants={descReveal}
           initial="hidden"
           animate="visible"
-          custom={2}
         >
-          siema, tu kaczy, zrobie Ci każdą aplikacje za grosze{" "}
+          Tworzę nowoczesne aplikacje webowe i mobilne z pasją do czystego kodu,{" "}
           <motion.span
             className="inline-block"
-            animate={{ rotate: [0, 15, -10, 15, 0], scale: [1, 1.15, 0.95, 1.1, 1] }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
+            animate={{ rotate: [0, 15, -10, 15, 0], scale: [1, 1.2, 0.95, 1.15, 1] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 4, ease: "easeInOut" }}
           >
-            🦆
+            🚀
           </motion.span>
         </motion.p>
 
         {/* CTA + Socials */}
         <motion.div
           className="flex flex-col items-center gap-5 sm:gap-6"
-          variants={fadeUp}
+          variants={ctaReveal}
           initial="hidden"
           animate="visible"
-          custom={3}
         >
           <div className="flex items-center gap-3 sm:gap-4">
             <div
@@ -287,9 +354,16 @@ const HeroSection = () => {
             </a>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-5" role="list" aria-label="Linki społecznościowe">
-            {socialLinks.map(({ icon: Icon, href, label }) => (
-              <a
+          <motion.div
+            className="flex items-center gap-3 sm:gap-5"
+            variants={socialsReveal}
+            initial="hidden"
+            animate="visible"
+            role="list"
+            aria-label="Linki społecznościowe"
+          >
+            {socialLinks.map(({ icon: Icon, href, label }, i) => (
+              <motion.a
                 key={label}
                 href={href}
                 aria-label={label}
@@ -297,12 +371,20 @@ const HeroSection = () => {
                 target={href.startsWith("mailto") ? undefined : "_blank"}
                 rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
                 className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 + i * 0.08, duration: 0.4, ease: EASE_STANDARD }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.6} aria-hidden="true" />
-              </a>
+              </motion.a>
             ))}
-          </div>
+          </motion.div>
         </motion.div>
+
+        {/* Interactive Code Terminal Widget */}
+        <HeroCodeTerminal />
       </motion.div>
 
       {/* Scroll indicator */}

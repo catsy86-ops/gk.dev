@@ -1,95 +1,137 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { LOADING_DURATION_MS, LOADING_EXIT_DURATION_MS } from "@/constants/animations";
+import { Sparkles, Terminal } from "lucide-react";
+import { soundEngine } from "@/lib/audio";
 
-const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
-  const [phase, setPhase] = useState<"loading" | "exit">("loading");
+interface LoadingScreenProps {
+  onComplete: () => void;
+}
+
+export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
+  const [progress, setProgress] = useState(0);
+  const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setPhase("exit"), LOADING_DURATION_MS);
-    return () => clearTimeout(timer);
-  }, []);
+    const start = performance.now();
+    const duration = 1400; // 1.4s ultra-smooth loader
 
-  useEffect(() => {
-    if (phase === "exit") {
-      const t = setTimeout(onComplete, LOADING_EXIT_DURATION_MS);
-      return () => clearTimeout(t);
-    }
-  }, [phase, onComplete]);
+    let rafId: number;
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const pct = Math.min(Math.floor((elapsed / duration) * 100), 100);
+      setProgress(pct);
+
+      if (pct < 100) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        soundEngine.playChime();
+        setIsDone(true);
+        setTimeout(onComplete, 600);
+      }
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [onComplete]);
 
   return (
-    <motion.div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
-      exit={{ clipPath: "circle(0% at 50% 50%)" }}
-      transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-      key="loader"
-      role="status"
-      aria-label="Ładowanie strony"
-    >
-      {/* Pulsing rings */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full border border-primary/20"
-            initial={{ width: 80, height: 80, opacity: 0 }}
-            animate={{
-              width: [80, 200 + i * 80],
-              height: [80, 200 + i * 80],
-              opacity: [0.6, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: i * 0.5,
-              ease: "easeOut",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Logo */}
-      <motion.div
-        className="relative flex flex-col items-center gap-6"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
-      >
-        <motion.h1
-          className="text-5xl sm:text-6xl font-bold tracking-[-0.04em] text-foreground"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          GK
-          <motion.span
-            className="text-primary"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0.6, 1] }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            .dev
-          </motion.span>
-        </motion.h1>
-
-        {/* Progress bar */}
+    <AnimatePresence>
+      {!isDone && (
         <motion.div
-          className="w-48 h-[3px] rounded-full bg-border overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-background text-foreground overflow-hidden select-none"
+          initial={{ opacity: 1 }}
+          exit={{
+            clipPath: ["circle(100% at 50% 50%)", "circle(0% at 50% 50%)"],
+            opacity: [1, 0],
+            transition: { duration: 0.7, ease: [0.76, 0, 0.24, 1] },
+          }}
+          role="status"
+          aria-label="Inicjalizacja portfolio GK.dev"
         >
-          <motion.div
-            className="h-full rounded-full bg-primary"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ delay: 0.5, duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-          />
-        </motion.div>
-      </motion.div>
+          {/* Multi-layer pulsating background rings */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+            {[0, 1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full border border-primary/20"
+                initial={{ width: 100, height: 100, opacity: 0 }}
+                animate={{
+                  width: [100, 240 + i * 100],
+                  height: [100, 240 + i * 100],
+                  opacity: [0.6, 0],
+                  scale: [1, 1.2],
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  delay: i * 0.45,
+                  ease: "easeOut",
+                }}
+              />
+            ))}
+          </div>
 
-      <span className="sr-only">Ładowanie...</span>
-    </motion.div>
+          {/* Ambient center glow */}
+          <div className="absolute w-96 h-96 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
+
+          {/* Center Content */}
+          <motion.div
+            className="relative z-10 flex flex-col items-center gap-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+          >
+            {/* Logo Monogram with Glitch */}
+            <div className="relative">
+              <motion.div
+                className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-accent-blue to-violet-600 shadow-[0_0_50px_rgba(59,130,246,0.5)] border border-white/20"
+                animate={{ rotate: [0, 3, -3, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="font-['Geist'] text-3xl font-black text-white tracking-tighter">
+                  GK
+                </span>
+              </motion.div>
+              <div className="absolute -inset-1 rounded-3xl bg-primary/30 blur-md -z-10 animate-pulse" />
+            </div>
+
+            {/* Title & Tagline */}
+            <div className="text-center space-y-1.5">
+              <h1 className="font-['Geist'] text-2xl font-bold tracking-tight text-foreground flex items-center justify-center gap-2">
+                <span>Grzegorz</span>
+                <span className="text-primary font-mono font-medium text-sm px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                  v2026.0
+                </span>
+              </h1>
+              <p className="font-mono text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                <Terminal className="h-3 w-3 text-primary animate-pulse" />
+                <span>Inicjalizacja architektury i modułów UI...</span>
+              </p>
+            </div>
+
+            {/* Progress Bar & Percentage */}
+            <div className="flex flex-col items-center gap-3 w-64">
+              <div className="w-full h-1.5 rounded-full bg-secondary/80 border border-border/50 overflow-hidden relative shadow-inner">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-primary via-accent-blue to-violet-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              <div className="w-full flex items-center justify-between font-mono text-[11px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  SYSTEM BOOT
+                </span>
+                <span className="font-bold text-foreground tabular-nums">
+                  {progress}%
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

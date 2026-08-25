@@ -10,10 +10,10 @@ export function cn(...inputs: ClassValue[]) {
  * Returns true when save-data is enabled or connection is 2g/slow-2g.
  */
 export function isSlowConnection(): boolean {
-  const conn = (navigator as any).connection;
+  const conn = navigator.connection;
   if (!conn) return false;
   if (conn.saveData) return true;
   const slowTypes = ["2g", "slow-2g"];
-  if (slowTypes.includes(conn.effectiveType)) return true;
+  if (conn.effectiveType && slowTypes.includes(conn.effectiveType)) return true;
   return false;
 }
