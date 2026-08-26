@@ -8,6 +8,7 @@ import SkillsSection from "@/components/SkillsSection";
 import TechMarquee from "@/components/TechMarquee";
 import ProjectsSection from "@/components/ProjectsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import ArticlesSection from "@/components/ArticlesSection";
 import ContactSection from "@/components/ContactSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
@@ -92,6 +93,7 @@ const Index = () => {
         <TechMarquee />
         <ProjectsSection />
         <TestimonialsSection />
+        <ArticlesSection />
         <ContactSection />
         <FaqSection className="bg-secondary/30" />
       </main>

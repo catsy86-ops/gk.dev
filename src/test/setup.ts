@@ -1,3 +1,4 @@
+import React from "react";
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
@@ -95,4 +96,33 @@ if (typeof HTMLCanvasElement !== "undefined") {
     return null;
   });
 }
+
+// Mock Clerk React
+vi.mock("@clerk/clerk-react", () => ({
+  ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
+  SignedIn: ({ children }: { children: React.ReactNode }) => children,
+  SignedOut: ({ children }: { children: React.ReactNode }) => children,
+  SignInButton: ({ children }: { children: React.ReactNode }) => children,
+  SignUpButton: ({ children }: { children: React.ReactNode }) => children,
+  UserButton: () => React.createElement("button", { "aria-label": "Profil użytkownika" }, "User Avatar"),
+  UserProfile: () => React.createElement("div", null, "User Profile Modal"),
+  useUser: () => ({
+    isSignedIn: true,
+    user: {
+      id: "user_test_123",
+      fullName: "Grzegorz Tester",
+      primaryEmailAddress: { emailAddress: "kontakt@gkdev.pl" },
+    },
+  }),
+  useAuth: () => ({
+    isSignedIn: true,
+    userId: "user_test_123",
+    getToken: vi.fn().mockResolvedValue("mock_jwt_token"),
+  }),
+  useClerk: () => ({
+    openSignIn: vi.fn(),
+    openSignUp: vi.fn(),
+    signOut: vi.fn(),
+  }),
+}));
 

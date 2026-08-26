@@ -1,12 +1,15 @@
-import { motion, useInView } from "motion/react";
-import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check } from "lucide-react";
+import { motion, useInView, AnimatePresence } from "motion/react";
+import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check, Radar, Cpu } from "lucide-react";
 import { useState, useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasSkillsBackground } from "@/components/ui/canvas-skills-background";
 import { TechRadar } from "@/components/TechRadar";
+import { ArchitectureSimulator } from "@/components/ArchitectureSimulator";
+import { DatabaseBenchmarkLab } from "@/components/DatabaseBenchmarkLab";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight } from "@/lib/haptics";
+import { hapticLight, hapticSelection } from "@/lib/haptics";
+import { useI18n } from "@/lib/i18n";
 
 interface SkillItem {
   id: string;
@@ -103,9 +106,11 @@ const skills: SkillItem[] = [
 ];
 
 const SkillsSection = () => {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+  const [interactiveMode, setInteractiveMode] = useState<"radar" | "simulator" | "benchmark">("radar");
 
   return (
     <SectionWrapper ref={sectionRef} id="umiejetnosci" label="Umiejętności" className="bg-secondary/30 relative overflow-hidden">
@@ -121,15 +126,123 @@ const SkillsSection = () => {
 
       <div className="relative z-10 mx-auto max-w-[1200px]">
         <SectionHeader
-          badge="Kompetencje & Stack"
+          badge={t.skills.badge}
           badgeIcon={<Sparkles className="h-3 w-3" />}
-          title="Moje"
-          highlight="umiejętności"
+          title={t.skills.title}
+          highlight={t.skills.highlight}
           gradient
         />
 
-        {/* 360 Architecture Tech Radar */}
-        <TechRadar />
+        {/* Interactive Mode Switcher Tabs */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm">
+            <button
+              onClick={() => {
+                soundEngine.playPop(750, 0.03);
+                hapticSelection();
+                setInteractiveMode("radar");
+              }}
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+                interactiveMode === "radar"
+                  ? "text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {interactiveMode === "radar" && (
+                <motion.div
+                  layoutId="skills-interactive-tab"
+                  className="absolute inset-0 rounded-xl bg-primary shadow-md shadow-primary/30"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Radar className="relative z-10 h-4 w-4" />
+              <span className="relative z-10">{t.skills.radarTab}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundEngine.playPop(750, 0.03);
+                hapticSelection();
+                setInteractiveMode("simulator");
+              }}
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+                interactiveMode === "simulator"
+                  ? "text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {interactiveMode === "simulator" && (
+                <motion.div
+                  layoutId="skills-interactive-tab"
+                  className="absolute inset-0 rounded-xl bg-primary shadow-md shadow-primary/30"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Cpu className="relative z-10 h-4 w-4" />
+              <span className="relative z-10">{t.skills.simulatorTab}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundEngine.playPop(750, 0.03);
+                hapticSelection();
+                setInteractiveMode("benchmark");
+              }}
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+                interactiveMode === "benchmark"
+                  ? "text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {interactiveMode === "benchmark" && (
+                <motion.div
+                  layoutId="skills-interactive-tab"
+                  className="absolute inset-0 rounded-xl bg-cyan-500 shadow-md shadow-cyan-500/30"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Database className="relative z-10 h-4 w-4" />
+              <span className="relative z-10">{t.skills.benchmarkTab}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Visualizer Display */}
+        <AnimatePresence mode="wait">
+          {interactiveMode === "radar" && (
+            <motion.div
+              key="tech-radar"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <TechRadar />
+            </motion.div>
+          )}
+          {interactiveMode === "simulator" && (
+            <motion.div
+              key="arch-simulator"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <ArchitectureSimulator />
+            </motion.div>
+          )}
+          {interactiveMode === "benchmark" && (
+            <motion.div
+              key="db-benchmark"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <DatabaseBenchmarkLab />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bento Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">

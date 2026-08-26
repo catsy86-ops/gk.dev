@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    {
+      "name": "gkdev-suite",
+      "path": "./plugins/gkdev-suite/plugin.json"
+    }
+  ]
+}

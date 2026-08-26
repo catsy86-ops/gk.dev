@@ -3,6 +3,7 @@ import { Briefcase, GraduationCap, Sparkles, Download, ArrowUpRight, Award, Chec
 import { useRef, useState } from "react";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { HolographicCard } from "@/components/ui/HolographicCard";
+import { GithubActivityBadge } from "@/components/GithubActivityBadge";
 import { soundEngine } from "@/lib/audio";
 import { hapticSelection } from "@/lib/haptics";
 
@@ -138,13 +139,17 @@ const AboutSection = () => {
           </motion.span>
 
           <motion.h2
-            className="font-['Geist'] font-black tracking-tight text-foreground text-3xl md:text-5xl"
+            className="font-['Geist'] font-black tracking-tight text-foreground text-3xl md:text-5xl mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             Inżynieria z pasją do <span className="text-primary">doskonałości</span>
           </motion.h2>
+
+          <div className="flex justify-center">
+            <GithubActivityBadge />
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">

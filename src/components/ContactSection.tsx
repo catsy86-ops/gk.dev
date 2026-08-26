@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useInView } from "motion/react";
-import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2, Calculator } from "lucide-react";
+import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2, Calculator, FileCode, Sparkles } from "lucide-react";
 import { useState, forwardRef, useCallback, useRef } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { toast } from "@/hooks/use-toast";
@@ -9,6 +9,8 @@ import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasContactBackground } from "@/components/ui/canvas-contact-background";
 import { ProjectEstimatorModal } from "@/components/ProjectEstimatorModal";
+import { B2bProposalModal } from "@/components/B2bProposalModal";
+import { soundEngine } from "@/lib/audio";
 import { triggerConfetti } from "@/lib/confetti";
 import { validateForm, type ContactFormData, type ContactFormErrors } from "@/lib/validation";
 
@@ -19,6 +21,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
+  const [isB2bModalOpen, setIsB2bModalOpen] = useState(false);
   const magneticBtn = useMagnetic(0.35);
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -117,6 +120,33 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 <Phone className="h-4 w-4 text-primary/70" strokeWidth={1.8} aria-hidden="true" />
                 <span>+48 501 234 567</span>
               </div>
+            </div>
+
+            {/* Interactive B2B & Estimation Tools */}
+            <div className="flex flex-wrap justify-center gap-2.5 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playPop(800, 0.03);
+                  setIsEstimatorOpen(true);
+                }}
+                className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-4 py-2 text-xs font-bold text-primary transition-all active:scale-95 shadow-sm cursor-pointer"
+              >
+                <Calculator className="h-3.5 w-3.5" />
+                <span>Kalkulator Wyceny Projektu</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playPop(800, 0.03);
+                  setIsB2bModalOpen(true);
+                }}
+                className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 hover:bg-card px-4 py-2 text-xs font-bold text-foreground transition-all active:scale-95 shadow-sm cursor-pointer"
+              >
+                <FileCode className="h-3.5 w-3.5 text-primary" />
+                <span>Generator Briefu B2B / RFP</span>
+              </button>
             </div>
           </motion.div>
 
@@ -339,6 +369,19 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
           toast({
             title: "Wycena wczytana do formularza!",
             description: "Wypełnij swoje imię i email, a następnie wyślij zapytanie.",
+          });
+        }}
+      />
+
+      {/* B2B Proposal & Brief Generator Modal */}
+      <B2bProposalModal
+        isOpen={isB2bModalOpen}
+        onClose={() => setIsB2bModalOpen(false)}
+        onApplyToContact={(message) => {
+          updateField("message", message);
+          toast({
+            title: "Brief wczytany do wiadomości!",
+            description: "Podaj swoje dane kontaktowe, aby przesłać zapytanie.",
           });
         }}
       />

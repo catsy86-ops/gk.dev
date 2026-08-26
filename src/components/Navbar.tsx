@@ -7,7 +7,6 @@ import {
   User,
   FolderOpen,
   Search,
-  Command,
   Volume2,
   VolumeX,
   ChevronDown,
@@ -15,11 +14,11 @@ import {
   Layers,
   Code2,
   Cpu,
-  FileText,
-  Briefcase,
   Menu,
   X,
   Bot,
+  Calendar,
+  Bookmark,
 } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useTheme } from "next-themes";
@@ -28,6 +27,11 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { AiAssistantDialog } from "@/components/AiAssistantDialog";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { ThemeAccentPicker } from "@/components/ThemeAccentPicker";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { ClientPortalModal } from "@/components/ClientPortalModal";
+import { BookingConsultationModal } from "@/components/BookingConsultationModal";
+import { useI18n } from "@/lib/i18n";
 import { soundEngine } from "@/lib/audio";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
@@ -39,99 +43,78 @@ interface SubItem {
   badge?: string;
 }
 
-const navItems = [
-  {
-    label: "O mnie",
-    href: "#o-mnie",
-    id: "o-mnie",
-    subItems: [
-      {
-        icon: User,
-        title: "Profil i Doświadczenie",
-        desc: "Senior Fullstack Engineer & Architekt",
-        href: "#o-mnie",
-      },
-      {
-        icon: Briefcase,
-        title: "Ścieżka Kariery",
-        desc: "Oś czasu realizacji i sukcesów komercyjnych",
-        href: "#o-mnie",
-      },
-      {
-        icon: FileText,
-        title: "Pobierz CV (PDF)",
-        desc: "Pełny życiorys i certyfikaty techniczne",
-        href: "/cv.pdf",
-        badge: "PDF",
-      },
-    ] as SubItem[],
-  },
-  {
-    label: "Umiejętności",
-    href: "#umiejetnosci",
-    id: "umiejetnosci",
-    subItems: [
-      {
-        icon: Code2,
-        title: "Frontend Engineering",
-        desc: "React 19, Next.js 15, TypeScript, Tailwind",
-        href: "#umiejetnosci",
-      },
-      {
-        icon: Cpu,
-        title: "Backend & Architektura",
-        desc: "Node.js, GraphQL, PostgreSQL, Microservices",
-        href: "#umiejetnosci",
-      },
-      {
-        icon: Layers,
-        title: "Cloud & Performance",
-        desc: "AWS, Docker, CI/CD, Lighthouse 100/100",
-        href: "#umiejetnosci",
-      },
-    ] as SubItem[],
-  },
-  {
-    label: "Projekty",
-    href: "#projekty",
-    id: "projekty",
-    subItems: [
-      {
-        icon: Sparkles,
-        title: "SaaS Platform & AI Engine",
-        desc: "Realtime analytics dashboard (100k+ users)",
-        href: "#projekty",
-        badge: "Wyróżniony",
-      },
-      {
-        icon: FolderOpen,
-        title: "E-Commerce Headless",
-        desc: "Next.js + Shopify Storefront (PageSpeed 98)",
-        href: "#projekty",
-      },
-      {
-        icon: Layers,
-        title: "Wszystkie Case Studies",
-        desc: "Architektura, kod źródłowy i metryki",
-        href: "#projekty",
-      },
-    ] as SubItem[],
-  },
-  { label: "Opinie", href: "#opinie", id: "opinie" },
-  { label: "FAQ", href: "#faq", id: "faq" },
-  { label: "Kontakt", href: "#kontakt", id: "kontakt" },
-];
-
 interface NavbarProps {
   onOpenTerminal?: () => void;
 }
 
 const Navbar = ({ onOpenTerminal }: NavbarProps) => {
+  const { t, lang } = useI18n();
+
+  const navItems = [
+    { label: t.nav.about, href: "#o-mnie", id: "o-mnie" },
+    {
+      label: t.nav.skills,
+      href: "#umiejetnosci",
+      id: "umiejetnosci",
+      subItems: [
+        {
+          icon: Code2,
+          title: "Frontend Engineering",
+          desc: "React 19, Next.js 15, TypeScript, Tailwind",
+          href: "#umiejetnosci",
+        },
+        {
+          icon: Cpu,
+          title: "Backend & Architektura",
+          desc: "Node.js, GraphQL, PostgreSQL, Microservices",
+          href: "#umiejetnosci",
+        },
+        {
+          icon: Layers,
+          title: "Cloud & Performance",
+          desc: "AWS, Docker, CI/CD, Lighthouse 100/100",
+          href: "#umiejetnosci",
+        },
+      ] as SubItem[],
+    },
+    {
+      label: t.nav.projects,
+      href: "#projekty",
+      id: "projekty",
+      subItems: [
+        {
+          icon: Sparkles,
+          title: "SaaS Platform & AI Engine",
+          desc: "Realtime analytics dashboard (100k+ users)",
+          href: "#projekty",
+          badge: lang === "pl" ? "Wyróżniony" : "Featured",
+        },
+        {
+          icon: FolderOpen,
+          title: "E-Commerce Headless",
+          desc: "Next.js + Shopify Storefront (PageSpeed 98)",
+          href: "#projekty",
+        },
+        {
+          icon: Layers,
+          title: "Wszystkie Case Studies",
+          desc: "Architektura, kod źródłowy i metryki",
+          href: "#projekty",
+        },
+      ] as SubItem[],
+    },
+    { label: t.nav.reviews, href: "#opinie", id: "opinie" },
+    { label: t.nav.articles, href: "#artykuly", id: "artykuly" },
+    { label: t.nav.faq, href: "#faq", id: "faq" },
+  ];
+
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(true);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<number | null>(null);
@@ -177,12 +160,6 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
     []
   );
 
-  const scrollTo = useCallback((href: string) => {
-    const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -212,35 +189,33 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
       role="banner"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto max-w-[1240px] px-3 sm:px-6">
+      <div className="mx-auto max-w-[1240px] px-2.5 sm:px-5">
         {/* Floating Capsule Bar */}
         <nav
-          className={`pointer-events-auto relative flex items-center justify-between rounded-2xl md:rounded-full border px-4 py-2.5 md:py-2.5 transition-all duration-300 shadow-lg ${
+          className={`pointer-events-auto relative flex items-center justify-between rounded-full border px-3 sm:px-4 py-2 transition-all duration-300 shadow-lg ${
             scrolled
-              ? "border-border/80 bg-background/85 backdrop-blur-2xl shadow-[0_8px_32px_-4px_rgba(0,0,0,0.15)] dark:shadow-[0_12px_40px_-6px_rgba(0,0,0,0.6)]"
-              : "border-border/50 bg-background/65 backdrop-blur-xl shadow-sm"
+              ? "border-border/80 bg-background/90 backdrop-blur-2xl shadow-[0_8px_32px_-4px_rgba(0,0,0,0.15)] dark:shadow-[0_12px_40px_-6px_rgba(0,0,0,0.6)]"
+              : "border-border/50 bg-background/70 backdrop-blur-xl shadow-sm"
           }`}
           role="navigation"
           aria-label="Główna nawigacja"
         >
-          {/* Logo with live status ping */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Zone 1: Logo with live status ping */}
+          <div className="flex items-center gap-2.5 shrink-0">
             <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
 
-            {/* Mobile Live Availability Pill */}
-            <div className="flex md:hidden items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-500 font-bold">
+            {/* Desktop Live Availability status subtle pill */}
+            <div className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] text-emerald-500 font-medium">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Dostępny</span>
-            </div>
-
-            {/* Availability subtle pill on desktop */}
-            <div className="hidden xl:flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10.5px] text-emerald-500 font-medium">
-              <span>● Available</span>
+              <span>Available</span>
             </div>
           </div>
 
-          {/* Desktop Nav Items with Mega Dropdowns */}
-          <div className="hidden md:flex items-center gap-0.5 lg:gap-1" role="list">
+          {/* Zone 2: Desktop Nav Items (visible on xl: and above, zero clipping) */}
+          <div
+            className="hidden xl:flex items-center gap-0.5 bg-secondary/40 backdrop-blur-md rounded-full px-1.5 py-0.5 border border-border/40"
+            role="list"
+          >
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               const hasSub = Boolean(item.subItems && item.subItems.length > 0);
@@ -262,7 +237,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                     role="listitem"
                     aria-current={isActive ? "page" : undefined}
                     aria-expanded={hasSub ? isOpen : undefined}
-                    className={`relative flex items-center gap-1 px-3.5 py-1.5 text-xs lg:text-sm font-medium rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`relative flex items-center gap-1 px-3 py-1.5 text-xs xl:text-sm font-medium rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       isActive
                         ? "text-foreground font-semibold"
                         : "text-muted-foreground hover:text-foreground"
@@ -338,20 +313,19 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
             })}
           </div>
 
-          {/* Action Tools Hub */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Zone 3: Compact & Polished Action Tools Hub */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* AI Architect Assistant Trigger */}
             <button
               onClick={() => {
                 soundEngine.playPop(850, 0.03);
                 setIsAiOpen(true);
               }}
-              className="relative flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 sm:px-3 py-1.5 text-xs text-primary font-bold hover:bg-primary/20 hover:border-primary transition-all font-['Geist'] shadow-sm active:scale-95 group"
-              aria-label="Otwórz asystenta GK AI Architect"
-              title="Zapytaj asystenta GK AI"
+              className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer"
+              aria-label="GK AI Assistant"
+              title="Zapytaj GK AI Assistanta"
             >
-              <Bot className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />
-              <span className="hidden sm:inline">AI Asystent</span>
+              <Bot className="h-4 w-4 group-hover:rotate-12 transition-transform" />
             </button>
 
             {/* Quick search button / Cmd+K trigger */}
@@ -360,79 +334,96 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                 soundEngine.playClick();
                 setIsCommandOpen(true);
               }}
-              className="flex items-center gap-2 rounded-full border border-border/80 bg-secondary/80 px-2.5 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-border/80 bg-secondary/70 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm cursor-pointer"
               aria-label="Otwórz menu poleceń (Cmd+K)"
+              title="Szukaj (Cmd+K)"
             >
-              <Search className="h-3.5 w-3.5 text-primary" />
-              <span className="hidden lg:inline text-[12px]">Szukaj...</span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border/60 bg-background/80 px-1.5 py-0.5 font-mono text-[9.5px]">
-                <Command className="h-2.5 w-2.5" /> K
-              </kbd>
+              <Search className="h-4 w-4" />
             </button>
 
-            {/* Sound Toggle */}
-            <button
-              onClick={toggleSound}
-              className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-              aria-label={isSoundMuted ? "Włącz dźwięki interfejsu" : "Wycisz dźwięki"}
-              title={isSoundMuted ? "Włącz dźwięki" : "Wycisz dźwięki"}
-            >
-              {isSoundMuted ? (
-                <VolumeX className="h-4 w-4" strokeWidth={1.8} />
-              ) : (
-                <Volume2 className="h-4 w-4 text-primary" strokeWidth={1.8} />
-              )}
-            </button>
+            {/* Preferences Capsule (Theme, Palette, Lang, Bookmarks) */}
+            <div className="hidden sm:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5">
+              {/* Sound Toggle */}
+              <button
+                onClick={toggleSound}
+                className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                aria-label={isSoundMuted ? "Włącz dźwięki" : "Wycisz dźwięki"}
+                title={isSoundMuted ? "Włącz dźwięki" : "Wycisz dźwięki"}
+              >
+                {isSoundMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5 text-primary" />}
+              </button>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggle}
-              className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-              aria-label="Przełącz motyw"
-            >
-              <AnimatePresence mode="wait">
-                {isDark ? (
-                  <motion.div
-                    key="sun"
-                    initial={{ rotate: -90, scale: 0, opacity: 0 }}
-                    animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                    exit={{ rotate: 90, scale: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Sun className="h-4 w-4" strokeWidth={1.8} />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="moon"
-                    initial={{ rotate: 90, scale: 0, opacity: 0 }}
-                    animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                    exit={{ rotate: -90, scale: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Moon className="h-4 w-4" strokeWidth={1.8} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
+              {/* Theme Toggle */}
+              <button
+                onClick={toggle}
+                className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                aria-label="Przełącz motyw"
+                title="Przełącz motyw"
+              >
+                <AnimatePresence mode="wait">
+                  {isDark ? (
+                    <motion.div
+                      key="sun"
+                      initial={{ rotate: -90, scale: 0, opacity: 0 }}
+                      animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                      exit={{ rotate: 90, scale: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Sun className="h-3.5 w-3.5" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="moon"
+                      initial={{ rotate: 90, scale: 0, opacity: 0 }}
+                      animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                      exit={{ rotate: -90, scale: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Moon className="h-3.5 w-3.5" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </button>
 
-            {/* Theme Color Accent Picker */}
-            <ThemeAccentPicker />
+              {/* Theme Color Accent Picker */}
+              <ThemeAccentPicker />
 
-            {/* Mobile Hamburger Menu Toggle */}
+              {/* Language Switcher */}
+              <LanguageToggle />
+
+              {/* Client Portal / Bookmarks Trigger */}
+              <button
+                onClick={() => {
+                  soundEngine.playPop(800, 0.03);
+                  setIsClientPortalOpen(true);
+                }}
+                className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                title={t.nav.clientPortal}
+                aria-label={t.nav.clientPortal}
+              >
+                <Bookmark className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* Book Consultation Trigger (2xl only to prevent medium desktop squishing) */}
             <button
               onClick={() => {
-                soundEngine.playPop(750, 0.03);
-                setIsMobileNavOpen((prev) => !prev);
+                soundEngine.playPop(850, 0.03);
+                setIsBookingOpen(true);
               }}
-              className="flex md:hidden h-8 w-8 rounded-full border border-border bg-secondary items-center justify-center text-muted-foreground hover:text-foreground"
-              aria-label="Otwórz menu nawigacji"
-              aria-expanded={isMobileNavOpen}
+              className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 text-xs text-emerald-500 font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+              title={t.nav.bookConsultation}
+              aria-label={t.nav.bookConsultation}
             >
-              {isMobileNavOpen ? <X className="h-4 w-4 text-primary" /> : <Menu className="h-4 w-4" />}
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{t.nav.bookConsultation}</span>
             </button>
 
-            {/* CTA Button */}
-            <div className="hidden sm:block">
+            {/* Clerk Authentication Button */}
+            <AuthButton />
+
+            {/* CTA Button (Napisz) */}
+            <div className="hidden md:block">
               <GlowButton
                 variant="glow"
                 size="sm"
@@ -442,13 +433,26 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                 }}
                 icon={<ArrowUpRight className="h-3.5 w-3.5" />}
               >
-                Napisz
+                {lang === "pl" ? "Napisz" : "Contact"}
               </GlowButton>
             </div>
+
+            {/* Mobile / Tablet Hamburger Menu Toggle (visible on < xl:) */}
+            <button
+              onClick={() => {
+                soundEngine.playPop(750, 0.03);
+                setIsMobileNavOpen((prev) => !prev);
+              }}
+              className="flex xl:hidden h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-secondary items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors shadow-sm"
+              aria-label="Otwórz menu nawigacji"
+              aria-expanded={isMobileNavOpen}
+            >
+              {isMobileNavOpen ? <X className="h-4 w-4 text-primary" /> : <Menu className="h-4 w-4" />}
+            </button>
           </div>
         </nav>
 
-        {/* Mobile Dropdown Menu Sheet */}
+        {/* Mobile / Tablet Dropdown Menu Sheet */}
         <AnimatePresence>
           {isMobileNavOpen && (
             <motion.div
@@ -456,7 +460,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.96 }}
               transition={{ duration: 0.2 }}
-              className="pointer-events-auto mt-2 rounded-3xl border border-border/80 bg-background/95 backdrop-blur-2xl p-4 shadow-2xl space-y-3 md:hidden"
+              className="pointer-events-auto mt-2 rounded-3xl border border-border/80 bg-background/95 backdrop-blur-2xl p-4 shadow-2xl space-y-3 xl:hidden"
             >
               <div className="space-y-1">
                 {navItems.map((item) => (
@@ -474,6 +478,57 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                     <ArrowUpRight className="h-4 w-4 text-primary" />
                   </a>
                 ))}
+
+                {/* Direct quick action buttons */}
+                <div className="pt-2 border-t border-border/60 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setIsMobileNavOpen(false);
+                      setIsClientPortalOpen(true);
+                    }}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-secondary hover:bg-secondary/80 text-xs font-bold text-foreground"
+                  >
+                    <span>{t.nav.clientPortal}</span>
+                    <Bookmark className="h-4 w-4 text-primary" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setIsMobileNavOpen(false);
+                      setIsBookingOpen(true);
+                    }}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 text-xs font-bold"
+                  >
+                    <span>{t.nav.bookConsultation} (30 min)</span>
+                    <Calendar className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Mobile preferences row */}
+                <div className="flex sm:hidden items-center justify-between p-2.5 rounded-2xl bg-secondary/40 border border-border/60 mt-2">
+                  <span className="text-xs font-mono text-muted-foreground">Ustawienia:</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={toggleSound}
+                      className="p-2 rounded-xl text-muted-foreground hover:text-foreground"
+                    >
+                      {isSoundMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 text-primary" />}
+                    </button>
+                    <button
+                      onClick={toggle}
+                      className="p-2 rounded-xl text-muted-foreground hover:text-foreground"
+                    >
+                      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                    <ThemeAccentPicker />
+                    <LanguageToggle />
+                  </div>
+                </div>
+
                 <a
                   href="#kontakt"
                   onClick={(e) => {
@@ -481,7 +536,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                     setIsMobileNavOpen(false);
                     handleClick(e, "#kontakt");
                   }}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-primary text-primary-foreground text-sm font-bold shadow-md shadow-primary/30"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-primary text-primary-foreground text-sm font-bold shadow-md shadow-primary/30 mt-2"
                 >
                   <span>Napisz do mnie</span>
                   <ArrowUpRight className="h-4 w-4" />
@@ -504,6 +559,19 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
       <AiAssistantDialog
         isOpen={isAiOpen}
         onClose={() => setIsAiOpen(false)}
+      />
+
+      {/* Client Portal Modal */}
+      <ClientPortalModal
+        isOpen={isClientPortalOpen}
+        onClose={() => setIsClientPortalOpen(false)}
+        onOpenBooking={() => setIsBookingOpen(true)}
+      />
+
+      {/* Consultation Booking Modal */}
+      <BookingConsultationModal
+        isOpen={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
       />
     </header>
   );

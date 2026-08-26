@@ -1,0 +1,19 @@
+{
+  "name": "gkdev-suite",
+  "version": "1.1.0",
+  "description": "Zestaw dedykowanych umiejętności, reguł i narzędzi deweloperskich dla platformy GK.dev",
+  "author": "Grzegorz (GK.dev)",
+  "skills": [
+    "../../skills/quality-gate",
+    "../../skills/component-architect",
+    "../../skills/performance-and-security-audit",
+    "../../skills/e2e-playwright-tester",
+    "../../skills/i18n-synchronizer",
+    "../../skills/seo-and-schema-optimizer"
+  ],
+  "rules": [
+    "../../rules/architecture.md",
+    "../../rules/testing.md",
+    "../../rules/clean-code.md"
+  ]
+}

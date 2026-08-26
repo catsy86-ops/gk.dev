@@ -7,6 +7,8 @@ import { GrainOverlay } from "@/components/ui/grain-overlay";
 import { AnimatePresence, motion } from "motion/react";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { I18nProvider } from "@/components/I18nProvider";
+import { ClerkAuthProvider } from "@/components/auth/ClerkAuthProvider";
 import Index from "./pages/Index.tsx";
 
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -68,18 +70,22 @@ const App = () => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TooltipProvider>
-        <Toaster />
-        <AnimatePresence>
-          {loading && <LoadingScreen onComplete={handleComplete} />}
-        </AnimatePresence>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <ErrorBoundary section="Aplikacja">
-            <AnimatedRoutes />
-          </ErrorBoundary>
-        </BrowserRouter>
-        <GrainOverlay />
-      </TooltipProvider>
+      <I18nProvider>
+        <ClerkAuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <AnimatePresence>
+              {loading && <LoadingScreen onComplete={handleComplete} />}
+            </AnimatePresence>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <ErrorBoundary section="Aplikacja">
+                <AnimatedRoutes />
+              </ErrorBoundary>
+            </BrowserRouter>
+            <GrainOverlay />
+          </TooltipProvider>
+        </ClerkAuthProvider>
+      </I18nProvider>
     </ThemeProvider>
   );
 };

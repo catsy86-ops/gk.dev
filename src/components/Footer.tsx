@@ -114,8 +114,9 @@ const Footer = () => {
                 { label: "Umiejętności", href: "#umiejetnosci" },
                 { label: "Projekty", href: "#projekty" },
                 { label: "Opinie", href: "#opinie" },
-                { label: "Kontakt", href: "#kontakt" },
+                { label: "Baza Wiedzy", href: "#artykuly" },
                 { label: "FAQ", href: "#faq" },
+                { label: "Kontakt", href: "#kontakt" },
                 { label: "Pobierz CV", href: "/cv.pdf" },
               ].map((link) => (
                 <a

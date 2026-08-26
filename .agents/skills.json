@@ -1,0 +1,28 @@
+{
+  "skills": [
+    {
+      "name": "quality-gate",
+      "path": "./skills/quality-gate/SKILL.md"
+    },
+    {
+      "name": "component-architect",
+      "path": "./skills/component-architect/SKILL.md"
+    },
+    {
+      "name": "performance-and-security-audit",
+      "path": "./skills/performance-and-security-audit/SKILL.md"
+    },
+    {
+      "name": "e2e-playwright-tester",
+      "path": "./skills/e2e-playwright-tester/SKILL.md"
+    },
+    {
+      "name": "i18n-synchronizer",
+      "path": "./skills/i18n-synchronizer/SKILL.md"
+    },
+    {
+      "name": "seo-and-schema-optimizer",
+      "path": "./skills/seo-and-schema-optimizer/SKILL.md"
+    }
+  ]
+}

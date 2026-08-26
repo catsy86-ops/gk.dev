@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "preBuild": [
+      {
+        "description": "Uruchomienie lintera przed budowaniem",
+        "command": "npm run lint"
+      }
+    ],
+    "postTest": [
+      {
+        "description": "Raportowanie zakończenia testów jednostkowych",
+        "command": "echo 'Testy Vitest zakończone pomyślnie.'"
+      }
+    ]
+  }
+}
