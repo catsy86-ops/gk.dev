@@ -52,7 +52,7 @@ export function CanvasGridBackground() {
       if (!parent) return;
       w = parent.clientWidth;
       h = parent.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;

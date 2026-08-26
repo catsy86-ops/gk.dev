@@ -33,17 +33,22 @@ import { soundEngine } from "@/lib/audio";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { hapticLight, hapticMedium } from "@/lib/haptics";
 
+const prefetchCommandPalette = () => import("@/components/CommandPalette");
+const prefetchAiAssistant = () => import("@/components/AiAssistantDialog");
+const prefetchClientPortal = () => import("@/components/ClientPortalModal");
+const prefetchBooking = () => import("@/components/BookingConsultationModal");
+
 const CommandPalette = lazy(() =>
-  import("@/components/CommandPalette").then((m) => ({ default: m.CommandPalette }))
+  prefetchCommandPalette().then((m) => ({ default: m.CommandPalette }))
 );
 const AiAssistantDialog = lazy(() =>
-  import("@/components/AiAssistantDialog").then((m) => ({ default: m.AiAssistantDialog }))
+  prefetchAiAssistant().then((m) => ({ default: m.AiAssistantDialog }))
 );
 const ClientPortalModal = lazy(() =>
-  import("@/components/ClientPortalModal").then((m) => ({ default: m.ClientPortalModal }))
+  prefetchClientPortal().then((m) => ({ default: m.ClientPortalModal }))
 );
 const BookingConsultationModal = lazy(() =>
-  import("@/components/BookingConsultationModal").then((m) => ({ default: m.BookingConsultationModal }))
+  prefetchBooking().then((m) => ({ default: m.BookingConsultationModal }))
 );
 
 interface SubItem {
@@ -365,6 +370,9 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
 
               {/* AI Architect Assistant Trigger */}
               <button
+                type="button"
+                onMouseEnter={prefetchAiAssistant}
+                onTouchStart={prefetchAiAssistant}
                 onClick={() => {
                   soundEngine.playPop(850, 0.03);
                   setIsAiOpen(true);
@@ -379,6 +387,8 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
               {/* Quick search button / Cmd+K trigger */}
               <button
                 type="button"
+                onMouseEnter={prefetchCommandPalette}
+                onTouchStart={prefetchCommandPalette}
                 onClick={() => {
                   soundEngine.playClick();
                   setIsCommandOpen(true);

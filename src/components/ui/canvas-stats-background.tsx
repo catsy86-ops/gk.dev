@@ -37,7 +37,7 @@ export function CanvasStatsBackground() {
       if (!parent) return;
       w = parent.clientWidth;
       h = parent.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
@@ -64,6 +64,7 @@ export function CanvasStatsBackground() {
 
     const connectionDist = isMobile ? 80 : 120;
 
+    let isVisible = true;
     const draw = (time: number) => {
       ctx.clearRect(0, 0, w, h);
       const t = time * 0.001;
@@ -101,8 +102,23 @@ export function CanvasStatsBackground() {
         }
       }
 
-      animId = requestAnimationFrame(draw);
+      if (isVisible) {
+        animId = requestAnimationFrame(draw);
+      } else {
+        animId = 0;
+      }
     };
+
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible && !animId) {
+        animId = requestAnimationFrame(draw);
+      } else if (!isVisible && animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    });
+    io.observe(canvas);
 
     animId = requestAnimationFrame(draw);
 
@@ -110,7 +126,8 @@ export function CanvasStatsBackground() {
     ro.observe(canvas.parentElement!);
 
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
+      io.disconnect();
       ro.disconnect();
     };
   }, [prefersReduced, isMobile, hsla]);

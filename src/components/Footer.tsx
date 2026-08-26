@@ -82,7 +82,7 @@ const Footer = () => {
       {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" aria-hidden="true" />
 
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 pt-20 pb-[max(4rem,env(safe-area-inset-bottom,4rem))] relative">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 pt-16 sm:pt-20 pb-[max(7rem,env(safe-area-inset-bottom,7rem))] md:pb-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
           {/* Col 1: Brand, Tagline & Live Status */}
           <motion.div

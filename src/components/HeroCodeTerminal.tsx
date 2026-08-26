@@ -81,7 +81,7 @@ export const HeroCodeTerminal = () => {
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center gap-1 bg-background/50 p-0.5 rounded-lg border border-border/40 overflow-x-auto scrollbar-none max-w-[220px] sm:max-w-none">
+        <div className="flex items-center gap-1 bg-background/50 p-1 rounded-lg border border-border/40 overflow-x-auto scrollbar-none max-w-[220px] sm:max-w-none">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -89,7 +89,7 @@ export const HeroCodeTerminal = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-2.5 py-1 text-[11px] font-mono rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`relative px-3 py-1.5 text-[11px] font-mono rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer min-h-[32px] flex items-center ${
                   isActive ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -100,7 +100,7 @@ export const HeroCodeTerminal = () => {
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-1">
+                <span className="relative z-10 flex items-center gap-1.5">
                   <tab.icon className="h-3 w-3" />
                   {tab.label}
                 </span>
@@ -113,7 +113,7 @@ export const HeroCodeTerminal = () => {
         <button
           type="button"
           onClick={handleCopy}
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-border/40 bg-background/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors cursor-pointer shrink-0 ml-1"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/40 bg-background/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors cursor-pointer shrink-0 ml-1"
           title="Kopiuj zawartość"
           aria-label="Kopiuj kod"
         >

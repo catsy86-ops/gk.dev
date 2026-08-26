@@ -23,17 +23,24 @@ export function OptimizedImage({
   const [loaded, setLoaded] = useState(false);
 
   const buildUrl = (raw: string, w?: number) => {
-    const url = new URL(raw);
-    if (w) url.searchParams.set("w", String(w));
-    url.searchParams.set("auto", "format");
-    return url.toString();
+    try {
+      if (raw.startsWith("http://") || raw.startsWith("https://")) {
+        const url = new URL(raw);
+        if (w) url.searchParams.set("w", String(w));
+        url.searchParams.set("auto", "format");
+        return url.toString();
+      }
+      return raw;
+    } catch {
+      return raw;
+    }
   };
 
   const optimizedSrc = buildUrl(src);
 
-  const srcSet = widths
-    .map((w) => `${buildUrl(src, w)} ${w}w`)
-    .join(", ");
+  const srcSet = (src.startsWith("http://") || src.startsWith("https://"))
+    ? widths.map((w) => `${buildUrl(src, w)} ${w}w`).join(", ")
+    : undefined;
 
   return (
     <div className={cn("relative overflow-hidden", containerClassName)}>

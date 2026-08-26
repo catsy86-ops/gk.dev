@@ -14,6 +14,5 @@ describe("BrandLogo & Animated3dLogo Suite", () => {
     render(<Animated3dLogo size="hero" />);
     expect(screen.getAllByText("GK").length).toBeGreaterThan(0);
     expect(screen.getByText(/\.DEV/i)).toBeInTheDocument();
-    expect(screen.getByText("PRO")).toBeInTheDocument();
   });
 });

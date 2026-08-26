@@ -197,12 +197,13 @@ const AboutSection = () => {
             {/* Timeline Tab Switcher */}
             <div className="flex items-center justify-center sm:justify-start gap-2 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm w-fit">
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPop(750, 0.03);
                   hapticSelection();
                   setActiveTab("experience");
                 }}
-                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors ${
+                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors min-h-[40px] cursor-pointer ${
                   activeTab === "experience"
                     ? "text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground"
@@ -220,12 +221,13 @@ const AboutSection = () => {
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPop(750, 0.03);
                   hapticSelection();
                   setActiveTab("education");
                 }}
-                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors ${
+                className={`relative flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-colors min-h-[40px] cursor-pointer ${
                   activeTab === "education"
                     ? "text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground"

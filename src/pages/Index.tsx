@@ -21,6 +21,7 @@ import { isSlowConnection } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useSeo } from "@/hooks/use-seo";
 import { soundEngine } from "@/lib/audio";
 import { hapticMedium } from "@/lib/haptics";
 
@@ -44,13 +45,9 @@ function StatsSkeleton() {
   return (
     <section className="py-16 px-4 md:py-28 md:px-6">
       <div className="mx-auto max-w-[1200px]">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-2xl border border-border bg-card p-8 space-y-4">
-              <Skeleton className="h-8 w-24" />
-              <Skeleton className="h-12 w-16" />
-              <Skeleton className="h-4 w-full" />
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 rounded-3xl" />
           ))}
         </div>
       </div>
@@ -63,6 +60,7 @@ interface IndexProps {
 }
 
 const Index = ({ initialAuthModal }: IndexProps) => {
+  useSeo();
   const navigate = useNavigate();
   const location = useLocation();
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);

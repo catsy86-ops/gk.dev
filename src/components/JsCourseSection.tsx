@@ -27,6 +27,7 @@ import { triggerConfetti } from "@/lib/confetti";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { useAchievements } from "@/hooks/use-achievements";
+import { executeCodeInWorker } from "@/lib/code-runner";
 
 const iconMap = {
   Code2,
@@ -55,6 +56,9 @@ export const JsCourseSection = () => {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [consoleOutput, setConsoleOutput] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [mobileTab, setMobileTab] = useState<"lesson" | "sandbox">("lesson");
+  const [editableCode, setEditableCode] = useState<string>(() => jsCourseLessons[0].codeSnippet);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const currentLesson: CourseLesson = useMemo(() => {
     return jsCourseLessons.find((l) => l.id === activeLessonId) || jsCourseLessons[0];
@@ -70,7 +74,8 @@ export const JsCourseSection = () => {
     setQuizSubmitted(false);
     setConsoleOutput(null);
     setIsCopied(false);
-  }, [activeLessonId]);
+    setEditableCode(currentLesson.codeSnippet);
+  }, [activeLessonId, currentLesson.codeSnippet]);
 
   const handleLessonSelect = (id: string) => {
     soundEngine.playPop(750, 0.02);
@@ -80,33 +85,39 @@ export const JsCourseSection = () => {
 
   const handleCopyCode = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(currentLesson.codeSnippet);
+      navigator.clipboard.writeText(editableCode);
     }
     soundEngine.playPop(850, 0.03);
     hapticLight();
     setIsCopied(true);
     toast({
       title: lang === "pl" ? "Skopiowano kod" : "Code copied",
-      description: lang === "pl" ? "Przykład kodu JS jest gotowy do wklejenia." : "JS snippet copied to clipboard.",
+      description: lang === "pl" ? "Kod z edytora jest gotowy do wklejenia." : "Editor code copied to clipboard.",
     });
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const handleRunCode = () => {
+  const handleRunCode = async () => {
     soundEngine.playChime();
     hapticMedium();
-    // Simulate interactive virtual execution
-    if (currentLesson.id === "es6-fundamentals") {
-      setConsoleOutput(`> Executing ES6 Module...\n{\n  name: "Grzegorz",\n  role: "Fullstack Architect",\n  skills: ["TypeScript", "React", "Node.js"],\n  status: "Available for projects",\n  bio: "Grzegorz działa jako Fullstack Architect z 6+ lat exp."\n}\n✔ Process finished with exit code 0`);
-    } else if (currentLesson.id === "array-mastery") {
-      setConsoleOutput(`> Executing Array Pipeline...\nAktywne etykiety: [ 'Przypominacz (EUR 2791)', 'E-Commerce (EUR 5581)' ]\nŁączny budżet aktywnych: 36000 PLN\n✔ Process finished with exit code 0`);
-    } else if (currentLesson.id === "async-promises") {
-      setConsoleOutput(`> Resolving Promise Stream...\n[HTTP 200] GET /api/user -> { id: 101, status: "active" }\n[HTTP 200] GET /api/analytics -> { latency: "14ms", uptime: "99.99%" }\nZaładowano dane pulpitu pomyślnie!\n✔ Process finished with exit code 0`);
-    } else if (currentLesson.id === "dom-storage-events") {
-      setConsoleOutput(`> Testing Web Storage & DOM Delegation...\n[LocalStorage] Saved key "app_theme" -> "dark"\n[EventDelegation] Triggered action "bookmark" for item ID: 42\n✔ Process finished with exit code 0`);
-    } else {
-      setConsoleOutput(`> Executing Closure Scope & Rate Limiter...\n[HTTP OK] Zapytanie do /api/metrics (Wykonań: 1/5)\n[HTTP OK] Zapytanie do /api/projects (Wykonań: 2/5)\n[TypeScript] 0 type errors found.\n✔ Process finished with exit code 0`);
+    setIsRunning(true);
+    setConsoleOutput(lang === "pl" ? "⚙️ Uruchamianie kodu w izolowanym Web Workerze..." : "⚙️ Executing in isolated Web Worker...");
+
+    try {
+      const result = await executeCodeInWorker(editableCode);
+      setConsoleOutput(result.output);
+    } catch (err) {
+      setConsoleOutput(`❌ Błąd: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsRunning(false);
     }
+  };
+
+  const handleResetCode = () => {
+    soundEngine.playPop(700, 0.02);
+    hapticLight();
+    setEditableCode(currentLesson.codeSnippet);
+    setConsoleOutput(null);
   };
 
   const handleQuizOptionClick = (index: number) => {
@@ -293,16 +304,54 @@ export const JsCourseSection = () => {
           })}
         </div>
 
+        {/* Mobile / Tablet Segmented View Switcher (visible on <lg) */}
+        <div className="flex lg:hidden items-center justify-center mb-6">
+          <div className="inline-flex p-1 rounded-2xl bg-secondary/80 border border-border/80 shadow-sm">
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playPop(700, 0.02);
+                hapticLight();
+                setMobileTab("lesson");
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-['Geist'] transition-all cursor-pointer min-h-[40px] ${
+                mobileTab === "lesson"
+                  ? "bg-card text-foreground shadow-sm border border-border/60"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <BookOpen className="h-3.5 w-3.5 text-primary" />
+              <span>{lang === "pl" ? "Lekcja & Quiz" : "Lesson & Quiz"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playPop(700, 0.02);
+                hapticLight();
+                setMobileTab("sandbox");
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-['Geist'] transition-all cursor-pointer min-h-[40px] ${
+                mobileTab === "sandbox"
+                  ? "bg-card text-foreground shadow-sm border border-border/60"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Terminal className="h-3.5 w-3.5 text-primary" />
+              <span>{lang === "pl" ? "Konsola & Kod" : "Sandbox & Code"}</span>
+            </button>
+          </div>
+        </div>
+
         {/* Main Interactive Course View */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Lesson Theory, Key Points & Interactive Quiz (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className={`lg:col-span-7 space-y-6 ${mobileTab === "lesson" ? "block" : "hidden lg:block"}`}>
             <motion.div
               key={currentLesson.id}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
-              className="rounded-3xl border border-border/80 bg-card/85 backdrop-blur-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden"
+              className="rounded-3xl border border-border/80 bg-card/85 backdrop-blur-2xl p-5 sm:p-7 md:p-8 shadow-xl relative overflow-hidden"
             >
               {/* Header tags */}
               <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
@@ -487,7 +536,7 @@ export const JsCourseSection = () => {
           </div>
 
           {/* Right Column: Interactive Code Sandbox & Certificate (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className={`lg:col-span-5 space-y-6 ${mobileTab === "sandbox" ? "block" : "hidden lg:block"}`}>
             {/* Code Sandbox Window */}
             <div className="rounded-3xl border border-border/80 bg-[#0d1117] text-slate-200 shadow-2xl overflow-hidden font-mono">
               {/* Window Header */}
@@ -504,6 +553,17 @@ export const JsCourseSection = () => {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    onClick={handleResetCode}
+                    title="Przywróć kod lekcji"
+                    className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border/50 bg-secondary/40 hover:bg-secondary text-slate-300 hover:text-white transition-all cursor-pointer"
+                    aria-label="Przywróć kod początkowy"
+                  >
+                    <RefreshCw className="h-3 w-3 text-muted-foreground" />
+                    <span className="hidden sm:inline">Reset</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleCopyCode}
                     title="Kopiuj kod"
                     className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border/50 bg-secondary/40 hover:bg-secondary text-slate-300 hover:text-white transition-all cursor-pointer"
@@ -515,17 +575,25 @@ export const JsCourseSection = () => {
                   <button
                     type="button"
                     onClick={handleRunCode}
-                    className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                    disabled={isRunning}
+                    className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
                   >
-                    <Play className="h-3 w-3 fill-current" />
-                    <span>Uruchom</span>
+                    <Play className={`h-3 w-3 fill-current ${isRunning ? "animate-spin" : ""}`} />
+                    <span>{isRunning ? "Wykonywanie..." : "Uruchom"}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Code Snippet Display */}
-              <div className="p-4 sm:p-5 overflow-x-auto max-h-[360px] scrollbar-thin text-xs leading-relaxed text-slate-300 font-mono">
-                <pre className="font-mono">{currentLesson.codeSnippet}</pre>
+              {/* Interactive Live Code Editor Textarea */}
+              <div className="relative p-3 sm:p-4 bg-[#0d1117]">
+                <textarea
+                  value={editableCode}
+                  onChange={(e) => setEditableCode(e.target.value)}
+                  className="w-full h-[240px] sm:h-[280px] bg-transparent text-xs leading-relaxed text-emerald-300/90 font-mono resize-none focus:outline-none focus:ring-1 focus:ring-primary/40 rounded-xl p-2.5 border border-border/30 scrollbar-thin selection:bg-primary/30"
+                  spellCheck={false}
+                  aria-label="Edytor kodu JavaScript"
+                  placeholder="// Wpisz lub edytuj kod JavaScript..."
+                />
               </div>
 
               {/* Console Output Terminal */}

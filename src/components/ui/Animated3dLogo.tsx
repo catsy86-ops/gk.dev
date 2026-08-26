@@ -201,12 +201,6 @@ export const Animated3dLogo = ({
         >
           .DEV
         </motion.span>
-
-        {size !== "sm" && (
-          <span className={`ml-1 rounded-full font-mono font-extrabold bg-primary/10 border border-primary/30 text-primary uppercase tracking-wider ${sizeConfig.badge}`}>
-            PRO
-          </span>
-        )}
       </div>
     </a>
   );
