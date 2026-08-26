@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Terminal, X, Minimize2, Bot } from "lucide-react";
+import { Terminal, X, Minimize2, Bot, Sparkles } from "lucide-react";
 import { soundEngine } from "@/lib/audio";
 import { hapticMedium } from "@/lib/haptics";
 import { queryAiAssistant } from "@/lib/ai-engine";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface TerminalDialogProps {
   isOpen: boolean;
@@ -24,6 +26,7 @@ const welcomeOutput = (
 );
 
 export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
+  useScrollLock(isOpen);
   const [inputVal, setInputVal] = useState("");
   const [logs, setLogs] = useState<CommandLog[]>([
     { id: "init", command: "", output: welcomeOutput },
@@ -31,6 +34,16 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
   const [matrixActive, setMatrixActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -66,7 +79,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
       outputNode = (
         <div className="space-y-1.5 text-xs text-foreground/90 bg-primary/5 border border-primary/20 rounded-xl p-3">
           <div className="flex items-center gap-1.5 font-bold text-primary">
-            <Bot className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5" />
             <span>GK AI Architect:</span>
           </div>
           <p className="whitespace-pre-line leading-relaxed">{res.answer}</p>
@@ -183,31 +196,36 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
     }
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 pointer-events-auto">
           <motion.div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              soundEngine.playClick();
+              onClose();
+            }}
           />
 
-          {/* Terminal Window */}
           <motion.div
-            className="relative w-full max-w-2xl rounded-2xl border border-emerald-500/30 bg-black/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(16,185,129,0.2)] overflow-hidden z-10 font-mono text-sm"
+            className="relative w-full max-w-2xl rounded-2xl border border-emerald-500/30 bg-black/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(16,185,129,0.2)] overflow-hidden z-10 font-mono text-sm pointer-events-auto"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.25 }}
             role="dialog"
+            aria-modal="true"
             aria-label="Interaktywny terminal deweloperski"
           >
-            {/* Terminal Titlebar */}
-            <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-900 border-b border-neutral-800">
+            <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-900 border-b border-neutral-800 relative z-20">
               <div className="flex items-center gap-2">
                 <Terminal className="h-4 w-4 text-emerald-400" />
                 <span className="text-xs font-bold text-neutral-300">gk@dev-terminal:~</span>
@@ -215,14 +233,16 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onClose(); }}
                   className="h-6 w-6 rounded-md hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors"
                   aria-label="Minimalizuj"
                 >
                   <Minimize2 className="h-3.5 w-3.5" />
                 </button>
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onClose(); }}
                   className="h-6 w-6 rounded-md hover:bg-red-500/20 text-neutral-400 hover:text-red-400 flex items-center justify-center transition-colors"
                   aria-label="Zamknij terminal"
                 >
@@ -231,7 +251,6 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
               </div>
             </div>
 
-            {/* Terminal Body */}
             <div className="p-4 sm:p-6 space-y-4 max-h-[60vh] overflow-y-auto font-mono text-xs sm:text-sm">
               {logs.map((log) => (
                 <div key={log.id} className="space-y-1.5">
@@ -269,6 +288,9 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
+
+export default TerminalDialog;

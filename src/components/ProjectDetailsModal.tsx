@@ -1,10 +1,12 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, PanInfo } from "motion/react";
 import { X, ExternalLink, Github, Sparkles, CheckCircle2, Cpu, BarChart3, Layers, Tag, Laptop, Smartphone } from "lucide-react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { soundEngine } from "@/lib/audio";
 import { hapticMedium, hapticLight } from "@/lib/haptics";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 export interface ProjectData {
   id: string;
@@ -34,9 +36,20 @@ interface ProjectDetailsModalProps {
 }
 
 export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetailsModalProps) => {
+  useScrollLock(isOpen);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const sheetRef = useRef<HTMLDivElement>(null);
   const [deviceFrame, setDeviceFrame] = useState<"desktop" | "mobile">("desktop");
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!project) return null;
 
@@ -55,23 +68,29 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
     }
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleClose();
+            }}
           />
 
           {/* Modal / Native Bottom Sheet Container */}
           <motion.div
             ref={sheetRef}
-            className={`relative w-full max-w-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10 ${
+            className={`relative w-full max-w-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10 pointer-events-auto ${
               isMobile
                 ? "rounded-t-[32px] max-h-[90dvh] pb-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))]"
                 : "rounded-3xl my-8"
@@ -97,11 +116,17 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
 
             {/* Close button */}
             <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/80 text-muted-foreground hover:text-foreground hover:bg-background transition-all shadow-md active:scale-90"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClose();
+              }}
+              className="absolute top-4 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/90 text-muted-foreground hover:text-foreground hover:bg-background transition-all shadow-md active:scale-90 cursor-pointer pointer-events-auto"
               aria-label="Zamknij szczegóły projektu"
+              title="Zamknij"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 pointer-events-none" />
             </button>
 
             {/* Scrollable Container */}
@@ -214,20 +239,28 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 rounded-full border border-border/60 bg-card/80 px-4 py-2 text-xs font-medium font-['Geist'] text-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                        onClick={() => {
+                          soundEngine.playPop(750, 0.02);
+                          hapticLight();
+                        }}
+                        className="flex items-center gap-1.5 rounded-full border border-border/80 bg-secondary/80 hover:bg-secondary px-4 py-2 text-xs font-semibold font-['Geist'] text-foreground hover:border-primary/40 hover:text-primary transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
                       >
                         <Github className="h-3.5 w-3.5" />
-                        Kod
+                        <span>Kod</span>
                       </a>
                     )}
                     <a
                       href={project.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-medium font-['Geist'] text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105"
+                      onClick={() => {
+                        soundEngine.playChime();
+                        hapticLight();
+                      }}
+                      className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary via-blue-600 to-indigo-600 px-5 py-2 text-xs font-bold font-['Geist'] text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white/20"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
-                      Demo Live
+                      <span>Demo Live</span>
                     </a>
                   </div>
                 </div>
@@ -354,6 +387,9 @@ export const ProjectDetailsModal = ({ project, isOpen, onClose }: ProjectDetails
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
+
+export default ProjectDetailsModal;

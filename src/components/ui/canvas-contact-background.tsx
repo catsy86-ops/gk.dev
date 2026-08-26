@@ -53,7 +53,9 @@ export function CanvasContactBackground() {
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (typeof ctx.setTransform === "function") {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
 
       bubbles.length = 0;
       shapes.length = 0;
@@ -126,14 +128,15 @@ export function CanvasContactBackground() {
       animId = requestAnimationFrame(draw);
     };
 
-    animId = requestAnimationFrame(draw);
-
-    const ro = new ResizeObserver(init);
-    ro.observe(canvas.parentElement!);
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && canvas.parentElement) {
+      ro = new ResizeObserver(init);
+      ro.observe(canvas.parentElement);
+    }
 
     return () => {
       cancelAnimationFrame(animId);
-      ro.disconnect();
+      if (ro) ro.disconnect();
     };
   }, [prefersReduced, isMobile, hsla, hslaLight]);
 

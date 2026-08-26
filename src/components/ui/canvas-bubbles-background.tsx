@@ -33,7 +33,8 @@ export function CanvasBubblesBackground() {
 
     const initBubbles = () => {
       bubbles.length = 0;
-      const count = Math.floor((w * h) / 25000);
+      const isMobileScreen = typeof window !== "undefined" && window.innerWidth < 768;
+      const count = Math.min(isMobileScreen ? 12 : 35, Math.floor((w * h) / (isMobileScreen ? 45000 : 25000)));
       for (let i = 0; i < count; i++) {
         bubbles.push({
           x: Math.random() * w,
@@ -52,12 +53,14 @@ export function CanvasBubblesBackground() {
       if (!parent) return;
       w = parent.clientWidth;
       h = parent.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const isMobileScreen = typeof window !== "undefined" && window.innerWidth < 768;
+      const dpr = Math.min(window.devicePixelRatio || 1, isMobileScreen ? 1.5 : 2);
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (typeof ctx.setTransform === "function") {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
       initBubbles();
     };
 
@@ -88,12 +91,15 @@ export function CanvasBubblesBackground() {
 
     animId = requestAnimationFrame(draw);
 
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas.parentElement!);
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && canvas.parentElement) {
+      ro = new ResizeObserver(resize);
+      ro.observe(canvas.parentElement);
+    }
 
     return () => {
       cancelAnimationFrame(animId);
-      ro.disconnect();
+      if (ro) ro.disconnect();
     };
   }, [prefersReduced, isMobile, hslaLight]);
 

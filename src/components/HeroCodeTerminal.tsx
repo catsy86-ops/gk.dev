@@ -39,8 +39,8 @@ export const engineer = {
   "principles": ["SOLID", "DRY", "TDD", "Zero-Jank 60FPS"]
 }`,
   metrics: `[SYSTEM DIAGNOSTICS: OPTIMAL]
-✔ Core Web Vitals: LCP < 0.8s, CLS: 0.00, FID: < 15ms
-✔ Lighthouse Score: 100 / 100 / 100 / 100
+✔ Sub-second TTFB: Edge Cache & SSR
+✔ Scalability: Microservices & Cloud-Native
 ✔ Responsive: Mobile, Tablet, Ultrawide (4K Ready)
 ✔ A11y & Contrast: WCAG 2.1 AAA Compliant
 ✔ Security: HTTPS, Strict CSP, Zero Vulnerabilities`,
@@ -81,14 +81,15 @@ export const HeroCodeTerminal = () => {
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center gap-1 bg-background/50 p-0.5 rounded-lg border border-border/40">
+        <div className="flex items-center gap-1 bg-background/50 p-0.5 rounded-lg border border-border/40 overflow-x-auto scrollbar-none max-w-[220px] sm:max-w-none">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-2.5 py-1 text-[11px] font-mono rounded-md transition-colors ${
+                className={`relative px-2.5 py-1 text-[11px] font-mono rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                   isActive ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -110,8 +111,9 @@ export const HeroCodeTerminal = () => {
 
         {/* Copy button */}
         <button
+          type="button"
           onClick={handleCopy}
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-border/40 bg-background/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md border border-border/40 bg-background/40 text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors cursor-pointer shrink-0 ml-1"
           title="Kopiuj zawartość"
           aria-label="Kopiuj kod"
         >

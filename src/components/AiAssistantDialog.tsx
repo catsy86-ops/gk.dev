@@ -6,6 +6,7 @@ import { queryAiAssistant, AiResponse } from "@/lib/ai-engine";
 import { BorderBeam } from "@/components/ui/BorderBeam";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface Message {
   id: string;
@@ -28,6 +29,7 @@ interface AiAssistantDialogProps {
 }
 
 export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) => {
+  useScrollLock(isOpen);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -141,6 +143,16 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
     ]);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -149,11 +161,16 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              soundEngine.playClick();
+              onClose();
+            }}
           />
 
           {/* Dialog Container */}
@@ -164,13 +181,14 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
             exit={{ scale: 0.95, opacity: 0, y: 15 }}
             transition={{ type: "spring", stiffness: 350, damping: 28 }}
             role="dialog"
+            aria-modal="true"
             aria-label="Asystent GK AI Architect"
           >
             {/* Border Beam */}
             <BorderBeam size={220} duration={8} colorFrom="#3b82f6" colorTo="#10b981" />
 
             {/* Header */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/70 bg-secondary/40">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/70 bg-secondary/40 relative z-20">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-primary shadow-md shadow-primary/20">
                   <Bot className="h-5 w-5" />
@@ -187,24 +205,33 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative z-30">
                 <button
                   type="button"
-                  onClick={handleReset}
-                  className="h-8 w-8 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleReset();
+                  }}
+                  className="h-8 w-8 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto"
                   title="Wyczyść rozmowę"
                   aria-label="Wyczyść rozmowę"
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
+                  <RefreshCw className="h-3.5 w-3.5 pointer-events-none" />
                 </button>
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="h-8 w-8 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    soundEngine.playClick();
+                    onClose();
+                  }}
+                  className="h-8 w-8 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto"
                   title="Zamknij"
                   aria-label="Zamknij"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 pointer-events-none" />
                 </button>
               </div>
             </div>

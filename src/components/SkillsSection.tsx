@@ -1,109 +1,52 @@
 import { motion, useInView, AnimatePresence } from "motion/react";
 import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check, Radar, Cpu } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, lazy, Suspense } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasSkillsBackground } from "@/components/ui/canvas-skills-background";
-import { TechRadar } from "@/components/TechRadar";
-import { ArchitectureSimulator } from "@/components/ArchitectureSimulator";
-import { DatabaseBenchmarkLab } from "@/components/DatabaseBenchmarkLab";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSelection } from "@/lib/haptics";
 import { useI18n } from "@/lib/i18n";
 
-interface SkillItem {
-  id: string;
-  icon: typeof Code2;
-  title: string;
-  subtitle: string;
-  description: string;
-  gradient: string;
-  accentColor: string;
-  tags: string[];
-  highlights: string[];
-  size: "large" | "medium" | "small";
-}
+const TechRadar = lazy(() => import("@/components/TechRadar").then((m) => ({ default: m.TechRadar })));
+const ArchitectureSimulator = lazy(() => import("@/components/ArchitectureSimulator").then((m) => ({ default: m.ArchitectureSimulator })));
+const DatabaseBenchmarkLab = lazy(() => import("@/components/DatabaseBenchmarkLab").then((m) => ({ default: m.DatabaseBenchmarkLab })));
 
-const skills: SkillItem[] = [
-  {
-    id: "frontend",
-    icon: Code2,
-    title: "Frontend Engineering",
-    subtitle: "React • Next.js • TypeScript",
-    description:
-      "Tworzenie nowoczesnych, responsywnych interfejsów webowych z dbałością o 60 FPS, dostępność (a11y) i estetykę pixel-perfect.",
-    gradient: "from-blue-500/20 via-cyan-500/10 to-transparent",
-    accentColor: "hsl(var(--primary))",
-    tags: ["React 19", "Next.js 15", "TypeScript", "Tailwind CSS", "Motion", "Zustand", "Radix UI"],
-    highlights: ["Ultra-fast Core Web Vitals", "Server Components & SSR", "Type-safe State Management"],
-    size: "large",
-  },
-  {
-    id: "backend",
-    icon: Database,
-    title: "Backend & Systemy API",
-    subtitle: "Node.js • PostgreSQL • Redis",
-    description:
-      "Skalowalne usługi backendowe, bezpieczne bazy danych, relacje, cache'owanie i architektura sterowana zdarzeniami.",
-    gradient: "from-emerald-500/20 via-green-500/10 to-transparent",
-    accentColor: "rgb(16, 185, 129)",
-    tags: ["Node.js", "Express", "PostgreSQL", "Prisma", "Redis", "GraphQL", "REST"],
-    highlights: ["Bezpieczne autoryzacje JWT/OAuth", "Transakcje i indeksy DB", "Sub-50ms API Latency"],
-    size: "medium",
-  },
-  {
-    id: "cloud",
-    icon: Cloud,
-    title: "Cloud & DevOps",
-    subtitle: "AWS • Docker • CI/CD",
-    description:
-      "Automatyzacja procesów deploymentu, konteneryzacja, bezawaryjny hosting chmurowy i monitoring.",
-    gradient: "from-purple-500/20 via-violet-500/10 to-transparent",
-    accentColor: "rgb(168, 85, 247)",
-    tags: ["AWS S3/EC2", "Docker", "GitHub Actions", "Vercel", "Linux", "Nginx"],
-    highlights: ["Automatyczny pipeline CI/CD", "Skalowalność horyzontalna", "Zero-Downtime Releases"],
-    size: "medium",
-  },
-  {
-    id: "architecture",
-    icon: GitBranch,
-    title: "Architektura & Clean Code",
-    subtitle: "Design Patterns • Testing",
-    description:
-      "Struktury kodu łatwe w utrzymaniu, refaktoryzacji i skalowaniu zespołowym w oparciu o SOLID i Clean Architecture.",
-    gradient: "from-indigo-500/20 via-sky-500/10 to-transparent",
-    accentColor: "rgb(99, 102, 241)",
-    tags: ["SOLID", "Design Patterns", "Vitest", "Playwright", "Monorepo"],
-    highlights: ["95%+ Test Coverage", "Modułowość kodu", "Standardy ESLint/Prettier"],
-    size: "large",
-  },
-  {
-    id: "mobile",
-    icon: Smartphone,
-    title: "Mobile Development",
-    subtitle: "React Native • Cross-platform",
-    description:
-      "Aplikacje mobilne na platformy iOS i Android z natywną wydajnością i płynnymi animacjami gestów.",
-    gradient: "from-orange-500/20 via-amber-500/10 to-transparent",
-    accentColor: "rgb(245, 158, 11)",
-    tags: ["React Native", "Expo", "Mobile UX", "Async Storage"],
-    highlights: ["Płynna obsługa gestów", "Tryb Offline", "iOS & Android"],
-    size: "small",
-  },
-  {
-    id: "uiux",
-    icon: Layout,
-    title: "UI/UX & Design Systems",
-    subtitle: "Figma • Prototyping",
-    description:
-      "Projektowanie użytecznych i intuicyjnych systemów designu z naciskiem na konwersję i ergonomię użytkownika.",
-    gradient: "from-pink-500/20 via-rose-500/10 to-transparent",
-    accentColor: "rgb(236, 72, 153)",
-    tags: ["Figma", "Design Tokens", "Micro-interactions", "WCAG 2.1"],
-    highlights: ["Komponenty modułowe", "Dostępność cyfrowa", "Responsive Design"],
-    size: "small",
-  },
-];
+const iconMap: Record<string, typeof Code2> = {
+  frontend: Code2,
+  backend: Database,
+  cloud: Cloud,
+  architecture: GitBranch,
+  mobile: Smartphone,
+  uiux: Layout,
+};
+
+const gradientMap: Record<string, string> = {
+  frontend: "from-blue-500/20 via-cyan-500/10 to-transparent",
+  backend: "from-emerald-500/20 via-green-500/10 to-transparent",
+  cloud: "from-purple-500/20 via-violet-500/10 to-transparent",
+  architecture: "from-indigo-500/20 via-sky-500/10 to-transparent",
+  mobile: "from-orange-500/20 via-amber-500/10 to-transparent",
+  uiux: "from-pink-500/20 via-rose-500/10 to-transparent",
+};
+
+const accentMap: Record<string, string> = {
+  frontend: "hsl(var(--primary))",
+  backend: "rgb(16, 185, 129)",
+  cloud: "rgb(168, 85, 247)",
+  architecture: "rgb(99, 102, 241)",
+  mobile: "rgb(245, 158, 11)",
+  uiux: "rgb(236, 72, 153)",
+};
+
+const sizeMap: Record<string, "large" | "medium" | "small"> = {
+  frontend: "large",
+  backend: "medium",
+  cloud: "medium",
+  architecture: "large",
+  mobile: "small",
+  uiux: "small",
+};
 
 const SkillsSection = () => {
   const { t } = useI18n();
@@ -111,6 +54,14 @@ const SkillsSection = () => {
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
   const [interactiveMode, setInteractiveMode] = useState<"radar" | "simulator" | "benchmark">("radar");
+
+  const skills = t.skills.items.map((item) => ({
+    ...item,
+    icon: iconMap[item.id] || Code2,
+    gradient: gradientMap[item.id] || "from-blue-500/20 to-transparent",
+    accentColor: accentMap[item.id] || "hsl(var(--primary))",
+    size: sizeMap[item.id] || "medium",
+  }));
 
   return (
     <SectionWrapper ref={sectionRef} id="umiejetnosci" label="Umiejętności" className="bg-secondary/30 relative overflow-hidden">
@@ -134,15 +85,16 @@ const SkillsSection = () => {
         />
 
         {/* Interactive Mode Switcher Tabs */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm">
+        <div className="flex items-center justify-center mb-8 px-2">
+          <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm overflow-x-auto scrollbar-none max-w-full snap-x snap-mandatory">
             <button
+              type="button"
               onClick={() => {
                 soundEngine.playPop(750, 0.03);
                 hapticSelection();
                 setInteractiveMode("radar");
               }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
                 interactiveMode === "radar"
                   ? "text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -160,12 +112,13 @@ const SkillsSection = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => {
                 soundEngine.playPop(750, 0.03);
                 hapticSelection();
                 setInteractiveMode("simulator");
               }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
                 interactiveMode === "simulator"
                   ? "text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -183,12 +136,13 @@ const SkillsSection = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => {
                 soundEngine.playPop(750, 0.03);
                 hapticSelection();
                 setInteractiveMode("benchmark");
               }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer ${
+              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
                 interactiveMode === "benchmark"
                   ? "text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -217,7 +171,9 @@ const SkillsSection = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <TechRadar />
+              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Tech Radar...</div>}>
+                <TechRadar />
+              </Suspense>
             </motion.div>
           )}
           {interactiveMode === "simulator" && (
@@ -228,7 +184,9 @@ const SkillsSection = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <ArchitectureSimulator />
+              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Architecture Simulator...</div>}>
+                <ArchitectureSimulator />
+              </Suspense>
             </motion.div>
           )}
           {interactiveMode === "benchmark" && (
@@ -239,7 +197,9 @@ const SkillsSection = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <DatabaseBenchmarkLab />
+              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Benchmark Lab...</div>}>
+                <DatabaseBenchmarkLab />
+              </Suspense>
             </motion.div>
           )}
         </AnimatePresence>

@@ -5,76 +5,22 @@ import { ImageReveal } from "@/components/ui/image-reveal";
 import { EASE_STANDARD } from "@/constants/animations";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSelection } from "@/lib/haptics";
+import { useI18n } from "@/lib/i18n";
 
-const testimonials = [
-  {
-    name: "Anna Kowalska",
-    role: "CEO, TechStart",
-    text: "GK dostarczył fantastyczną aplikację webową, która przekroczyła nasze oczekiwania. Profesjonalizm, architektura i dbałość o detale na najwyższym poziomie.",
-    rating: 5,
-    metric: "+145% wzrostu sprzedaży",
-    project: "E-Commerce High-End",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Michał Nowak",
-    role: "CTO, DataFlow",
-    text: "Współpraca z GK to czysta przyjemność. Błyskawiczna komunikacja, terminowość i kod najwyższej jakości. Zdecydowanie polecam do projektów o wysokiej skali.",
-    rating: 5,
-    metric: "300% szybszy frontend",
-    project: "Platforma SaaS & API",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Katarzyna Wiśniewska",
-    role: "Product Manager, CloudBase",
-    text: "Nasz dashboard analityczny został zbudowany perfekcyjnie. Responsywny, szybki i piękny wizualnie. Nasi klienci biznesowi są absolutnie zachwyceni.",
-    rating: 5,
-    metric: "99.99% Uptime & Realtime",
-    project: "Cloud Dashboard",
-    photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Tomasz Zieliński",
-    role: "Founder, AppVenture",
-    text: "GK pomógł nam przebudować architekturę aplikacji. Wydajność wzrosła spektakularnie, a UX jest teraz na światowym poziomie referencyjnym.",
-    rating: 5,
-    metric: "-55% bounce rate",
-    project: "Aplikacja Web & Mobile",
-    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Ewa Mazur",
-    role: "Head of Design, Pixelworks",
-    text: "Implementacja designu była bezbłędnie pixel-perfect. GK doskonale rozumie zaawansowane micro-interactions i potrafi przełożyć makiety na 60 FPS.",
-    rating: 5,
-    metric: "100/100 Core Web Vitals",
-    project: "Design System & Frontend",
-    photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Paweł Dąbrowski",
-    role: "VP Engineering, FinScope",
-    text: "Bezpieczeństwo i wydajność naszej platformy finansowej były kluczowe. GK dostarczył rozwiązanie spełniające najostrzejsze standardy enterprise.",
-    rating: 5,
-    metric: "0 luk bezpieczeństwa",
-    project: "FinTech Platform",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face",
-  },
-  {
-    name: "Marta Lewandowska",
-    role: "CMO, GreenTech Solutions",
-    text: "Nowa platforma przyniosła nam ogromny skok konwersji. GK nie tylko koduje — rozumie produkt biznesowo i tworzy rozwiązania przynoszące wymierne zyski.",
-    rating: 5,
-    metric: "+180% nowych leadów",
-    project: "GreenTech Ecosystem",
-    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
-  },
-] as const;
+const avatarPhotos = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
+];
 
 const AUTOPLAY_INTERVAL = 6000;
 
 const TestimonialsSection = () => {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [current, setCurrent] = useState(0);
@@ -82,19 +28,25 @@ const TestimonialsSection = () => {
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
+  const testimonials = t.testimonials.items.map((item, idx) => ({
+    ...item,
+    rating: 5,
+    photo: avatarPhotos[idx % avatarPhotos.length],
+  }));
+
   const next = useCallback(() => {
     soundEngine.playPop(750, 0.02);
     hapticLight();
     setDirection(1);
     setCurrent((prev) => (prev + 1) % testimonials.length);
-  }, []);
+  }, [testimonials.length]);
 
   const prev = useCallback(() => {
     soundEngine.playPop(700, 0.02);
     hapticLight();
     setDirection(-1);
     setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  }, []);
+  }, [testimonials.length]);
 
   const goTo = useCallback((index: number) => {
     soundEngine.playPop(800, 0.02);
@@ -129,14 +81,14 @@ const TestimonialsSection = () => {
     exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0, scale: 0.96 }),
   };
 
-  const t = testimonials[current];
+  const activeItem = testimonials[current] || testimonials[0];
 
   return (
     <section
       ref={sectionRef}
       className="relative bg-secondary/30 py-20 px-4 md:py-32 md:px-6 overflow-hidden"
       id="opinie"
-      aria-label="Opinie i Rekomendacje Klientów"
+      aria-label={t.testimonials.badge}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -155,13 +107,13 @@ const TestimonialsSection = () => {
         >
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary uppercase tracking-widest font-['Geist'] mb-4 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            Rekomendacje & Social Proof
+            {t.testimonials.badge}
           </span>
           <h2 className="font-['Geist'] text-3xl md:text-5xl font-black tracking-tight text-foreground">
-            Zaufanie potwierdzone <span className="text-primary">wynikami</span>
+            {t.testimonials.title} <span className="text-primary">{t.testimonials.highlight}</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground font-['Geist'] max-w-xl mx-auto">
-            Referencje od liderów technologicznych, startupów i agencji.
+            {t.testimonials.subtitle}
           </p>
         </motion.div>
 
@@ -192,18 +144,18 @@ const TestimonialsSection = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 font-mono text-[11px] font-bold text-emerald-500">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>Zweryfikowane wdrożenie • {t.project}</span>
+                    <span>{t.testimonials.verified} • {activeItem.project}</span>
                   </div>
 
                   <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 font-mono text-[11px] font-bold text-primary">
                     <TrendingUp className="h-3.5 w-3.5" />
-                    <span>{t.metric}</span>
+                    <span>{activeItem.metric}</span>
                   </div>
                 </div>
 
                 {/* Stars */}
-                <div className="flex items-center gap-1 mb-6" aria-label={`Ocena: ${t.rating} na 5 gwiazdek`}>
-                  {Array.from({ length: t.rating }).map((_, i) => (
+                <div className="flex items-center gap-1 mb-6" aria-label={`Rating: ${activeItem.rating} / 5`}>
+                  {Array.from({ length: activeItem.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
@@ -211,23 +163,23 @@ const TestimonialsSection = () => {
                 {/* Quote Text */}
                 <blockquote className="font-['Geist'] text-base md:text-xl text-foreground font-medium leading-relaxed mb-8 relative">
                   <Quote className="h-8 w-8 text-primary/15 absolute -top-4 -left-4 -z-10 pointer-events-none" />
-                  "{t.text}"
+                  "{activeItem.text}"
                 </blockquote>
 
                 {/* Author footer */}
                 <div className="flex items-center justify-between pt-6 border-t border-border/60">
                   <div className="flex items-center gap-3.5">
                     <ImageReveal
-                      src={t.photo}
-                      alt={`Zdjęcie: ${t.name}`}
+                      src={activeItem.photo}
+                      alt={`Photo: ${activeItem.name}`}
                       containerClassName="h-12 w-12 rounded-full"
                       className="rounded-full object-cover border-2 border-primary/30 shadow-md"
                       direction="up"
                       delay={0.1}
                     />
                     <div className="text-left">
-                      <p className="font-['Geist'] text-base font-bold text-foreground">{t.name}</p>
-                      <p className="font-mono text-xs text-muted-foreground">{t.role}</p>
+                      <p className="font-['Geist'] text-base font-bold text-foreground">{activeItem.name}</p>
+                      <p className="font-mono text-xs text-muted-foreground">{activeItem.role}</p>
                     </div>
                   </div>
 

@@ -390,7 +390,7 @@ const HeroSection = () => {
             }}
           >
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-mono text-xs font-bold text-emerald-500">100% Core Vitals</span>
+            <span className="font-mono text-xs font-bold text-emerald-500">High Performance Architecture</span>
           </motion.div>
 
           {/* Floating Trust Badge Right */}

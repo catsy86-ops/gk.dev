@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Calendar as CalendarIcon,
@@ -20,6 +21,7 @@ import { clientStore } from "@/lib/client-store";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { useUser } from "@clerk/clerk-react";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface BookingConsultationModalProps {
   isOpen: boolean;
@@ -30,7 +32,7 @@ const timeSlots = ["09:30", "11:00", "13:30", "15:00", "16:30"];
 
 const consultationTopics = [
   { id: "saas-architecture", title: "Architektura SaaS & Skalowalność", desc: "Przegląd stacku, Next.js 15 SSR, bazy danych, chmura" },
-  { id: "web-vitals-audit", title: "Audyt Wydajności & Core Web Vitals", desc: "Optymalizacja INP sub-50ms, LCP, budżet JS" },
+  { id: "web-vitals-audit", title: "Audyt Wydajności & Architektury", desc: "Optymalizacja czasu odpowiedzi poniżej 50ms, budżet JS" },
   { id: "ai-llm-integration", title: "Wdrożenie AI & Vector Database", desc: "Integracja modeli LLM, pgvector, agenci AI" },
   { id: "code-review", title: "Code Review & Refaktoryzacja", desc: "Weryfikacja Clean Code, testy automatyczne, CI/CD" },
 ];
@@ -39,6 +41,7 @@ export const BookingConsultationModal = ({
   isOpen,
   onClose,
 }: BookingConsultationModalProps) => {
+  useScrollLock(isOpen);
   const { lang } = useI18n();
   const { user, isSignedIn } = useUser();
 
@@ -53,6 +56,16 @@ export const BookingConsultationModal = ({
   );
   const [notes, setNotes] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Generate next available 4 business days
   const availableDays = Array.from({ length: 4 }).map((_, i) => {
@@ -104,17 +117,21 @@ export const BookingConsultationModal = ({
     onClose();
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playClick();
               onClose();
             }}
@@ -122,16 +139,17 @@ export const BookingConsultationModal = ({
 
           {/* Modal Card */}
           <motion.div
-            className="relative w-full max-w-2xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[92vh] my-0 sm:my-6"
+            className="relative w-full max-w-2xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[92vh] my-0 sm:my-6 pointer-events-auto"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             role="dialog"
+            aria-modal="true"
             aria-label="Rezerwacja Konsultacji 1:1"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40">
+            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40 relative z-20">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
                   <Video className="h-5 w-5" />
@@ -148,15 +166,17 @@ export const BookingConsultationModal = ({
 
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   soundEngine.playClick();
                   onClose();
                 }}
-                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer relative z-30 pointer-events-auto"
                 title="Zamknij"
                 aria-label="Zamknij"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 pointer-events-none" />
               </button>
             </div>
 
@@ -322,7 +342,8 @@ export const BookingConsultationModal = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

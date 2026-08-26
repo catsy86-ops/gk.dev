@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Star, Globe, Layers } from "lucide-react";
 import { useState, forwardRef, useRef } from "react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { ProjectSvgThumbnail } from "@/components/ProjectSvgThumbnail";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { EASE_STANDARD } from "@/constants/animations";
 import { cn } from "@/lib/utils";
@@ -158,26 +159,17 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
             </div>
           </div>
 
-          {/* Thumbnail media container */}
+          {/* Thumbnail media container with Vector SVG artwork */}
           <div className="relative mt-3 mx-4 overflow-hidden rounded-2xl aspect-[16/10] bg-secondary/50 border border-border/40">
-            <OptimizedImage
-              src={project.image}
-              alt={project.title}
-              className="w-full h-full object-cover"
-              containerClassName="w-full h-full"
-              widths={[400, 800, 1200]}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              loading="lazy"
-            />
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              animate={{ scale: isHoverDevice && isHovered ? 1.08 : 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              style={{ y: isMobile ? 0 : imgParallax }}
+            <ProjectSvgThumbnail
+              projectId={project.id}
+              category={project.category}
+              accent={project.accent}
+              isHovered={isHovered}
             />
 
             {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/85 via-card/10 to-transparent pointer-events-none" />
 
             {/* Quick Action buttons */}
             <div className="absolute bottom-3 right-3 flex items-center gap-2 z-20">

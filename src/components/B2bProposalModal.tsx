@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   FileCode,
@@ -7,15 +8,12 @@ import {
   Check,
   X,
   Sparkles,
-  Layers,
-  Clock,
-  ShieldCheck,
-  Cpu,
   ArrowRight,
 } from "lucide-react";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { toast } from "@/hooks/use-toast";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface B2bProposalModalProps {
   isOpen: boolean;
@@ -28,15 +26,26 @@ export const B2bProposalModal = ({
   onClose,
   onApplyToContact,
 }: B2bProposalModalProps) => {
+  useScrollLock(isOpen);
   const [projectType, setProjectType] = useState<string>("saas");
   const [timeline, setTimeline] = useState<string>("1-2m");
-  const [teamSize, setTeamSize] = useState<string>("solo");
+  const [teamSize] = useState<string>("solo");
   const [aiEnabled, setAiEnabled] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   const projectTypes = [
     { id: "saas", label: "Aplikacja SaaS / Web Platform", stack: "Next.js 15, React 19, TypeScript, PostgreSQL, Redis, Tailwind" },
-    { id: "audit", label: "Audyt Architektury & Wydajności (INP/LCP)", stack: "Lighthouse CI, Profiler, Web Vitals, Edge Caching" },
+    { id: "audit", label: "Audyt Architektury & Wydajności", stack: "DevTools Profiler, Flamegraphs, Edge Caching, Memory Leak Audit" },
     { id: "ai", label: "Integracja AI / LLM & Vector Search", stack: "pgvector, LangChain/OpenAI, Semantic Caching, Streaming SSR" },
     { id: "mobile", label: "Aplikacja Mobilna (iOS & Android)", stack: "React Native / Expo, Offline-First SQLite, Push Notifications" },
   ];
@@ -63,17 +72,17 @@ Kontakt: https://gkdev.pl/#kontakt
 
   const handleCopy = () => {
     soundEngine.playPop(750, 0.03);
-    hapticSuccess();
+    hapticLight();
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(generatedBrief);
+      setIsCopied(true);
+      toast({ title: "Brief skopiowany", description: "Gotowa specyfikacja projektu w schowku." });
+      setTimeout(() => setIsCopied(false), 2000);
     }
-    setIsCopied(true);
-    toast({ title: "Brief skopiowany", description: "Gotowa specyfikacja projektu w schowku." });
-    setTimeout(() => setIsCopied(false), 2500);
   };
 
   const handleDownload = () => {
-    soundEngine.playPop(850, 0.03);
+    soundEngine.playPop(850, 0.02);
     hapticSuccess();
     const element = document.createElement("a");
     const file = new Blob([generatedBrief], { type: "text/plain;charset=utf-8" });
@@ -91,23 +100,27 @@ Kontakt: https://gkdev.pl/#kontakt
     onClose();
     if (onApplyToContact) {
       onApplyToContact(
-        `Cześć Grzegorz, chciałbym skonsultować projekt: ${currentType.label}. Horyzont: ${timeline}, stack: ${currentType.stack}.`
+        `Cześć Grzegorz, chciałbym skonsultować projekt: ${currentType.label}. Stack: ${currentType.stack}.`
       );
     }
     document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playClick();
               onClose();
             }}
@@ -115,16 +128,17 @@ Kontakt: https://gkdev.pl/#kontakt
 
           {/* Modal Container */}
           <motion.div
-            className="relative w-full max-w-2xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] my-0 sm:my-6"
+            className="relative w-full max-w-2xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] my-0 sm:my-6 pointer-events-auto"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             role="dialog"
+            aria-modal="true"
             aria-label="Generator Briefu B2B"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40">
+            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40 relative z-20">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
                   <FileCode className="h-5 w-5" />
@@ -141,15 +155,17 @@ Kontakt: https://gkdev.pl/#kontakt
 
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   soundEngine.playClick();
                   onClose();
                 }}
-                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer relative z-30 pointer-events-auto"
                 title="Zamknij"
                 aria-label="Zamknij"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 pointer-events-none" />
               </button>
             </div>
 
@@ -284,7 +300,8 @@ Kontakt: https://gkdev.pl/#kontakt
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

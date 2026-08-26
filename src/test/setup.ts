@@ -50,6 +50,17 @@ Object.defineProperty(window, "IntersectionObserver", {
   value: MockIntersectionObserver,
 });
 
+class MockResizeObserver {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+
+Object.defineProperty(window, "ResizeObserver", {
+  writable: true,
+  value: MockResizeObserver,
+});
+
 export function triggerIntersection(entries: { target: Element; isIntersecting: boolean; intersectionRatio: number }[]) {
   if (activeCallback) {
     activeCallback(

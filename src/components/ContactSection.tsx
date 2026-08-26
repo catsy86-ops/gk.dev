@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useInView } from "motion/react";
-import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2, Calculator, FileCode, Sparkles } from "lucide-react";
-import { useState, forwardRef, useCallback, useRef } from "react";
+import { Send, Mail, MapPin, Phone, Loader2, AlertCircle, CheckCircle2, Calculator, FileCode } from "lucide-react";
+import { useState, forwardRef, useCallback, useRef, lazy, Suspense } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,21 @@ import { Input, Textarea } from "@/components/ui/input";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasContactBackground } from "@/components/ui/canvas-contact-background";
-import { ProjectEstimatorModal } from "@/components/ProjectEstimatorModal";
-import { B2bProposalModal } from "@/components/B2bProposalModal";
 import { soundEngine } from "@/lib/audio";
 import { triggerConfetti } from "@/lib/confetti";
+import { hapticSuccess, hapticWarning, hapticLight } from "@/lib/haptics";
 import { validateForm, type ContactFormData, type ContactFormErrors } from "@/lib/validation";
+import { useI18n } from "@/lib/i18n";
+
+const ProjectEstimatorModal = lazy(() =>
+  import("@/components/ProjectEstimatorModal").then((m) => ({ default: m.ProjectEstimatorModal }))
+);
+const B2bProposalModal = lazy(() =>
+  import("@/components/B2bProposalModal").then((m) => ({ default: m.B2bProposalModal }))
+);
 
 const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
+  const { t } = useI18n();
   const [focused, setFocused] = useState("");
   const [form, setForm] = useState<ContactFormData>({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState<ContactFormErrors>({});
@@ -36,8 +44,14 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
     e.preventDefault();
     const validation = validateForm(form);
     setErrors(validation);
-    if (Object.keys(validation).length > 0) return;
+    if (Object.keys(validation).length > 0) {
+      hapticWarning();
+      soundEngine.playPop(400, 0.05);
+      return;
+    }
 
+    soundEngine.playClick();
+    hapticLight();
     setIsSubmitting(true);
     try {
       const res = await fetch("https://formspree.io/f/xpwpkqdl", {
@@ -47,19 +61,22 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
       });
       if (!res.ok) throw new Error("Form submission failed");
       setIsSuccess(true);
+      soundEngine.playSuccess();
+      hapticSuccess();
       triggerConfetti();
-      toast({ title: "Wiadomość wysłana!", description: "Dziękuję za kontakt. Odpiszę najszybciej jak to możliwe." });
+      toast({ title: t.contact.successTitle, description: t.contact.successDesc });
       setForm({ name: "", email: "", message: "" });
     } catch {
+      hapticWarning();
       toast({
-        title: "Błąd wysyłania",
-        description: "Coś poszło nie tak. Spróbuj ponownie później lub napisz bezpośrednio na gk@gkdev.pl",
+        title: "Błąd wysyłania / Error",
+        description: "Spróbuj ponownie lub napisz na kontakt@gkdev.pl",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
-  }, [form]);
+  }, [form, t.contact]);
 
   return (
     <SectionWrapper ref={ref} id="kontakt" label="Kontakt">
@@ -76,9 +93,9 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
 
         <div className="relative z-10 mx-auto max-w-[700px]">
           <SectionHeader
-            badge="Kontakt"
-            title="Napisz do"
-            highlight="mnie"
+            badge={t.contact.badge}
+            title={t.contact.title}
+            highlight={t.contact.highlight}
             className="mb-12"
           />
 
@@ -93,7 +110,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
             {/* SLA badge */}
             <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1 font-mono text-xs text-emerald-500 font-medium shadow-sm">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Dostępny do nowych wyzwań • Odpowiedź w &lt; 4h</span>
+              <span>{t.contact.sla}</span>
             </div>
 
             {/* Contact info — glass pills with copy */}
@@ -102,9 +119,9 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText("kontakt@gkdev.pl");
-                  toast({ title: "Skopiowano email", description: "kontakt@gkdev.pl zapisano w schowku." });
+                  toast({ title: t.contact.emailCopiedTitle, description: t.contact.emailCopiedDesc });
                 }}
-                className="flex items-center gap-2.5 rounded-full border border-border/70 bg-card/70 backdrop-blur-md px-5 py-2 text-sm text-foreground font-['Geist'] shadow-sm hover:border-primary/40 hover:text-primary transition-all active:scale-95"
+                className="flex items-center gap-2.5 rounded-full border border-border/70 bg-card/70 backdrop-blur-md px-5 py-2 text-sm text-foreground font-['Geist'] shadow-sm hover:border-primary/40 hover:text-primary transition-all active:scale-95 cursor-pointer"
                 title="Kliknij, aby skopiować email"
               >
                 <Mail className="h-4 w-4 text-primary" strokeWidth={1.8} aria-hidden="true" />
@@ -133,7 +150,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-4 py-2 text-xs font-bold text-primary transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 <Calculator className="h-3.5 w-3.5" />
-                <span>Kalkulator Wyceny Projektu</span>
+                <span>{t.contact.calcCta}</span>
               </button>
 
               <button
@@ -145,7 +162,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                 className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 hover:bg-card px-4 py-2 text-xs font-bold text-foreground transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 <FileCode className="h-3.5 w-3.5 text-primary" />
-                <span>Generator Briefu B2B / RFP</span>
+                <span>{t.contact.rfpCta}</span>
               </button>
             </div>
           </motion.div>
@@ -171,9 +188,9 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   </div>
                 </motion.div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold font-['Geist'] text-foreground">Wiadomość wysłana!</h3>
+                  <h3 className="text-xl font-semibold font-['Geist'] text-foreground">{t.contact.successTitle}</h3>
                   <p className="text-sm text-muted-foreground max-w-sm">
-                    Dziękuję za kontakt. Odpiszę najszybciej jak to możliwe.
+                    {t.contact.successDesc}
                   </p>
                 </div>
                 <Button
@@ -182,7 +199,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   size="sm"
                   onClick={() => setIsSuccess(false)}
                 >
-                  Wyślij kolejną wiadomość
+                  {t.contact.sendAnother}
                 </Button>
               </motion.div>
             ) : (
@@ -207,7 +224,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-foreground/80 font-['Geist'] flex items-center gap-1.5">
-                        <span>Wybierz temat rozmowy:</span>
+                        <span>{t.contact.topicLabel}</span>
                       </label>
                       <button
                         type="button"
@@ -215,16 +232,11 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                         className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-1 font-mono text-[11px] font-bold text-primary hover:bg-primary/20 transition-colors"
                       >
                         <Calculator className="h-3.5 w-3.5" />
-                        <span>Kalkulator Wyceny</span>
+                        <span>{t.contact.calcTitle}</span>
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {[
-                        "Nowy Projekt SaaS",
-                        "Audyt Architektury",
-                        "Aplikacja Web / Mobile",
-                        "Współpraca / Zespół",
-                      ].map((topic) => {
+                      {t.contact.topics.map((topic) => {
                         const isSelected = form.message.includes(`[${topic}]`);
                         return (
                           <button
@@ -234,7 +246,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                               const cleanMessage = form.message.replace(/^\[.*?\]\s*/, "");
                               updateField("message", `[${topic}] ${cleanMessage}`);
                             }}
-                            className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-all ${
+                            className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer ${
                               isSelected
                                 ? "border-primary bg-primary text-primary-foreground shadow-sm scale-105"
                                 : "border-border/70 bg-secondary/60 text-muted-foreground hover:text-foreground hover:border-primary/40"
@@ -249,8 +261,8 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {([
-                { key: "name", label: "Imię", type: "text", autocomplete: "given-name" },
-                { key: "email", label: "Email", type: "email", autocomplete: "email" },
+                { key: "name", label: t.contact.nameLabel, type: "text", autocomplete: "given-name" },
+                { key: "email", label: t.contact.emailLabel, type: "email", autocomplete: "email" },
               ] as const).map((field) => (
                 <motion.div key={field.key} className="relative">
                   <motion.div
@@ -322,7 +334,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                     : "top-4 text-sm text-muted-foreground"
                 }`}
               >
-                Wiadomość
+                {t.contact.messageLabel}
                 <span className="text-destructive ml-0.5" aria-hidden="true">*</span>
               </label>
               {errors.message && (
@@ -337,21 +349,31 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
               ref={magneticBtn.ref as React.Ref<HTMLDivElement>}
               onMouseMove={magneticBtn.onMouseMove}
               onMouseLeave={magneticBtn.onMouseLeave}
+              className="pt-2"
             >
-              <Button
+              <motion.button
                 type="submit"
                 disabled={isSubmitting}
                 aria-disabled={isSubmitting}
-                size="lg"
-                className="w-full sm:w-auto rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-[0_4px_20px_rgba(59,130,246,0.35)] hover:shadow-[0_8px_30px_rgba(59,130,246,0.45)] transition-all duration-300"
+                whileHover={isSubmitting ? {} : { scale: 1.03 }}
+                whileTap={isSubmitting ? {} : { scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-primary via-blue-600 to-indigo-600 px-9 py-3.5 text-sm sm:text-base font-bold text-white shadow-[0_4px_25px_rgba(59,130,246,0.4)] hover:shadow-[0_10px_35px_rgba(59,130,246,0.65)] border border-white/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
+                {/* Shimmer light beam on hover */}
+                <motion.div
+                  className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none -skew-x-12"
+                  animate={{ translateX: ["-150%", "250%"] }}
+                  transition={{ repeat: Infinity, duration: 3.5, repeatDelay: 2.5, ease: "easeInOut" }}
+                />
+
                 {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                  <Loader2 className="relative z-10 h-4 w-4 animate-spin" strokeWidth={2} aria-hidden="true" />
                 ) : (
-                  <Send className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                  <Send className="relative z-10 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-0.5" strokeWidth={2} aria-hidden="true" />
                 )}
-                {isSubmitting ? "Wysyłanie..." : "Wyślij wiadomość"}
-              </Button>
+                <span className="relative z-10">{isSubmitting ? t.contact.sending : t.contact.send}</span>
+              </motion.button>
             </div>
                 </motion.form>
               </motion.div>
@@ -361,30 +383,38 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
       </div>
 
       {/* Interactive Project Estimator Modal */}
-      <ProjectEstimatorModal
-        isOpen={isEstimatorOpen}
-        onClose={() => setIsEstimatorOpen(false)}
-        onApplyEstimate={(summary) => {
-          updateField("message", summary);
-          toast({
-            title: "Wycena wczytana do formularza!",
-            description: "Wypełnij swoje imię i email, a następnie wyślij zapytanie.",
-          });
-        }}
-      />
+      {isEstimatorOpen && (
+        <Suspense fallback={null}>
+          <ProjectEstimatorModal
+            isOpen={isEstimatorOpen}
+            onClose={() => setIsEstimatorOpen(false)}
+            onApplyEstimate={(summary) => {
+              updateField("message", summary);
+              toast({
+                title: t.contact.calcApplied,
+                description: t.contact.sla,
+              });
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* B2B Proposal & Brief Generator Modal */}
-      <B2bProposalModal
-        isOpen={isB2bModalOpen}
-        onClose={() => setIsB2bModalOpen(false)}
-        onApplyToContact={(message) => {
-          updateField("message", message);
-          toast({
-            title: "Brief wczytany do wiadomości!",
-            description: "Podaj swoje dane kontaktowe, aby przesłać zapytanie.",
-          });
-        }}
-      />
+      {isB2bModalOpen && (
+        <Suspense fallback={null}>
+          <B2bProposalModal
+            isOpen={isB2bModalOpen}
+            onClose={() => setIsB2bModalOpen(false)}
+            onApplyToContact={(message) => {
+              updateField("message", message);
+              toast({
+                title: t.contact.briefApplied,
+                description: t.contact.sla,
+              });
+            }}
+          />
+        </Suspense>
+      )}
     </SectionWrapper>
   );
 });

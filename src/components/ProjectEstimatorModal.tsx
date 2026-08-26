@@ -1,9 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Calculator, X, Check, ArrowRight, ArrowLeft, Sparkles, Layers, Clock, Send } from "lucide-react";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess, hapticSelection } from "@/lib/haptics";
 import { triggerConfetti } from "@/lib/confetti";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface ProjectEstimatorModalProps {
   isOpen: boolean;
@@ -53,10 +55,21 @@ export const ProjectEstimatorModal = ({
   onClose,
   onApplyEstimate,
 }: ProjectEstimatorModalProps) => {
+  useScrollLock(isOpen);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedType, setSelectedType] = useState<string>("saas");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["payments", "auth"]);
   const [selectedTimeline, setSelectedTimeline] = useState<string>("standard");
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const calculation = useMemo(() => {
     const typeObj = projectTypes.find((p) => p.id === selectedType) || projectTypes[0];
@@ -109,31 +122,39 @@ export const ProjectEstimatorModal = ({
     onClose();
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              soundEngine.playClick();
+              onClose();
+            }}
           />
 
           {/* Modal Box */}
           <motion.div
-            className="relative w-full max-w-2xl rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl overflow-hidden z-10"
+            className="relative w-full max-w-2xl rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl overflow-hidden z-10 pointer-events-auto"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3 }}
             role="dialog"
+            aria-modal="true"
             aria-label="Kalkulator wyceny projektu"
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-border/60">
+            <div className="flex items-center justify-between pb-4 border-b border-border/60 relative z-20">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
                   <Calculator className="h-5 w-5" />
@@ -147,11 +168,18 @@ export const ProjectEstimatorModal = ({
               </div>
 
               <button
-                onClick={onClose}
-                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  soundEngine.playClick();
+                  onClose();
+                }}
+                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto relative z-30"
                 aria-label="Zamknij"
+                title="Zamknij"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 pointer-events-none" />
               </button>
             </div>
 
@@ -323,6 +351,9 @@ export const ProjectEstimatorModal = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
+
+export default ProjectEstimatorModal;

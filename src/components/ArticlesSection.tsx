@@ -1,29 +1,41 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { motion } from "motion/react";
 import { BookOpen, Clock, ArrowRight, Sparkles, Search, Bookmark } from "lucide-react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { articlesData, type Article } from "@/lib/articles";
-import { ArticleReaderModal } from "@/components/ArticleReaderModal";
 import { useClientStore } from "@/hooks/use-client-store";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "@/hooks/use-toast";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSelection } from "@/lib/haptics";
 
-const categories = ["Wszystkie", "Wydajność", "Architektura", "SaaS & Security"] as const;
+const ArticleReaderModal = lazy(() =>
+  import("@/components/ArticleReaderModal").then((m) => ({ default: m.ArticleReaderModal }))
+);
 
 export const ArticlesSection = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { isBookmarked, toggleBookmark } = useClientStore();
-  const [activeCategory, setActiveCategory] = useState<string>("Wszystkie");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  const categories = useMemo(() => [
+    { id: "all", label: t.articles.categories.all },
+    { id: "Wydajność", label: t.articles.categories.performance },
+    { id: "Architektura", label: t.articles.categories.architecture },
+    { id: "SaaS & Security", label: t.articles.categories.security },
+    { id: "AI & Vector Search", label: t.articles.categories.ai },
+  ], [t.articles]);
 
   const filteredArticles = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return articlesData.filter((article) => {
-      const matchesCategory = activeCategory === "Wszystkie" || article.category === activeCategory;
+      const matchesCategory =
+        activeCategory === "all" ||
+        article.category === activeCategory ||
+        article.categoryEn === activeCategory;
       const matchesQuery =
         !q ||
         article.title.toLowerCase().includes(q) ||
@@ -34,7 +46,7 @@ export const ArticlesSection = () => {
   }, [activeCategory, searchQuery]);
 
   return (
-    <SectionWrapper id="artykuly" label="Baza Wiedzy" className="relative overflow-hidden">
+    <SectionWrapper id="artykuly" label={t.nav.articles} className="relative overflow-hidden">
       <div className="relative z-10 mx-auto max-w-[1240px] px-2 sm:px-4">
         <SectionHeader
           badge={t.articles.badge}
@@ -67,25 +79,26 @@ export const ArticlesSection = () => {
               )}
             </div>
 
-            {/* Category Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-full border border-border/60 bg-card/60 backdrop-blur-md shadow-sm">
+            {/* Category Pills with Mobile Snap-Rail */}
+            <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1 rounded-2xl sm:rounded-full border border-border/60 bg-card/60 backdrop-blur-md shadow-sm overflow-x-auto scrollbar-none max-w-full snap-x snap-mandatory">
               {categories.map((cat) => {
-                const isActive = activeCategory === cat;
+                const isActive = activeCategory === cat.id;
                 return (
                   <button
-                    key={cat}
+                    key={cat.id}
+                    type="button"
                     onClick={() => {
                       soundEngine.playPop(750, 0.02);
                       hapticSelection();
-                      setActiveCategory(cat);
+                      setActiveCategory(cat.id);
                     }}
-                    className={`px-3 py-1 rounded-full text-xs font-['Geist'] font-semibold transition-all cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-['Geist'] font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[38px] ${
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {cat}
+                    {cat.label}
                   </button>
                 );
               })}
@@ -94,9 +107,12 @@ export const ArticlesSection = () => {
         </div>
 
         {/* Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {filteredArticles.map((article, idx) => {
             const bookmarked = isBookmarked(article.id);
+            const categoryLabel = lang === "en" ? article.categoryEn : article.category;
+            const readTimeLabel = lang === "en" ? article.readTimeEn : article.readTime;
+
             return (
               <motion.div
                 key={article.id}
@@ -114,12 +130,12 @@ export const ArticlesSection = () => {
                   {/* Badge Row with Bookmark toggle */}
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 font-mono text-[10.5px] font-bold text-primary">
-                      {article.category}
+                      {categoryLabel}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {article.readTime}
+                        {readTimeLabel}
                       </span>
                       <button
                         type="button"
@@ -184,20 +200,24 @@ export const ArticlesSection = () => {
         {/* Empty State */}
         {filteredArticles.length === 0 && (
           <div className="py-16 text-center space-y-2">
-            <p className="font-bold text-foreground font-['Geist'] text-lg">Brak pasujących publikacji</p>
+            <p className="font-bold text-foreground font-['Geist'] text-lg">{t.articles.emptyTitle}</p>
             <p className="text-xs text-muted-foreground font-mono">
-              Spróbuj wpisać inne słowo kluczowe lub zresetuj filtr.
+              {t.articles.emptyDesc}
             </p>
           </div>
         )}
       </div>
 
       {/* Article Reader Modal */}
-      <ArticleReaderModal
-        article={selectedArticle}
-        isOpen={!!selectedArticle}
-        onClose={() => setSelectedArticle(null)}
-      />
+      {selectedArticle && (
+        <Suspense fallback={null}>
+          <ArticleReaderModal
+            article={selectedArticle}
+            isOpen={!!selectedArticle}
+            onClose={() => setSelectedArticle(null)}
+          />
+        </Suspense>
+      )}
     </SectionWrapper>
   );
 };

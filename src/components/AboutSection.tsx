@@ -6,79 +6,7 @@ import { HolographicCard } from "@/components/ui/HolographicCard";
 import { GithubActivityBadge } from "@/components/GithubActivityBadge";
 import { soundEngine } from "@/lib/audio";
 import { hapticSelection } from "@/lib/haptics";
-
-const experienceTimeline = [
-  {
-    icon: Briefcase,
-    year: "2023 — TERAZ",
-    title: "Senior Fullstack Developer & Architekt",
-    company: "Freelance / Dedykowane Platformy SaaS",
-    description: "Projektowanie i wdrażanie kompletnych systemów webowych, aplikacji mobilnych i backendu API w chmurze.",
-    highlights: ["Wzrost konwersji klientów do +145%", "Optymalizacja Core Web Vitals do 98-100", "Architektura mikroserwisów & Serverless"],
-    tags: ["React 19", "Next.js", "TypeScript", "Node.js", "AWS", "PostgreSQL"],
-    accent: "bg-primary/10 text-primary border-primary/20",
-  },
-  {
-    icon: Briefcase,
-    year: "2021 — 2023",
-    title: "Fullstack Software Engineer",
-    company: "Software House & Agencje UE",
-    description: "Budowanie platform SaaS dla e-commerce i enterprise, integracje bramek płatniczych oraz optymalizacja zapytań SQL.",
-    highlights: ["Obsługa 100k+ unikalnych sesji miesięcznie", "Projektowanie API GraphQL & REST", "Redukcja czasu ładowania aplikacji o 60%"],
-    tags: ["TypeScript", "NestJS", "PostgreSQL", "Docker", "Redis", "Tailwind"],
-    accent: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-  },
-  {
-    icon: Briefcase,
-    year: "2019 — 2021",
-    title: "Frontend Developer",
-    company: "Startup Technologiczny",
-    description: "Rozwój interfejsów użytkownika w React i TypeScript, integracje z zewnętrznymi API oraz dbałość o responsywność i animacje.",
-    highlights: ["Wdrożenie biblioteki komponentów Design System", "Współpraca w metodyce Agile/Scrum", "100% Type-Safe TypeScript codebase"],
-    tags: ["React", "TypeScript", "Redux", "REST API", "SCSS"],
-    accent: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  },
-];
-
-const educationTimeline = [
-  {
-    icon: ShieldCheck,
-    year: "2024",
-    title: "AWS Certified Solutions Architect",
-    company: "Amazon Web Services",
-    description: "Międzynarodowy certyfikat poświadczający wiedzę z projektowania skalowalnych, bezpiecznych i bezawaryjnych architektur chmurowych.",
-    highlights: ["High Availability & Fault Tolerance", "Serverless & Containerized Workloads", "Cost Optimization & Security"],
-    tags: ["AWS", "Cloud Architecture", "S3", "Lambda", "ECS"],
-    accent: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  },
-  {
-    icon: Award,
-    year: "2023",
-    title: "Meta Front-End Developer Professional",
-    company: "Meta Platforms",
-    description: "Zaawansowana certyfikacja obejmująca architekturę React, optymalizację renderowania, testy jednostkowe i dostępność WCAG.",
-    highlights: ["Test-Driven Development (TDD)", "Zaawansowane wzorce React", "Dostępność cyfrowa (a11y)"],
-    tags: ["React", "CI/CD", "Jest/Vitest", "Web Standards"],
-    accent: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
-  },
-  {
-    icon: GraduationCap,
-    year: "2015 — 2019",
-    title: "Inżynieria Oprogramowania & Informatyka",
-    company: "Studia Inżynierskie",
-    description: "Tytuł inżyniera informatyki ze specjalizacją w inżynierii systemów webowych, algorytmach i strukturach danych oraz bazach relacyjnych.",
-    highlights: ["Obrona pracy inżynierskiej z wyróżnieniem", "Algorytmika i bazy danych", "Projektowanie architektur SOLID"],
-    tags: ["Informatyka", "Algorytmy", "Bazy Danych", "Sieci"],
-    accent: "bg-violet-500/10 text-violet-500 border-violet-500/20",
-  },
-];
-
-const passions = [
-  { emoji: "🚀", label: "Nowe technologie" },
-  { emoji: "🎮", label: "Game dev & 3D" },
-  { emoji: "📚", label: "Open source" },
-  { emoji: "☕", label: "Kawa specialty" },
-];
+import { useI18n } from "@/lib/i18n";
 
 const techStack = [
   { name: "React 19" },
@@ -90,6 +18,7 @@ const techStack = [
 ];
 
 const AboutSection = () => {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const [activeTab, setActiveTab] = useState<"experience" | "education">("experience");
   const [hoveredTimeline, setHoveredTimeline] = useState<number | null>(null);
@@ -101,6 +30,23 @@ const AboutSection = () => {
   const parallaxY = useTransform(scrollYProgress, [0, 1], ["-5%", "8%"]);
   const parallaxYInverse = useTransform(scrollYProgress, [0, 1], ["5%", "-8%"]);
   const timelineProgress = useTransform(scrollYProgress, [0.2, 0.85], [0, 1]);
+
+  const experienceTimeline = t.about.experiences.map((exp) => ({
+    ...exp,
+    icon: Briefcase,
+    accent: "bg-primary/10 text-primary border-primary/20",
+  }));
+
+  const educationTimeline = t.about.educations.map((edu, idx) => ({
+    ...edu,
+    icon: idx === 0 ? ShieldCheck : idx === 1 ? Award : GraduationCap,
+    accent:
+      idx === 0
+        ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+        : idx === 1
+        ? "bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
+        : "bg-violet-500/10 text-violet-500 border-violet-500/20",
+  }));
 
   const currentTimeline = activeTab === "experience" ? experienceTimeline : educationTimeline;
 
@@ -135,7 +81,7 @@ const AboutSection = () => {
             viewport={{ once: true }}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Profil & Ścieżka Kariery
+            {t.about.badge}
           </motion.span>
 
           <motion.h2
@@ -144,7 +90,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            Inżynieria z pasją do <span className="text-primary">doskonałości</span>
+            {t.about.title} <span className="text-primary">{t.about.highlight}</span>
           </motion.h2>
 
           <div className="flex justify-center">
@@ -172,17 +118,17 @@ const AboutSection = () => {
                   </div>
                   <div>
                     <h3 className="font-['Geist'] text-lg font-bold text-foreground">Grzegorz</h3>
-                    <p className="font-mono text-xs text-primary font-medium">Senior Fullstack Engineer</p>
+                    <p className="font-mono text-xs text-primary font-medium">{t.about.bioRole}</p>
                   </div>
                 </div>
 
                 <p className="font-['Geist'] text-muted-foreground text-sm leading-relaxed mb-6">
-                  Specjalizuję się w tworzeniu zaawansowanych aplikacji SaaS, platform e-commerce oraz systemów chmurowych z bezkompromisowym naciskiem na wydajność, bezpieczeństwo i estetykę.
+                  {t.about.bioDesc}
                 </p>
 
                 {/* Tech Tags */}
                 <div className="mb-6">
-                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">Główny Stack:</p>
+                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">{t.about.stackLabel}</p>
                   <div className="flex flex-wrap gap-2">
                     {techStack.map((tech) => (
                       <span
@@ -197,9 +143,9 @@ const AboutSection = () => {
 
                 {/* Passions */}
                 <div className="mb-8">
-                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">Pasje i rozwój:</p>
+                  <p className="text-xs font-semibold text-foreground/80 font-['Geist'] mb-2.5">{t.about.passionsLabel}</p>
                   <div className="flex flex-wrap gap-2">
-                    {passions.map((p) => (
+                    {t.about.passions.map((p) => (
                       <span
                         key={p.label}
                         className="inline-flex items-center gap-1.5 rounded-xl bg-secondary/50 border border-border/40 px-3 py-1 text-xs text-muted-foreground"
@@ -220,7 +166,7 @@ const AboutSection = () => {
                     download
                     icon={<Download className="h-3.5 w-3.5" />}
                   >
-                    Pobierz CV (PDF)
+                    {t.about.downloadCv}
                   </GlowButton>
 
                   <GlowButton
@@ -233,7 +179,7 @@ const AboutSection = () => {
                     }}
                     icon={<ArrowUpRight className="h-3.5 w-3.5" />}
                   >
-                    Napisz
+                    {t.about.writeMe}
                   </GlowButton>
                 </div>
               </HolographicCard>
@@ -270,7 +216,7 @@ const AboutSection = () => {
                   />
                 )}
                 <Briefcase className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">Doświadczenie Komercyjne</span>
+                <span className="relative z-10">{t.about.experienceTab}</span>
               </button>
 
               <button
@@ -293,7 +239,7 @@ const AboutSection = () => {
                   />
                 )}
                 <GraduationCap className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">Certyfikaty & Edukacja</span>
+                <span className="relative z-10">{t.about.educationTab}</span>
               </button>
             </div>
 

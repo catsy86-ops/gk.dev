@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Clock, Calendar, Bookmark, Copy, Check, Sparkles, BookOpen, Share2 } from "lucide-react";
+import { X, Clock, Copy, Check, Sparkles, BookOpen, Share2, ExternalLink } from "lucide-react";
 import { type Article } from "@/lib/articles";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { toast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface ArticleReaderModalProps {
   article: Article | null;
@@ -17,9 +20,25 @@ export const ArticleReaderModal = ({
   isOpen,
   onClose,
 }: ArticleReaderModalProps) => {
+  useScrollLock(isOpen);
+  const { lang, t } = useI18n();
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!article) return null;
+
+  const contentSections = lang === "en" ? article.contentEn : article.content;
+  const categoryLabel = lang === "en" ? article.categoryEn : article.category;
+  const readTimeLabel = lang === "en" ? article.readTimeEn : article.readTime;
 
   const handleCopyCode = (code: string, index: number) => {
     soundEngine.playPop(750, 0.03);
@@ -28,7 +47,10 @@ export const ArticleReaderModal = ({
       navigator.clipboard.writeText(code);
     }
     setCopiedIndex(index);
-    toast({ title: "Skopiowano kod", description: "Fragment kodu zapisany w schowku." });
+    toast({
+      title: lang === "pl" ? "Skopiowano kod" : "Code Copied",
+      description: lang === "pl" ? "Fragment kodu zapisany w schowku." : "Code snippet saved to clipboard.",
+    });
     setTimeout(() => setCopiedIndex(null), 2500);
   };
 
@@ -43,21 +65,28 @@ export const ArticleReaderModal = ({
       }).catch(() => {});
     } else if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Link skopiowany", description: "Adres artykułu jest w schowku." });
+      toast({
+        title: lang === "pl" ? "Link skopiowany" : "Link Copied",
+        description: lang === "pl" ? "Adres artykułu jest w schowku." : "Article link copied to clipboard.",
+      });
     }
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playClick();
               onClose();
             }}
@@ -65,16 +94,17 @@ export const ArticleReaderModal = ({
 
           {/* Modal Container */}
           <motion.div
-            className="relative w-full max-w-3xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[92vh] my-0 sm:my-6"
+            className="relative w-full max-w-3xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[92vh] my-0 sm:my-6 pointer-events-auto"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             role="dialog"
+            aria-modal="true"
             aria-label={article.title}
           >
             {/* Header Toolbar */}
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border/60 bg-secondary/40">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border/60 bg-secondary/40 relative z-20">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
                   <BookOpen className="h-5 w-5" />
@@ -82,40 +112,42 @@ export const ArticleReaderModal = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold">
-                      {article.category}
+                      {categoryLabel}
                     </span>
                     <span className="font-mono text-xs text-muted-foreground flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {article.readTime}
+                      {readTimeLabel}
                     </span>
                   </div>
                   <span className="font-mono text-[11px] text-muted-foreground">
-                    Opublikowano: {article.publishDate}
+                    {lang === "pl" ? "Opublikowano:" : "Published:"} {article.publishDate}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative z-30">
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                  title="Udostępnij artykuł"
-                  aria-label="Udostępnij"
+                  className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer pointer-events-auto"
+                  title={lang === "pl" ? "Udostępnij artykuł" : "Share article"}
+                  aria-label={lang === "pl" ? "Udostępnij" : "Share"}
                 >
-                  <Share2 className="h-4 w-4" />
+                  <Share2 className="h-4 w-4 pointer-events-none" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     soundEngine.playClick();
                     onClose();
                   }}
-                  className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                  title="Zamknij"
-                  aria-label="Zamknij"
+                  className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto"
+                  title={lang === "pl" ? "Zamknij" : "Close"}
+                  aria-label={lang === "pl" ? "Zamknij" : "Close"}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 pointer-events-none" />
                 </button>
               </div>
             </div>
@@ -148,7 +180,7 @@ export const ArticleReaderModal = ({
 
               {/* Content Sections */}
               <div className="space-y-8">
-                {article.content.map((section, idx) => (
+                {contentSections.map((section, idx) => (
                   <div key={idx} className="space-y-3">
                     <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary shrink-0" />
@@ -174,12 +206,12 @@ export const ArticleReaderModal = ({
                             {copiedIndex === idx ? (
                               <>
                                 <Check className="h-3 w-3 text-emerald-400" />
-                                <span className="text-emerald-400">Skopiowano</span>
+                                <span className="text-emerald-400">{lang === "pl" ? "Skopiowano" : "Copied"}</span>
                               </>
                             ) : (
                               <>
                                 <Copy className="h-3 w-3" />
-                                <span>Kopiuj</span>
+                                <span>{lang === "pl" ? "Kopiuj" : "Copy"}</span>
                               </>
                             )}
                           </button>
@@ -198,6 +230,33 @@ export const ArticleReaderModal = ({
                 ))}
               </div>
 
+              {/* Engineering Sources & Citations */}
+              {article.sources && article.sources.length > 0 && (
+                <div className="rounded-2xl border border-border/70 bg-secondary/30 p-5 space-y-3">
+                  <h3 className="text-xs font-mono font-bold text-foreground flex items-center gap-2 uppercase tracking-wider">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <span>{t.articles.sourcesHeading}</span>
+                  </h3>
+                  <ul className="space-y-2">
+                    {article.sources.map((src, i) => (
+                      <li key={i} className="flex items-start gap-2 text-xs">
+                        <span className="text-primary font-mono select-none">[{i + 1}]</span>
+                        <a
+                          href={src.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-foreground hover:text-primary transition-colors inline-flex items-center gap-1 underline underline-offset-2"
+                        >
+                          <span>{src.title}</span>
+                          <ExternalLink className="h-3 w-3 opacity-70" />
+                        </a>
+                        <span className="text-muted-foreground font-mono text-[11px]">({src.sourceName})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {/* Author Card Footer */}
               <div className="mt-10 rounded-2xl border border-border/70 bg-secondary/40 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -206,27 +265,31 @@ export const ArticleReaderModal = ({
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground text-sm">Grzegorz</h3>
-                    <p className="font-mono text-xs text-muted-foreground">Senior Fullstack Engineer & Architekt</p>
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {lang === "pl" ? "Senior Fullstack Engineer & Architekt" : "Senior Fullstack Engineer & Architect"}
+                    </p>
                   </div>
                 </div>
 
                 <a
                   href="#kontakt"
                   onClick={() => {
-                    soundEngine.playClick();
+                    soundEngine.playChime();
+                    hapticLight();
                     onClose();
                     document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                  className="rounded-full bg-gradient-to-r from-primary via-blue-600 to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-primary/30 hover:shadow-primary/50 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20 shrink-0"
                 >
-                  Napisz w sprawie projektu
+                  {lang === "pl" ? "Napisz w sprawie projektu" : "Discuss a Project"}
                 </a>
               </div>
             </div>
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

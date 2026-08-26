@@ -42,3 +42,24 @@ export const hapticSelection = () => {
     }
   }
 };
+
+export const hapticWarning = () => {
+  if (typeof window !== "undefined" && "vibrate" in navigator) {
+    try {
+      navigator.vibrate([20, 50, 20]);
+    } catch {
+      // Ignore
+    }
+  }
+};
+
+export const hapticError = () => {
+  if (typeof window !== "undefined" && "vibrate" in navigator) {
+    try {
+      navigator.vibrate([30, 40, 30, 40, 50]);
+    } catch {
+      // Ignore
+    }
+  }
+};
+

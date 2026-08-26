@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
-import { motion } from "motion/react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Home, User, Wrench, FolderOpen, Send, Sparkles } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { MobileQuickActions } from "@/components/MobileQuickActions";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight, hapticMedium } from "@/lib/haptics";
+import { hapticLight, hapticMedium, hapticSelection } from "@/lib/haptics";
 
 const tabs = [
   { id: "hero", label: "Start", href: "#hero", icon: Home },
@@ -15,11 +15,35 @@ const tabs = [
 
 export const MobileDock = () => {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const activeSection = useActiveSection();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY.current;
+
+      // Always show at the top of the page
+      if (currentScrollY < 60) {
+        setIsVisible(true);
+      } else if (scrollDelta > 15 && currentScrollY > 120) {
+        // Fast scroll down -> hide dock to give more reading area
+        setIsVisible(false);
+      } else if (scrollDelta < -10) {
+        // Scroll up -> reveal dock immediately
+        setIsVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const scrollTo = useCallback((href: string) => {
     soundEngine.playClick();
-    hapticLight();
+    hapticSelection();
     const id = href.replace("#", "");
     const el = document.getElementById(id);
     if (el) {
@@ -30,16 +54,19 @@ export const MobileDock = () => {
   return (
     <>
       <aside className="md:hidden">
-        <motion.div
-          key="mobile-dock"
-          initial={{ y: 80, opacity: 0, scale: 0.95 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 350, damping: 28 }}
-          className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-[400px] z-50 pointer-events-auto"
-          style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
-          aria-label="Pływające menu mobilne"
-        >
-              <div className="relative flex items-center justify-between rounded-full border border-border/80 bg-background/90 backdrop-blur-2xl p-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.3)] dark:shadow-[0_16px_50px_-10px_rgba(0,0,0,0.8)]">
+        <AnimatePresence>
+          {isVisible && (
+            <motion.div
+              key="mobile-dock"
+              initial={{ y: 90, opacity: 0, scale: 0.92 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 90, opacity: 0, scale: 0.92 }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-[400px] z-50 pointer-events-auto"
+              style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+              aria-label="Pływające menu mobilne"
+            >
+              <div className="relative flex items-center justify-between rounded-full border border-border/80 bg-background/85 dark:bg-card/85 backdrop-blur-2xl p-1.5 shadow-[0_16px_45px_-10px_rgba(0,0,0,0.35)] dark:shadow-[0_20px_55px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
                 {/* Navigation Tabs */}
                 <div className="flex items-center flex-1 justify-around gap-1">
                   {tabs.map((tab) => {
@@ -49,8 +76,9 @@ export const MobileDock = () => {
                     return (
                       <button
                         key={tab.id}
+                        type="button"
                         onClick={() => scrollTo(tab.href)}
-                        className={`relative flex flex-col items-center justify-center py-1.5 px-2.5 rounded-full transition-colors ${
+                        className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-full transition-colors min-h-[44px] cursor-pointer ${
                           isActive
                             ? "text-primary font-bold"
                             : "text-muted-foreground hover:text-foreground"
@@ -61,7 +89,7 @@ export const MobileDock = () => {
                         {isActive && (
                           <motion.span
                             layoutId="mobile-dock-pill"
-                            className="absolute inset-0 rounded-full bg-primary/15 dark:bg-primary/20 border border-primary/25"
+                            className="absolute inset-0 rounded-full bg-primary/15 dark:bg-primary/25 border border-primary/30 shadow-sm"
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
                           />
                         )}
@@ -79,33 +107,37 @@ export const MobileDock = () => {
 
                 {/* Quick Action Hub Button */}
                 <button
+                  type="button"
                   onClick={() => {
                     soundEngine.playPop(850, 0.03);
                     hapticLight();
                     setIsQuickOpen(true);
                   }}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-1 active:scale-90"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-1 active:scale-90 cursor-pointer"
                   aria-label="Szybkie akcje"
                   title="Szybkie akcje"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Sparkles className="h-4 w-4 animate-pulse" />
                 </button>
 
                 {/* Action Contact Button */}
                 <button
+                  type="button"
                   onClick={() => {
                     soundEngine.playChime();
                     hapticMedium();
                     scrollTo("#kontakt");
                   }}
-                  className="relative flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-primary-foreground font-['Geist'] text-xs font-bold shadow-md shadow-primary/30 active:scale-95 transition-transform shrink-0 ml-1"
+                  className="relative flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-primary-foreground font-['Geist'] text-xs font-bold shadow-md shadow-primary/30 active:scale-95 transition-transform shrink-0 ml-1 cursor-pointer min-h-[40px]"
                   aria-label="Napisz wiadomość"
                 >
                   <Send className="h-3.5 w-3.5" />
                   <span>Napisz</span>
                 </button>
               </div>
-        </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </aside>
 
       {/* Mobile Quick Action Sheet */}

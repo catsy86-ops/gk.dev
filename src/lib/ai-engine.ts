@@ -45,7 +45,7 @@ const knowledgeBase: KnowledgeItem[] = [
   {
     keywords: ["projekty", "portfolio", "aura", "ufisza", "case study", "realizacje", "sklep", "saas", "aplikacje"],
     response: {
-      answer: "🚀 **Kluczowe Realizacje Komercyjne:**\n\n- **AURA Intelligence Platform:** Nowoczesny system SaaS z analityką AI w czasie rzeczywistym, subskrypcjami Stripe i czasem odpowiedzi poniżej 50ms.\n- **uFISZA Commerce:** Sklep internetowy high-end z czasem przejścia do kasy <45s i wynikiem +145% konwersji mobilnej.\n- **Wszystkie projekty** posiadają podgląd w ramkach MacBook Pro & iPhone oraz wynik Lighthouse 98-100.",
+      answer: "🚀 **Kluczowe Realizacje Komercyjne:**\n\n- **AURA Intelligence Platform:** Nowoczesny system SaaS z analityką AI w czasie rzeczywistym, subskrypcjami Stripe i czasem odpowiedzi poniżej 50ms.\n- **uFISZA Commerce:** Sklep internetowy high-end z czasem przejścia do kasy <45s i wynikiem +145% konwersji mobilnej.\n- **Wszystkie projekty** posiadają podgląd w ramkach MacBook Pro & iPhone oraz natychmiastowy czas ładowania poniżej 0.8s.",
       category: "projects",
       suggestedAction: { label: "Przeglądaj Projekty", targetHref: "#projekty" },
     },

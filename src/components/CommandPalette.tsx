@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
@@ -19,10 +20,12 @@ import {
   Terminal,
   Palette,
   Bot,
+  X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
 import { setGlobalAccent } from "@/lib/theme";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface CommandItem {
   id: string;
@@ -42,6 +45,7 @@ interface CommandPaletteProps {
 }
 
 export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: CommandPaletteProps) => {
+  useScrollLock(isOpen);
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
@@ -247,22 +251,28 @@ export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: Co
     if (isOpen) setQuery("");
   }, [isOpen]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[15vh] px-4">
+        <div className="fixed inset-0 z-[999999] flex items-start justify-center pt-[15vh] px-4 pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
           />
 
           {/* Dialog */}
           <motion.div
-            className="relative w-full max-w-xl rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.5)] dark:shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10"
+            className="relative w-full max-w-xl rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.5)] dark:shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10 pointer-events-auto"
             initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -272,7 +282,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: Co
             aria-label="Wyszukiwarka i menu poleceń"
           >
             {/* Input Header */}
-            <div className="flex items-center gap-3 border-b border-border/60 px-5 py-4">
+            <div className="flex items-center gap-3 border-b border-border/60 px-5 py-4 relative z-20">
               <Search className="h-5 w-5 text-primary shrink-0" />
               <input
                 type="text"
@@ -282,9 +292,24 @@ export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: Co
                 placeholder="Szukaj sekcji, akcji, projektów..."
                 className="w-full bg-transparent font-['Geist'] text-sm sm:text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
-              <span className="rounded-md border border-border/60 bg-secondary/80 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                ESC
-              </span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="hidden sm:inline-block rounded-md border border-border/60 bg-secondary/80 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                  ESC
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  className="h-7 w-7 rounded-lg border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto"
+                  aria-label="Zamknij menu"
+                  title="Zamknij"
+                >
+                  <CloseIcon className="h-3.5 w-3.5 pointer-events-none" />
+                </button>
+              </div>
             </div>
 
             {/* Results list */}
@@ -298,7 +323,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: Co
                   <button
                     key={item.id}
                     onClick={item.action}
-                    className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left font-['Geist'] text-sm text-foreground hover:bg-secondary/80 hover:text-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left font-['Geist'] text-sm text-foreground hover:bg-secondary/80 hover:text-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors">
@@ -323,17 +348,20 @@ export const CommandPalette = ({ isOpen, onClose, onOpenTerminal, onOpenAi }: Co
               )}
             </div>
 
-            {/* Footer tips */}
-            <div className="flex items-center justify-between border-t border-border/40 bg-secondary/40 px-5 py-2.5 font-mono text-[11px] text-muted-foreground">
+            {/* Footer Toolbar */}
+            <div className="border-t border-border/50 bg-secondary/30 px-5 py-2.5 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <kbd className="rounded bg-background/80 px-1.5 py-0.5 border border-border/60 text-[10px]">↑↓</kbd> Nawigacja
-                <kbd className="rounded bg-background/80 px-1.5 py-0.5 border border-border/60 text-[10px] ml-2">↵</kbd> Wybierz
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Nawigacja błyskawiczna
               </span>
-              <span>GK.dev Command Engine</span>
+              <span>{filteredItems.length} pozycji</span>
             </div>
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
+
+export default CommandPalette;

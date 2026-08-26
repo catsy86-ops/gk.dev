@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   User,
@@ -22,6 +23,7 @@ import { ArticleReaderModal } from "@/components/ArticleReaderModal";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import { toast } from "@/hooks/use-toast";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 interface ClientPortalModalProps {
   isOpen: boolean;
@@ -34,11 +36,22 @@ export const ClientPortalModal = ({
   onClose,
   onOpenBooking,
 }: ClientPortalModalProps) => {
+  useScrollLock(isOpen);
   const { user, isSignedIn } = useUser();
   const { bookmarks, briefs, bookings, toggleBookmark, removeBrief, removeBooking } = useClientStore();
 
   const [activeTab, setActiveTab] = useState<"bookmarks" | "briefs" | "bookings">("bookmarks");
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const bookmarkedArticles = articlesData.filter((a) => bookmarks.includes(a.id));
 
@@ -55,18 +68,22 @@ export const ClientPortalModal = ({
     toast({ title: "Pobrano brief", description: "Plik zapisano na dysku." });
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <>
       <AnimatePresence>
         {isOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[999999] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            className="fixed inset-0 bg-background/80 backdrop-blur-md cursor-pointer pointer-events-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               soundEngine.playClick();
               onClose();
             }}
@@ -74,16 +91,17 @@ export const ClientPortalModal = ({
 
           {/* Modal Container */}
           <motion.div
-            className="relative w-full max-w-3xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] my-0 sm:my-6 font-['Geist']"
+            className="relative w-full max-w-3xl rounded-t-[32px] sm:rounded-3xl border border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] my-0 sm:my-6 font-['Geist'] pointer-events-auto"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             role="dialog"
+            aria-modal="true"
             aria-label="Strefa Klienta & Panel Użytkownika"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40">
+            <div className="flex items-center justify-between p-5 border-b border-border/60 bg-secondary/40 relative z-20">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
                   <User className="h-5 w-5" />
@@ -105,15 +123,17 @@ export const ClientPortalModal = ({
 
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   soundEngine.playClick();
                   onClose();
                 }}
-                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="h-9 w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer relative z-30 pointer-events-auto"
                 title="Zamknij"
                 aria-label="Zamknij"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 pointer-events-none" />
               </button>
             </div>
 
@@ -346,7 +366,8 @@ export const ClientPortalModal = ({
         isOpen={!!selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />
-    </>
+    </>,
+    document.body
   );
 };
 
