@@ -6,7 +6,7 @@ describe("HeroCodeTerminal", () => {
   it("renders with default architect.ts tab and code content", () => {
     render(<HeroCodeTerminal />);
     expect(screen.getByText("architect.ts")).toBeInTheDocument();
-    expect(screen.getByText(/Senior Fullstack Engineer/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mid Fullstack Developer/i)).toBeInTheDocument();
     expect(screen.getByText("READY")).toBeInTheDocument();
   });
 

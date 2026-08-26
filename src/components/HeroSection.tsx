@@ -373,38 +373,8 @@ const HeroSection = () => {
           </motion.div>
         </motion.div>
 
-        {/* Interactive Code Terminal Widget with Floating Badges */}
+        {/* Interactive Code Terminal Widget */}
         <div className="relative w-full max-w-[560px] flex justify-center">
-          {/* Floating Trust Badge Left */}
-          <motion.div
-            className="hidden xl:flex absolute -left-28 top-12 items-center gap-2 rounded-2xl border border-emerald-500/30 bg-card/85 backdrop-blur-xl px-3.5 py-2 shadow-xl z-20"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0, y: [0, -6, 0] }}
-            transition={{
-              opacity: { delay: 1, duration: 0.6 },
-              x: { delay: 1, duration: 0.6 },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-            }}
-          >
-            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-mono text-xs font-bold text-emerald-500">High Performance Architecture</span>
-          </motion.div>
-
-          {/* Floating Trust Badge Right */}
-          <motion.div
-            className="hidden xl:flex absolute -right-24 bottom-12 items-center gap-2 rounded-2xl border border-primary/30 bg-card/85 backdrop-blur-xl px-3.5 py-2 shadow-xl z-20"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0, y: [0, 6, 0] }}
-            transition={{
-              opacity: { delay: 1.2, duration: 0.6 },
-              x: { delay: 1.2, duration: 0.6 },
-              y: { duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
-            }}
-          >
-            <span className="text-primary font-black text-xs">TS</span>
-            <span className="font-['Geist'] text-xs font-semibold text-foreground">Strict Clean Code</span>
-          </motion.div>
-
           <HeroCodeTerminal />
         </div>
       </motion.div>

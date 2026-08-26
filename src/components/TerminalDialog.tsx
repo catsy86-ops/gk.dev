@@ -492,8 +492,8 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
             </div>
             <div className="space-y-1 font-mono text-[11px]">
               <p><strong className="text-primary">OS:</strong> GK.dev Architecture Cloud v2026.1</p>
-              <p><strong className="text-primary">Host:</strong> Grzegorz (Senior Fullstack Developer & Architect)</p>
-              <p><strong className="text-primary">Uptime:</strong> 7+ lat komercyjnego programowania</p>
+              <p><strong className="text-primary">Host:</strong> Grzegorz (Mid Fullstack Developer — Samouk, Szczecin)</p>
+              <p><strong className="text-primary">Uptime:</strong> 2500+ godzin praktycznego kodowania & projektów</p>
               <p><strong className="text-primary">Frontend:</strong> React 19, Next.js 15, TypeScript, Tailwind CSS, Motion</p>
               <p><strong className="text-primary">Backend:</strong> Node.js, Express, NestJS, PostgreSQL, Redis, REST/GraphQL</p>
               <p><strong className="text-primary">Cloud:</strong> AWS, Docker, Vercel, Supabase, Cloudflare</p>
@@ -560,7 +560,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
       case "whoami":
         outputNode = (
           <p className="text-xs text-foreground/90 leading-relaxed">
-            Grzegorz — Senior Fullstack Developer & Architekt Oprogramowania. Tworzę bezkompromisowo szybkie, bezpieczne i piękne aplikacje internetowe.
+            Grzegorz — Mid Fullstack Developer & Pasjonat Samouk ze Szczecina. Tworzę nowoczesne, szybkie i czyste aplikacje internetowe w standardzie NoFluffJobs.
           </p>
         );
         break;

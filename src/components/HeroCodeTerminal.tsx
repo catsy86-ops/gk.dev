@@ -20,7 +20,8 @@ const codeSnippets = {
   code: `// Modern Fullstack Architecture Blueprint
 export const engineer = {
   name: "Grzegorz",
-  role: "Senior Fullstack Engineer",
+  role: "Mid Fullstack Developer (Samouk)",
+  location: "Szczecin, PL",
   philosophy: "Clean Code & Ultra-fast UX",
   stack: ["React 19", "TypeScript 5", "Next.js", "Node.js"],
   metrics: {

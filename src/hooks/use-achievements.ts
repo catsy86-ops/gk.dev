@@ -120,7 +120,6 @@ export function useAchievements() {
       }
 
       // Celebrate
-      soundEngine.playChime();
       hapticSuccess();
       triggerConfetti();
       toast({

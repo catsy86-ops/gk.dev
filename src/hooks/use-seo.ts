@@ -18,8 +18,8 @@ export function useSeo(customConfig?: SeoConfig) {
     const title =
       customConfig?.title ||
       (isPl
-        ? "GK.dev — Grzegorz | Senior Fullstack Developer & Cloud Architect"
-        : "GK.dev — Grzegorz | Senior Fullstack Engineer & Cloud Architect");
+        ? "GK.dev — Grzegorz | Mid Fullstack Developer (Samouk) — Szczecin"
+        : "GK.dev — Grzegorz | Mid Fullstack Developer (Self-Taught) — Szczecin");
 
     const description =
       customConfig?.description ||
@@ -91,7 +91,7 @@ export function useSeo(customConfig?: SeoConfig) {
           "@type": "Person",
           "name": "Grzegorz",
           "url": "https://gkdev.pl",
-          "jobTitle": isPl ? "Senior Fullstack Developer & Cloud Architect" : "Senior Fullstack Engineer & Cloud Architect",
+          "jobTitle": isPl ? "Mid Fullstack Developer (Samouk)" : "Mid Fullstack Developer (Self-Taught)",
           "inLanguage": isPl ? "pl-PL" : "en-US",
           "address": {
             "@type": "PostalAddress",

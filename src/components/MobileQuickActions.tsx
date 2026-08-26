@@ -81,8 +81,8 @@ export const MobileQuickActions = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "GK.dev — Senior Fullstack Developer",
-          text: "Sprawdź portfolio Grzegorza — nowoczesne aplikacje webowe & mobile, React 19, TypeScript, Cloud.",
+          title: "GK.dev — Mid Fullstack Developer (Samouk)",
+          text: "Sprawdź portfolio Grzegorza ze Szczecina — nowoczesne aplikacje webowe & mobile w React 19, TypeScript, Next.js.",
           url: window.location.href,
         });
       } catch {

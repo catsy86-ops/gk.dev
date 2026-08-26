@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AboutSection from "@/components/AboutSection";
 import { I18nProvider } from "@/components/I18nProvider";
 
@@ -12,13 +12,18 @@ describe("AboutSection Comprehensive Suite", () => {
     );
 
     // Default experience tab items
-    expect(screen.getByText(/Senior Fullstack Developer & Architekt/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Mid Fullstack Developer/i).length).toBeGreaterThan(0);
 
     // Switch to education tab
-    const eduButton = screen.getByRole("button", { name: /Certyfikaty & Edukacja/i });
-    fireEvent.click(eduButton);
+    const eduTab = screen.getByText("Certyfikaty & Edukacja");
+    fireEvent.click(eduTab.closest("button") || eduTab);
 
-    // Verify education content is displayed with findBy
-    expect(await screen.findByText(/AWS Certified Solutions Architect/i)).toBeInTheDocument();
+    // Wait for tab animation to complete
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Meta Front-End Developer Professional/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 });

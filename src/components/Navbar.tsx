@@ -20,6 +20,7 @@ import {
   Bookmark,
   Terminal,
   Trophy,
+  Radio,
 } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useTheme } from "next-themes";
@@ -63,9 +64,17 @@ interface NavbarProps {
   onOpenTerminal?: () => void;
   onOpenPassport?: () => void;
   onTriggerMatrix?: () => void;
+  onToggleWinamp?: () => void;
+  isWinampOpen?: boolean;
 }
 
-const Navbar = ({ onOpenTerminal, onOpenPassport, onTriggerMatrix }: NavbarProps) => {
+const Navbar = ({
+  onOpenTerminal,
+  onOpenPassport,
+  onTriggerMatrix,
+  onToggleWinamp,
+  isWinampOpen,
+}: NavbarProps) => {
   const { t, lang } = useI18n();
 
   const navItems = [
@@ -354,7 +363,6 @@ const Navbar = ({ onOpenTerminal, onOpenPassport, onTriggerMatrix }: NavbarProps
                 <button
                   type="button"
                   onClick={() => {
-                    soundEngine.playClick();
                     hapticMedium();
                     onTriggerMatrix();
                   }}
@@ -368,6 +376,27 @@ const Navbar = ({ onOpenTerminal, onOpenPassport, onTriggerMatrix }: NavbarProps
                   <span className="hidden xl:inline-block font-mono text-[9px] font-bold px-1 rounded bg-emerald-400/20 border border-emerald-400/40">
                     5s
                   </span>
+                </button>
+              )}
+
+              {/* GKinAmp Cyber Lo-Fi Player Trigger */}
+              {onToggleWinamp && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    hapticMedium();
+                    onToggleWinamp();
+                  }}
+                  className={`relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0 ${
+                    isWinampOpen
+                      ? "border-cyan-400 bg-cyan-950/60 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.35)]"
+                      : "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500"
+                  }`}
+                  aria-label="GKinAmp Audio Player"
+                  title="GKinAmp 2026 Lo-Fi Player"
+                >
+                  <Radio className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:rotate-12 transition-transform" />
+                  <span className="hidden xl:inline text-xs font-bold font-mono">GKinAmp</span>
                 </button>
               )}
 

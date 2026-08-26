@@ -35,9 +35,9 @@ const knowledgeBase: KnowledgeItem[] = [
     },
   },
   {
-    keywords: ["certyfikaty", "edukacja", "studia", "kursy", "dyplom", "kwalifikacje", "meta", "aws certified", "doswiadczenie"],
+    keywords: ["certyfikaty", "edukacja", "samouk", "studia", "kursy", "dyplom", "kwalifikacje", "meta", "aws certified", "doswiadczenie", "szczecin"],
     response: {
-      answer: "🎓 **Certyfikacje i Kwalifikacje:**\n\n1. **AWS Certified Solutions Architect – Associate** (Architektura chmurowa, skalowalność i bezpieczeństwo)\n2. **Meta Senior Front-End Developer** (Zaawansowane wzorce React, optymalizacja 60 FPS, dostępność a11y)\n3. **Tytuł Inżyniera Informatyki** (7+ lat komercyjnego doświadczenia w delivery systemów webowych).",
+      answer: "🎓 **Ścieżka Samouka & Certyfikacje Grzegorza (Szczecin):**\n\n1. **Meta Front-End Developer Professional** (Zaawansowane wzorce React, optymalizacja 60 FPS, testy TDD/Vitest, a11y)\n2. **AWS Certified Cloud Practitioner** (Podstawy chmury AWS, serwisy serverless i skalowalny deployment)\n3. **Autodydaktyka & Praktyka Inżynierska:** Ponad 2500+ godzin intensywnej samodzielnej nauki, budowa systemów produkcyjnych i standardy NoFluffJobs.",
       category: "general",
       suggestedAction: { label: "Zobacz Oś Kariery", targetHref: "#o-mnie" },
     },

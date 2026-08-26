@@ -23,7 +23,8 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSeo } from "@/hooks/use-seo";
 import { MatrixCinematicOverlay } from "@/components/MatrixCinematicOverlay";
-import { soundEngine } from "@/lib/audio";
+import { WinampPlayer } from "@/components/WinampPlayer";
+import { musicEngine } from "@/lib/music-engine";
 import { hapticMedium } from "@/lib/haptics";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
@@ -67,6 +68,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isPassportOpen, setIsPassportOpen] = useState(false);
   const [isMatrixActive, setIsMatrixActive] = useState(false);
+  const [isWinampOpen, setIsWinampOpen] = useState(true);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   const isAuthRoute =
@@ -93,19 +95,27 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   };
 
   const handleOpenTerminal = useCallback(() => {
-    soundEngine.playPop(850, 0.03);
     hapticMedium();
     setIsTerminalOpen(true);
   }, []);
 
   const handleOpenPassport = useCallback(() => {
-    soundEngine.playPop(850, 0.03);
     hapticMedium();
     setIsPassportOpen(true);
   }, []);
 
   const handleTriggerMatrix = useCallback(() => {
     setIsMatrixActive(true);
+  }, []);
+
+  const handleToggleWinamp = useCallback(() => {
+    setIsWinampOpen((prev) => {
+      const next = !prev;
+      if (!next) {
+        musicEngine.pause();
+      }
+      return next;
+    });
   }, []);
 
   const handleFocusSearch = useCallback(() => {
@@ -145,10 +155,16 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         isActive={isMatrixActive}
         onClose={() => setIsMatrixActive(false)}
       />
+      <WinampPlayer
+        isOpen={isWinampOpen}
+        onClose={() => setIsWinampOpen(false)}
+      />
       <Navbar
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
         onTriggerMatrix={handleTriggerMatrix}
+        onToggleWinamp={handleToggleWinamp}
+        isWinampOpen={isWinampOpen}
       />
       <MobileDock
         onOpenTerminal={handleOpenTerminal}

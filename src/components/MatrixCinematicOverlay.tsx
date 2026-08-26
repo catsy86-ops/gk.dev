@@ -27,8 +27,7 @@ export const MatrixCinematicOverlay = ({
       return;
     }
 
-    // Trigger celebration, glitch sound & achievement
-    soundEngine.playMatrixGlitch();
+    // Trigger celebration & achievement
     hapticSuccess();
     unlock("matrix_hacker");
 
@@ -46,7 +45,17 @@ export const MatrixCinematicOverlay = ({
       }
     }, 40);
 
-    return () => clearInterval(timerInterval);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      clearInterval(timerInterval);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isActive, onClose, unlock]);
 
   // Matrix Rain Canvas Animation

@@ -266,7 +266,7 @@ export const ArticleReaderModal = ({
                   <div>
                     <h3 className="font-bold text-foreground text-sm">Grzegorz</h3>
                     <p className="font-mono text-xs text-muted-foreground">
-                      {lang === "pl" ? "Senior Fullstack Engineer & Architekt" : "Senior Fullstack Engineer & Architect"}
+                      {lang === "pl" ? "Mid Fullstack Developer (Samouk) • Szczecin" : "Mid Fullstack Developer (Self-Taught) • Szczecin"}
                     </p>
                   </div>
                 </div>

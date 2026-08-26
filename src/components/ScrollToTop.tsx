@@ -17,7 +17,6 @@ export function ScrollToTop() {
   }, []);
 
   const scrollToTop = useCallback(() => {
-    soundEngine.playChime();
     hapticLight();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);

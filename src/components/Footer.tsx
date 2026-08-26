@@ -44,7 +44,6 @@ const Footer = () => {
   }, []);
 
   const scrollToTop = () => {
-    soundEngine.playChime();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
