@@ -217,14 +217,7 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
             <div className="flex items-center gap-2 shrink-0">
               <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
 
-              {/* Desktop Live Availability Status with Radar Pulse */}
-              <div className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] text-emerald-500 font-semibold select-none shadow-xs">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span>{t.nav.available}</span>
-              </div>
+
             </div>
 
             {/* Zone 2: Desktop Nav Items */}
@@ -403,7 +396,7 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                 </kbd>
               </button>
 
-              {/* Seamless Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks) */}
+              {/* Seamless Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks, Auth) */}
               <div className="hidden sm:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5 shrink-0">
                 {/* Sound Toggle */}
                 <button
@@ -465,10 +458,13 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                 >
                   <Bookmark className="h-3.5 w-3.5" />
                 </button>
-              </div>
 
-              {/* Clerk Authentication Button */}
-              <AuthButton />
+                {/* Auth separator + Clerk button inside capsule */}
+                <div className="h-4 w-px bg-border/60 mx-0.5 shrink-0" aria-hidden="true" />
+                <div className="pr-0.5">
+                  <AuthButton />
+                </div>
+              </div>
 
               {/* CTA Button (Napisz) - compact & never overflows */}
               <div className="hidden md:block shrink-0">

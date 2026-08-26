@@ -33,26 +33,22 @@ export const AuthButton = () => {
     <>
       <div className="flex items-center">
         <SignedIn>
-          <div className="flex items-center gap-2 pl-1 pr-1.5 py-1 rounded-full border border-border/70 bg-secondary/60 backdrop-blur-md shadow-sm">
+          <div className="flex items-center gap-1.5 py-0.5 px-0.5">
             <UserButton
               afterSignOutUrl="/"
               userProfileMode="modal"
               appearance={{
                 elements: {
                   userButtonAvatarBox:
-                    "h-6.5 w-6.5 sm:h-7 sm:w-7 rounded-full ring-2 ring-primary/40 ring-offset-1 ring-offset-background transition-transform hover:scale-105",
+                    "h-6 w-6 rounded-full ring-2 ring-primary/40 ring-offset-1 ring-offset-background transition-transform hover:scale-105",
                 },
               }}
             />
             {firstName && (
-              <span className="hidden lg:inline text-xs font-bold text-foreground font-['Geist'] max-w-[90px] truncate">
+              <span className="hidden lg:inline text-xs font-bold text-foreground font-['Geist'] max-w-[72px] truncate">
                 {firstName}
               </span>
             )}
-            <span className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-mono text-[10px] font-bold select-none">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              VIP
-            </span>
           </div>
         </SignedIn>
 
