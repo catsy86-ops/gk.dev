@@ -476,21 +476,6 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                 </div>
               </div>
 
-              {/* CTA Button (Napisz) - compact & never overflows */}
-              <div className="hidden md:block shrink-0">
-                <GlowButton
-                  variant="glow"
-                  size="sm"
-                  href="#kontakt"
-                  onClick={(e) => {
-                    handleClick(e, "#kontakt");
-                  }}
-                  icon={<ArrowUpRight className="h-3.5 w-3.5" />}
-                >
-                  {lang === "pl" ? "Napisz" : "Contact"}
-                </GlowButton>
-              </div>
-
               {/* Mobile / Tablet Hamburger Menu Toggle (visible on < lg:) */}
               <button
                 onClick={() => {

@@ -21,12 +21,13 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom"],
           "vendor-motion": ["motion"],
+          "vendor-three": ["three"],
           "vendor-clerk": ["@clerk/clerk-react"],
           "vendor-supabase": ["@supabase/supabase-js"],
           "vendor-radix": [
