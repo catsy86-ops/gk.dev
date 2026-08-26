@@ -7,6 +7,7 @@ let originalPaddingRight = "";
 /**
  * Custom hook to lock body scrolling when a modal or dialog is open.
  * Handles multiple open modals gracefully without causing layout shift.
+ * Automatically adds 'modal-open' class to restore native visible cursor.
  */
 export function useScrollLock(isLocked: boolean) {
   useEffect(() => {
@@ -22,6 +23,7 @@ export function useScrollLock(isLocked: boolean) {
         document.body.style.paddingRight = `${scrollBarWidth}px`;
       }
       document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-open");
     }
 
     lockCount++;
@@ -32,6 +34,7 @@ export function useScrollLock(isLocked: boolean) {
         lockCount = 0;
         document.body.style.overflow = originalOverflow;
         document.body.style.paddingRight = originalPaddingRight;
+        document.body.classList.remove("modal-open");
       }
     };
   }, [isLocked]);

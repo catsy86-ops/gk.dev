@@ -16,14 +16,16 @@ import {
   Clock,
   ExternalLink,
 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { useClientStore } from "@/hooks/use-client-store";
 import { articlesData, type Article } from "@/lib/articles";
 import { ArticleReaderModal } from "@/components/ArticleReaderModal";
+import { GoogleIcon } from "@/components/auth/AuthModal";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight, hapticSuccess } from "@/lib/haptics";
+import { hapticLight, hapticSuccess, hapticMedium } from "@/lib/haptics";
 import { toast } from "@/hooks/use-toast";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 interface ClientPortalModalProps {
   isOpen: boolean;
@@ -107,12 +109,15 @@ export const ClientPortalModal = ({
                   <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <h2 className="font-bold text-foreground text-base sm:text-lg">
                       Strefa Klienta & Panel Inżynierski
                     </h2>
                     <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold">
                       {isSignedIn ? "Autoryzowany" : "Sesja Lokalna"}
+                    </span>
+                    <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold">
+                      {isSupabaseConfigured ? "Supabase Cloud" : "DB Sync"}
                     </span>
                   </div>
                   <p className="font-mono text-xs text-muted-foreground">
@@ -190,6 +195,38 @@ export const ClientPortalModal = ({
 
             {/* Tab Contents */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin">
+              {/* Unauthenticated Cloud Sync Callout Banner */}
+              {!isSignedIn && (
+                <div className="p-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 via-background to-primary/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-foreground text-xs sm:text-sm">
+                        Zaloguj się, aby zsynchronizować dane w chmurze
+                      </p>
+                      <p className="text-[11px] font-mono text-muted-foreground">
+                        Dostęp do briefów, historii i rezerwacji na dowolnym urządzeniu
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.025);
+                      hapticMedium();
+                      openSignIn({});
+                    }}
+                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-border/80 bg-background hover:bg-secondary text-foreground text-xs font-bold shadow-sm transition-all hover:border-primary/40 active:scale-95 shrink-0 cursor-pointer"
+                  >
+                    <GoogleIcon className="h-4 w-4" />
+                    <span>Zaloguj z Google</span>
+                  </button>
+                </div>
+              )}
+
               {/* 1. Bookmarks Tab */}
               {activeTab === "bookmarks" && (
                 <div className="space-y-3">

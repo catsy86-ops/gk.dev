@@ -71,12 +71,12 @@ export const GlowButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement
       }
     };
 
-    // Size classes
+    // Size classes (scaled -33% for sleek, modern proportions)
     const sizeClasses = {
-      sm: "px-4 py-1.5 text-xs font-semibold rounded-full gap-1.5",
-      default: "px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-full gap-2",
-      lg: "px-7 sm:px-9 py-3 sm:py-3.5 text-sm sm:text-base font-black rounded-full gap-2.5",
-      icon: "h-10 w-10 p-0 rounded-full flex items-center justify-center",
+      sm: "px-3.5 py-1 text-[11px] sm:text-xs font-semibold rounded-full gap-1",
+      default: "px-4 sm:px-4.5 py-2 sm:py-2.5 text-xs font-bold rounded-full gap-1.5",
+      lg: "px-5 sm:px-6.5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-full gap-2",
+      icon: "h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-full flex items-center justify-center",
     }[size];
 
     // Variant classes

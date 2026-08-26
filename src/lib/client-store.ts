@@ -1,3 +1,5 @@
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
 export interface SavedBrief {
   id: string;
   date: string;
@@ -31,7 +33,31 @@ function getInitialState(): ClientStoreState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { bookmarks: [], briefs: [], bookings: [] };
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    
+    // Validate schema integrity against corruption or tampering (OWASP A08)
+    const bookmarks = Array.isArray(parsed?.bookmarks)
+      ? parsed.bookmarks.filter((b: unknown): b is string => typeof b === "string")
+      : [];
+    const briefs = Array.isArray(parsed?.briefs)
+      ? parsed.briefs.filter(
+          (br: unknown): br is SavedBrief =>
+            typeof br === "object" &&
+            br !== null &&
+            typeof (br as SavedBrief).id === "string" &&
+            typeof (br as SavedBrief).content === "string"
+        )
+      : [];
+    const bookings = Array.isArray(parsed?.bookings)
+      ? parsed.bookings.filter(
+          (bk: unknown): bk is ConsultationBooking =>
+            typeof bk === "object" &&
+            bk !== null &&
+            typeof (bk as ConsultationBooking).id === "string"
+        )
+      : [];
+
+    return { bookmarks, briefs, bookings };
   } catch {
     return { bookmarks: [], briefs: [], bookings: [] };
   }
@@ -76,6 +102,26 @@ export const clientStore = {
       date: new Date().toLocaleDateString("pl-PL"),
     };
     saveState({ ...state, briefs: [newBrief, ...state.briefs.slice(0, 19)] });
+
+    // Optional background sync with Supabase
+    if (isSupabaseConfigured) {
+      supabase
+        .from("project_briefs")
+        .insert({
+          client_name: "Klient Portfela",
+          email: "kontakt@gkdev.pl",
+          project_type: brief.projectType,
+          budget: "Do uzgodnienia",
+          timeline: brief.timeline,
+          description: brief.content,
+          status: "saved_draft",
+        })
+        .then(({ error }) => {
+          if (error) console.warn("Supabase brief sync note:", error.message);
+        })
+        .catch(() => {});
+    }
+
     return newBrief;
   },
 
@@ -92,6 +138,24 @@ export const clientStore = {
       createdAt: new Date().toLocaleDateString("pl-PL"),
     };
     saveState({ ...state, bookings: [newBooking, ...state.bookings] });
+
+    // Optional background sync with Supabase
+    if (isSupabaseConfigured) {
+      supabase
+        .from("consultations")
+        .insert({
+          full_name: booking.name,
+          email: booking.email,
+          date: booking.date + " " + booking.timeSlot,
+          topic: booking.topic,
+          status: "confirmed",
+        })
+        .then(({ error }) => {
+          if (error) console.warn("Supabase consultation sync note:", error.message);
+        })
+        .catch(() => {});
+    }
+
     return newBooking;
   },
 

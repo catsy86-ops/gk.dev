@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Share2, Phone, Mail, Download, Sparkles, X, Check, Copy } from "lucide-react";
+import { Share2, Phone, Mail, Download, Sparkles, X, Check, Copy, User } from "lucide-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { GoogleIcon, AuthModal } from "@/components/auth/AuthModal";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight, hapticSuccess } from "@/lib/haptics";
+import { hapticLight, hapticSuccess, hapticMedium } from "@/lib/haptics";
 import { toast } from "@/hooks/use-toast";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
 
@@ -14,7 +16,10 @@ interface MobileQuickActionsProps {
 
 export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps) => {
   useScrollLock(isOpen);
+  const { isSignedIn, user } = useUser();
+  const { openSignIn } = useClerk();
   const [copied, setCopied] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,8 +65,9 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <AnimatePresence>
-      {isOpen && (
+    <>
+      <AnimatePresence>
+        {isOpen && (
         <div className="fixed inset-0 z-[999999] flex items-end justify-center p-0 md:hidden overflow-hidden pointer-events-auto">
           {/* Backdrop */}
           <motion.div
@@ -128,8 +134,52 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
               </button>
             </div>
 
+            {/* Google Authentication & Client Portal Banner */}
+            <div className="p-3.5 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-background to-primary/10 flex items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="h-9 w-9 rounded-xl bg-background border border-border/80 flex items-center justify-center shrink-0 shadow-sm">
+                  <GoogleIcon className="h-4.5 w-4.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-bold text-xs text-foreground truncate">
+                    {isSignedIn ? (user?.fullName || "Konto Aktywne") : "Konto & Strefa Klienta"}
+                  </p>
+                  <p className="text-[10px] font-mono text-muted-foreground truncate">
+                    {isSignedIn ? "Synchronizacja w chmurze" : "Logowanie 1-Click z Google"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playPop(850, 0.03);
+                  hapticMedium();
+                  if (isSignedIn) {
+                    onClose();
+                    window.location.href = "#kontakt";
+                  } else {
+                    setIsAuthOpen(true);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+              >
+                {isSignedIn ? (
+                  <>
+                    <User className="h-3.5 w-3.5" />
+                    <span>Profil</span>
+                  </>
+                ) : (
+                  <>
+                    <GoogleIcon className="h-3.5 w-3.5" />
+                    <span>Zaloguj</span>
+                  </>
+                )}
+              </button>
+            </div>
+
             {/* Action Grid */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               {/* Native Web Share */}
               <button
                 type="button"
@@ -183,7 +233,14 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
           </motion.div>
         </div>
       )}
-    </AnimatePresence>,
+      </AnimatePresence>
+
+      {/* Dedicated Auth Dialog */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </>,
     document.body
   );
 };

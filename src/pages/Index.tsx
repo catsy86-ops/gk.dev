@@ -17,10 +17,12 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ClickSpark } from "@/components/ui/ClickSpark";
 import { MobileDock } from "@/components/MobileDock";
-import { TerminalDialog } from "@/components/TerminalDialog";
 import { isSlowConnection } from "@/lib/utils";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
+const TerminalDialog = lazy(() =>
+  import("@/components/TerminalDialog").then((m) => ({ default: m.TerminalDialog }))
+);
 
 function useShouldLoadHeavyContent() {
   const [shouldLoad, setShouldLoad] = useState(true);
@@ -100,10 +102,14 @@ const Index = () => {
       <Footer />
 
       {/* Easter Egg Terminal CLI */}
-      <TerminalDialog
-        isOpen={isTerminalOpen}
-        onClose={() => setIsTerminalOpen(false)}
-      />
+      {isTerminalOpen && (
+        <Suspense fallback={null}>
+          <TerminalDialog
+            isOpen={isTerminalOpen}
+            onClose={() => setIsTerminalOpen(false)}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

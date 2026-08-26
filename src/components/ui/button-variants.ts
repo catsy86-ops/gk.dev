@@ -22,10 +22,10 @@ export const buttonVariants = cva(
           "border border-border/80 bg-card/60 backdrop-blur-2xl text-foreground shadow-md hover:bg-card/90 hover:border-primary/40 hover:text-primary hover:scale-[1.02]",
       },
       size: {
-        default: "px-6 py-2.5 sm:py-3 text-xs sm:text-sm",
-        sm: "px-4 py-1.5 text-xs",
-        lg: "px-8 py-3.5 text-sm sm:text-base font-black",
-        icon: "h-10 w-10 p-0 rounded-full flex items-center justify-center",
+        default: "px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-semibold",
+        sm: "px-3.5 py-1 text-xs font-medium",
+        lg: "px-5.5 sm:px-6.5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold",
+        icon: "h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-full flex items-center justify-center",
       },
     },
     defaultVariants: {

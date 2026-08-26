@@ -41,6 +41,8 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
   const [isGenerating, setIsGenerating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView?.({ behavior: "smooth" });
@@ -59,12 +61,22 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
     scrollToBottom();
   }, [messages, isGenerating]);
 
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    };
+  }, []);
+
   const handleSend = (textToSend?: string) => {
     const query = (textToSend || inputQuery).trim();
     if (!query || isGenerating) return;
 
     soundEngine.playPop(800, 0.03);
     hapticLight();
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
 
     const userMsgId = Date.now().toString();
     const newMessages: Message[] = [
@@ -78,7 +90,7 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
     const result: AiResponse = queryAiAssistant(query);
 
     // Simulate typing stream effect
-    setTimeout(() => {
+    typingTimeoutRef.current = setTimeout(() => {
       const aiMsgId = (Date.now() + 1).toString();
       let currentLength = 0;
       const fullText = result.answer;
@@ -94,10 +106,10 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
         },
       ]);
 
-      const interval = setInterval(() => {
+      typingIntervalRef.current = setInterval(() => {
         currentLength += 4;
         if (currentLength >= fullText.length) {
-          clearInterval(interval);
+          if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === aiMsgId

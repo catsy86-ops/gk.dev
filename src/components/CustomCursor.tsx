@@ -5,6 +5,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 /**
  * Chromatic Morphing CustomCursor (Awwwards 2026 standard)
  * Features dynamic contextual states, magnetic physics, chromatic trail glow, and zero React re-renders on mousemove.
+ * Yields cleanly to crisp native cursor inside all modals and dialogs.
  */
 const CustomCursor = () => {
   const isTouch = useMediaQuery("(pointer: coarse)");
@@ -23,7 +24,7 @@ const CustomCursor = () => {
     const trail = trailRef.current;
     if (!dot || !ring || !trail) return;
 
-    // Hide system cursor
+    // Hide system cursor on main canvas
     document.body.classList.add("cursor-none");
 
     let rafId = 0;
@@ -82,7 +83,25 @@ const CustomCursor = () => {
       const target = e.target as HTMLElement;
       if (!target) return;
 
-      const isProject = target.closest("[data-cursor='project']") !== null || target.closest(".project-card") !== null;
+      const isInsideDialog =
+        target.closest('[role="dialog"]') !== null ||
+        target.closest('[aria-modal="true"]') !== null ||
+        document.body.classList.contains("modal-open");
+
+      if (isInsideDialog) {
+        setBadgeText("");
+        dot.classList.add("cursor-hidden");
+        ring.classList.add("cursor-hidden");
+        trail.classList.add("cursor-hidden");
+        return;
+      }
+
+      dot.classList.remove("cursor-hidden");
+      ring.classList.remove("cursor-hidden");
+      trail.classList.remove("cursor-hidden");
+
+      const isProject =
+        target.closest("[data-cursor='project']") !== null || target.closest(".project-card") !== null;
       const isInteractive =
         target.tagName === "A" ||
         target.tagName === "BUTTON" ||
@@ -136,8 +155,27 @@ const CustomCursor = () => {
   const cursorContent = (
     <>
       <style>{`
-        .cursor-none, .cursor-none * {
-          cursor: none !important;
+        .cursor-none:not(.modal-open),
+        .cursor-none:not(.modal-open) *:not([role="dialog"]):not([role="dialog"] *):not([aria-modal="true"] *) {
+          cursor: none;
+        }
+        .modal-open,
+        .modal-open *,
+        [role="dialog"],
+        [role="dialog"] *,
+        [aria-modal="true"],
+        [aria-modal="true"] * {
+          cursor: auto !important;
+        }
+        [role="dialog"] button,
+        [role="dialog"] a,
+        [role="dialog"] [role="button"],
+        [role="dialog"] [role="tab"] {
+          cursor: pointer !important;
+        }
+        [role="dialog"] input,
+        [role="dialog"] textarea {
+          cursor: text !important;
         }
         .custom-cursor {
           pointer-events: none;
@@ -146,6 +184,11 @@ const CustomCursor = () => {
           left: 0;
           z-index: 999999;
           will-change: transform;
+        }
+        .modal-open .custom-cursor,
+        .custom-cursor.cursor-hidden {
+          display: none !important;
+          opacity: 0 !important;
         }
         .cursor-trail {
           width: 80px;

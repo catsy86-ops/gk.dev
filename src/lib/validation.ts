@@ -31,6 +31,22 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
+ * Validates that an href does not use malicious pseudo-protocols like javascript: or vbscript: (OWASP A03 / DOM XSS).
+ */
+export function isSafeHref(href?: string | null): boolean {
+  if (!href) return false;
+  const trimmed = href.trim().toLowerCase();
+  if (
+    trimmed.startsWith("javascript:") ||
+    trimmed.startsWith("vbscript:") ||
+    trimmed.startsWith("data:")
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Validates the contact form fields and returns an error map.
  */
 export function validateForm(data: ContactFormData): ContactFormErrors {

@@ -18,16 +18,22 @@ export default defineConfig({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
   build: {
+    target: "es2022",
+    cssCodeSplit: true,
     chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom"],
           "vendor-motion": ["motion"],
+          "vendor-clerk": ["@clerk/clerk-react"],
+          "vendor-supabase": ["@supabase/supabase-js"],
           "vendor-radix": [
             "@radix-ui/react-accordion",
             "@radix-ui/react-tooltip",
             "@radix-ui/react-toast",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-slot",
           ],
           "vendor-router": ["react-router-dom"],
         },

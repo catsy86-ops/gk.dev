@@ -11,8 +11,9 @@ import { CanvasContactBackground } from "@/components/ui/canvas-contact-backgrou
 import { soundEngine } from "@/lib/audio";
 import { triggerConfetti } from "@/lib/confetti";
 import { hapticSuccess, hapticWarning, hapticLight } from "@/lib/haptics";
-import { validateForm, type ContactFormData, type ContactFormErrors } from "@/lib/validation";
+import { validateForm, sanitizeInput, type ContactFormData, type ContactFormErrors } from "@/lib/validation";
 import { useI18n } from "@/lib/i18n";
+import { saveContactMessageToSupabase } from "@/lib/supabase";
 
 const ProjectEstimatorModal = lazy(() =>
   import("@/components/ProjectEstimatorModal").then((m) => ({ default: m.ProjectEstimatorModal }))
@@ -25,11 +26,13 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
   const { t } = useI18n();
   const [focused, setFocused] = useState("");
   const [form, setForm] = useState<ContactFormData>({ name: "", email: "", message: "" });
+  const [honeypot, setHoneypot] = useState("");
   const [errors, setErrors] = useState<ContactFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
   const [isB2bModalOpen, setIsB2bModalOpen] = useState(false);
+  const lastSubmitTimeRef = useRef<number>(0);
   const magneticBtn = useMagnetic(0.35);
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -42,6 +45,25 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Anti-spam honeypot check (OWASP A04)
+    if (honeypot.trim() !== "") {
+      // Silently pretend success to fool malicious automated bots
+      setIsSuccess(true);
+      setForm({ name: "", email: "", message: "" });
+      return;
+    }
+
+    // Client-side rate limiting / cooldown (5 seconds between submissions)
+    const now = Date.now();
+    if (now - lastSubmitTimeRef.current < 5000) {
+      toast({
+        title: "Chwileczkę...",
+        description: "Proszę odczekać kilka sekund przed ponownym wysłaniem wiadomości.",
+      });
+      return;
+    }
+
     const validation = validateForm(form);
     setErrors(validation);
     if (Object.keys(validation).length > 0) {
@@ -53,13 +75,30 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
     soundEngine.playClick();
     hapticLight();
     setIsSubmitting(true);
+    lastSubmitTimeRef.current = now;
+
+    // Sanitize payload before sending
+    const sanitizedPayload: ContactFormData = {
+      name: sanitizeInput(form.name),
+      email: form.email.trim(),
+      message: sanitizeInput(form.message),
+    };
+
     try {
       const res = await fetch("https://formspree.io/f/xpwpkqdl", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(sanitizedPayload),
       });
       if (!res.ok) throw new Error("Form submission failed");
+
+      // Asynchronous record persistence in Supabase
+      saveContactMessageToSupabase({
+        name: sanitizedPayload.name,
+        email: sanitizedPayload.email,
+        message: sanitizedPayload.message,
+      }).catch(() => {});
+
       setIsSuccess(true);
       soundEngine.playSuccess();
       hapticSuccess();
@@ -76,7 +115,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [form, t.contact]);
+  }, [form, honeypot, t.contact]);
 
   return (
     <SectionWrapper ref={ref} id="kontakt" label="Kontakt">
@@ -220,6 +259,18 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   noValidate
                   aria-label="Formularz kontaktowy"
                 >
+                  {/* Anti-spam honeypot field (OWASP A04: traps automated bots) */}
+                  <input
+                    type="text"
+                    name="_gotcha"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    className="sr-only absolute -left-[9999px] -top-[9999px] opacity-0 pointer-events-none"
+                    aria-hidden="true"
+                  />
+
                   {/* Topic Selector Chips */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

@@ -464,6 +464,15 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                 transition={{ duration: 0.2 }}
                 className="pointer-events-auto mt-2 rounded-3xl border border-border/80 bg-background/95 backdrop-blur-2xl p-4 shadow-2xl space-y-3 lg:hidden"
               >
+                {/* Mobile Auth & Account Bar */}
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-primary/15 via-secondary/70 to-primary/10 border border-primary/25">
+                  <div>
+                    <p className="text-xs font-bold text-foreground">Strefa Klienta</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">Konto & Logowanie Google</p>
+                  </div>
+                  <AuthButton />
+                </div>
+
                 <div className="space-y-1">
                   {navItems.map((item) => (
                     <a
@@ -558,6 +567,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
             onClose={() => setIsCommandOpen(false)}
             onOpenTerminal={onOpenTerminal}
             onOpenAi={() => setIsAiOpen(true)}
+            onOpenClientPortal={() => setIsClientPortalOpen(true)}
           />
         </Suspense>
       )}

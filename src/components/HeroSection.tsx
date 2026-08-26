@@ -331,7 +331,7 @@ const HeroSection = () => {
               variant="glow"
               size="lg"
               onClick={scrollToSection("projekty")}
-              icon={<Sparkles className="h-4 w-4" />}
+              icon={<Sparkles className="h-3.5 w-3.5" />}
             >
               Zobacz projekty
             </GlowButton>
@@ -341,7 +341,7 @@ const HeroSection = () => {
               size="lg"
               href="#kontakt"
               onClick={scrollToSection("kontakt")}
-              icon={<ArrowUpRight className="h-4 w-4" />}
+              icon={<ArrowUpRight className="h-3.5 w-3.5" />}
             >
               Napisz do mnie
             </GlowButton>

@@ -332,6 +332,49 @@ button, a, input, textarea, select {
   }
 }
 
+/* ─── Modal Cursor Visibility Standards ──────────────────────────────────── */
+.modal-open,
+.modal-open *,
+[role="dialog"],
+[role="dialog"] *,
+[aria-modal="true"],
+[aria-modal="true"] *,
+.modal-backdrop,
+.modal-backdrop *,
+[data-radix-portal] * {
+  cursor: auto !important;
+}
+
+.modal-open button,
+.modal-open a,
+.modal-open [role="button"],
+.modal-open [role="tab"],
+[role="dialog"] button,
+[role="dialog"] a,
+[role="dialog"] [role="button"],
+[role="dialog"] [role="tab"],
+[role="dialog"] input[type="submit"],
+[role="dialog"] input[type="button"],
+[role="dialog"] select {
+  cursor: pointer !important;
+}
+
+.modal-open input,
+.modal-open textarea,
+[role="dialog"] input[type="text"],
+[role="dialog"] input[type="email"],
+[role="dialog"] input[type="password"],
+[role="dialog"] input[type="search"],
+[role="dialog"] textarea {
+  cursor: text !important;
+}
+
+.modal-open .custom-cursor {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Safe area utilities for mobile bottom nav */
 .safe-area-pb {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));

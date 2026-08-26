@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateForm, sanitizeInput, isValidEmail, type ContactFormData } from "@/lib/validation";
+import { validateForm, sanitizeInput, isValidEmail, isSafeHref, type ContactFormData } from "@/lib/validation";
 
 describe("Form Validation & Security Suite", () => {
   describe("sanitizeInput", () => {
@@ -19,6 +19,23 @@ describe("Form Validation & Security Suite", () => {
     it("should handle empty and whitespace strings", () => {
       expect(sanitizeInput("")).toBe("");
       expect(sanitizeInput("   ")).toBe("");
+    });
+  });
+
+  describe("isSafeHref", () => {
+    it("should allow safe https and anchor links", () => {
+      expect(isSafeHref("https://gkdev.pl")).toBe(true);
+      expect(isSafeHref("#kontakt")).toBe(true);
+      expect(isSafeHref("/projekty")).toBe(true);
+    });
+
+    it("should block dangerous pseudo protocols (DOM XSS / OWASP A03)", () => {
+      expect(isSafeHref("javascript:alert(1)")).toBe(false);
+      expect(isSafeHref("JAVASCRIPT:alert(1)")).toBe(false);
+      expect(isSafeHref("vbscript:msgbox(1)")).toBe(false);
+      expect(isSafeHref("data:text/html;base64,PHNjcmlwdD5... ")).toBe(false);
+      expect(isSafeHref(null)).toBe(false);
+      expect(isSafeHref("")).toBe(false);
     });
   });
 
