@@ -80,6 +80,7 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
   const [activeHoverMessageId, setActiveHoverMessageId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync Clerk user with GKgadu engine
   useEffect(() => {
@@ -451,6 +452,14 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
                 <Search className="h-3 w-3" />
               </button>
 
+              {/* Online count */}
+              {currentRoom && (
+                <span className="h-6 px-1.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-[9px] font-mono font-bold flex items-center gap-1" title="Użytkownicy online">
+                  <Users className="h-2.5 w-2.5" />
+                  {state.onlineCount}
+                </span>
+              )}
+
               {/* Nudge (Puk-Puk) Action */}
               <button
                 type="button"
@@ -529,7 +538,25 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
                           : "bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none"
                       }`}
                     >
-                      {parseEmoticons(msg.text)}
+                      {msg.text.includes("```") ? (
+                        <div className="space-y-1 my-0.5">
+                          {msg.text.split("```").map((chunk, idx) => {
+                            if (idx % 2 === 1) {
+                              return (
+                                <pre
+                                  key={idx}
+                                  className="p-2 rounded-xl bg-black/80 border border-slate-700 font-mono text-[10px] text-emerald-400 overflow-x-auto select-text"
+                                >
+                                  <code>{chunk.trim()}</code>
+                                </pre>
+                              );
+                            }
+                            return chunk ? <span key={idx}>{parseEmoticons(chunk)}</span> : null;
+                          })}
+                        </div>
+                      ) : (
+                        parseEmoticons(msg.text)
+                      )}
 
                       {/* Delivery Status Receipt */}
                       {isMe && !msg.isNudge && (
@@ -641,7 +668,14 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
             <input
               type="text"
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={(e) => {
+                setInputText(e.target.value);
+                // Broadcast typing indicator (debounced)
+                if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                typingTimeoutRef.current = setTimeout(() => {
+                  gkGaduEngine.broadcastTyping();
+                }, 300);
+              }}
               placeholder="Napisz wiadomość... (Enter)"
               className="flex-1 h-8 bg-black/60 border border-slate-700 rounded-lg px-2.5 text-xs text-slate-200 placeholder:text-slate-500 outline-none focus:border-amber-500/80 transition-colors font-['Geist']"
             />

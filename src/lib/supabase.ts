@@ -134,6 +134,7 @@ export interface Database {
           id: string;
           chat_id: string;
           sender_gg_number: number;
+          recipient_gg_number: number;
           sender_name: string;
           sender_avatar: string | null;
           text: string;
@@ -144,6 +145,7 @@ export interface Database {
           id?: string;
           chat_id: string;
           sender_gg_number: number;
+          recipient_gg_number?: number;
           sender_name: string;
           sender_avatar?: string | null;
           text: string;
@@ -154,6 +156,7 @@ export interface Database {
           id?: string;
           chat_id?: string;
           sender_gg_number?: number;
+          recipient_gg_number?: number;
           sender_name?: string;
           sender_avatar?: string | null;
           text?: string;
@@ -284,6 +287,7 @@ export async function persistGkgaduMessageToSupabase(message: {
   id: string;
   chatId: string;
   senderGgNumber: number;
+  recipientGgNumber: number;
   senderName: string;
   senderAvatar?: string;
   text: string;
@@ -298,6 +302,7 @@ export async function persistGkgaduMessageToSupabase(message: {
       id: message.id,
       chat_id: message.chatId,
       sender_gg_number: message.senderGgNumber,
+      recipient_gg_number: message.recipientGgNumber,
       sender_name: message.senderName,
       sender_avatar: message.senderAvatar || null,
       text: message.text,

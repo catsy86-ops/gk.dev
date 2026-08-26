@@ -20,6 +20,7 @@ export interface GgContact {
   isAuthor?: boolean;
   isAiBot?: boolean;
   isCustomPeer?: boolean;
+  isLivePeer?: boolean;
   isVerified?: boolean;
   unreadCount?: number;
 }
@@ -295,15 +296,26 @@ class GkGaduEngine {
     }
   }
 
-  private initSupabaseRealtime() {
+  private async initSupabaseRealtime() {
     try {
       this.realtimeChannel = supabase.channel("gkgadu_public_room", {
-        config: { broadcast: { self: false } },
+        config: {
+          broadcast: { self: false },
+          presence: { key: this.state.currentUser.ggNumber.toString() },
+        },
       });
 
       this.realtimeChannel
         .on("broadcast", { event: "message" }, async ({ payload }) => {
-          await this.receiveIncomingMessage(payload as GgMessage, false);
+          const msg = payload as GgMessage;
+          // For DMs, only show if we're the sender or recipient
+          if (msg.recipientGgNumber !== 0) {
+            const myGg = this.state.currentUser.ggNumber;
+            if (msg.senderGgNumber !== myGg && msg.recipientGgNumber !== myGg) {
+              return; // Not our DM
+            }
+          }
+          await this.receiveIncomingMessage(msg, true);
         })
         .on("broadcast", { event: "nudge" }, () => {
           this.triggerNudgeEffect();
@@ -311,9 +323,120 @@ class GkGaduEngine {
         .on("broadcast", { event: "reaction" }, ({ payload }) => {
           this.applyPeerReaction(payload as { chatId: string; messageId: string; emoji: string; userName: string });
         })
-        .subscribe();
+        .on("broadcast", { event: "typing" }, ({ payload }) => {
+          const typingData = payload as { chatId: string; userName: string; ggNumber: number };
+          if (typingData.ggNumber === this.state.currentUser.ggNumber) return;
+          this.state.typingUsers[typingData.chatId] = typingData.userName;
+          this.notify();
+          // Clear typing indicator after 2.5s
+          setTimeout(() => {
+            if (this.state.typingUsers[typingData.chatId] === typingData.userName) {
+              delete this.state.typingUsers[typingData.chatId];
+              this.notify();
+            }
+          }, 2500);
+        })
+        .on("presence", { event: "sync" }, () => {
+          const presenceState = this.realtimeChannel?.presenceState() || {};
+          const onlinePeersCount = Object.keys(presenceState).length;
+
+          // Build dynamic live contacts from presence
+          const liveGgNumbers = new Set<number>();
+          for (const [_key, presences] of Object.entries(presenceState)) {
+            const p = (presences as Record<string, unknown>[])[0];
+            const peerGg = p.ggNumber as number;
+            if (peerGg === this.state.currentUser.ggNumber) continue;
+            liveGgNumbers.add(peerGg);
+
+            const existing = this.state.contacts.find((c) => c.ggNumber === peerGg);
+            if (!existing) {
+              this.state.contacts.push({
+                ggNumber: peerGg,
+                id: `live-${peerGg}`,
+                name: (p.name as string) || `Użytkownik #${peerGg}`,
+                avatarUrl: p.avatarUrl as string | undefined,
+                status: "online",
+                statusDescription: "Online na GKgadu ☀️",
+                isLivePeer: true,
+                unreadCount: 0,
+              });
+            } else {
+              existing.status = "online";
+              if (p.name) existing.name = p.name as string;
+              if (p.avatarUrl) existing.avatarUrl = p.avatarUrl as string;
+            }
+          }
+
+          // Mark live peers who went offline
+          for (const contact of this.state.contacts) {
+            if (contact.isLivePeer && !liveGgNumbers.has(contact.ggNumber)) {
+              contact.status = "offline";
+            }
+          }
+
+          this.state.onlineCount = Math.max(1, onlinePeersCount);
+          this.notify();
+        })
+        .on("presence", { event: "join" }, ({ newPresences }) => {
+          const p = newPresences[0] as Record<string, unknown>;
+          const peerGg = p.ggNumber as number;
+          if (peerGg && peerGg !== this.state.currentUser.ggNumber) {
+            if (this.state.soundEnabled) soundEngine.playGgDoor();
+          }
+        })
+        .subscribe(async (status) => {
+          if (status === "SUBSCRIBED") {
+            await this.realtimeChannel?.track({
+              ggNumber: this.state.currentUser.ggNumber,
+              name: this.state.currentUser.name,
+              avatarUrl: this.state.currentUser.avatarUrl,
+              status: this.state.currentUser.status,
+              onlineAt: new Date().toISOString(),
+            });
+          }
+        });
+
+      // Load cloud messages from Supabase for all initial rooms
+      this.loadSupabaseCloudHistory("lounge");
+      this.loadSupabaseCloudHistory("projects");
+      this.loadSupabaseCloudHistory("b2b");
     } catch {
       // Realtime fallback to local mesh
+    }
+  }
+
+  private async loadSupabaseCloudHistory(chatId: string) {
+    try {
+      const res = await fetchGkgaduMessagesFromSupabase(chatId, 50);
+      if (res.success && res.data && res.data.length > 0) {
+        const cloudMessages: GgMessage[] = res.data.map((row) => ({
+          id: row.id,
+          chatId: row.chat_id,
+          recipientGgNumber: 0,
+          senderGgNumber: row.sender_gg_number,
+          senderName: row.sender_name,
+          senderAvatar: row.sender_avatar || undefined,
+          text: row.text,
+          timestamp: row.timestamp,
+          deliveryStatus: "delivered",
+        }));
+
+        if (!this.state.messages[chatId]) {
+          this.state.messages[chatId] = [];
+        }
+
+        // Merge without duplicates
+        for (const cMsg of cloudMessages) {
+          if (!this.state.messages[chatId].some((m) => m.id === cMsg.id)) {
+            this.state.messages[chatId].push(cMsg);
+          }
+        }
+        this.state.messages[chatId].sort((a, b) => a.timestamp - b.timestamp);
+        this.saveMessages();
+        this.notify();
+      }
+    } catch {
+      // Ignore cloud fetch errors
     }
   }
 
@@ -370,6 +493,26 @@ class GkGaduEngine {
         if (this.broadcastChannel) {
           this.broadcastChannel.postMessage({ type: "NEW_MESSAGE", payload: siemaMsg });
         }
+
+        // Broadcast SIEMA to Supabase Realtime for other users
+        if (this.realtimeChannel) {
+          this.realtimeChannel.send({
+            type: "broadcast",
+            event: "message",
+            payload: siemaMsg,
+          });
+        }
+      }
+
+      // Re-track presence with updated user info
+      if (this.realtimeChannel) {
+        this.realtimeChannel.track({
+          ggNumber: numericGg,
+          name: userName,
+          avatarUrl: user.imageUrl,
+          status: this.state.currentUser.status,
+          onlineAt: new Date().toISOString(),
+        });
       }
     } else {
       this.state.currentUser = {
@@ -468,6 +611,19 @@ class GkGaduEngine {
     this.notify();
   }
 
+  public broadcastTyping() {
+    if (!this.realtimeChannel || !this.state.currentUser.isLoggedIn) return;
+    this.realtimeChannel.send({
+      type: "broadcast",
+      event: "typing",
+      payload: {
+        chatId: this.state.activeChatId,
+        userName: this.state.currentUser.name,
+        ggNumber: this.state.currentUser.ggNumber,
+      },
+    });
+  }
+
   public async sendMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -491,6 +647,20 @@ class GkGaduEngine {
       if (cmd === "/roll") {
         const num = Math.floor(Math.random() * 100) + 1;
         return this.sendMessage(`🎲 Wyrzucono: **${num}** / 100`);
+      }
+      if (cmd === "/moneta" || cmd === "/flip") {
+        const side = Math.random() > 0.5 ? "Orzeł 🦅" : "Reszka 🪙";
+        return this.sendMessage(`🪙 Wynik rzutu monetą: **${side}**`);
+      }
+      if (cmd === "/poll" || cmd === "/ankieta") {
+        const question = arg || "Szybka ankieta technologiczna: React 19 vs Next.js 15?";
+        return this.sendMessage(`📊 **ANKIETA:** ${question}\n*(Zagłosuj reagując emotką pod tą wiadomością! ☀️ / 🚀 / 🔥)*`);
+      }
+      if (cmd === "/gra" || cmd === "/game") {
+        return this.sendMessage(`🎮 **MINIGRA GG:**\nZagrajmy w zgadnij liczbę! Wylosowałem liczbę od 1 do 10. Zgaduj na czacie! 🎯`);
+      }
+      if (cmd === "/help" || cmd === "/pomoc") {
+        return this.sendMessage(`ℹ️ **Dostępne komendy GKgadu:**\n- \`/roll\` - rzut kością (1-100)\n- \`/moneta\` - rzut monetą\n- \`/poll <pytanie>\` - ankieta\n- \`/nudge\` lub \`/puk\` - potrząśnięcie oknem\n- \`/shrug\` - ¯\\_(ツ)_/¯\n- \`/status <nowy opis>\` - zmiana opisu\n- \`/clear\` - wyczyszczenie czatu`);
       }
       if (cmd === "/clear") {
         this.state.messages[activeId] = [];

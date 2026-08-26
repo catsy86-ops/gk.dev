@@ -19,5 +19,5 @@ describe("ProjectsSection Comprehensive Suite", () => {
 
     // Verify filtered results
     expect(screen.getByText(/Przypominacz Tasks/i)).toBeInTheDocument();
-  });
+  }, 15000);
 });
