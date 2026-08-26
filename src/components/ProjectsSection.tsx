@@ -26,12 +26,21 @@ const ProjectsSection = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  const categoryCounts = useMemo(() => {
+    return {
+      all: projectsData.length,
+      saas: projectsData.filter((p) => p.category === "saas").length,
+      ecommerce: projectsData.filter((p) => p.category === "ecommerce").length,
+      web: projectsData.filter((p) => p.category === "web").length,
+    };
+  }, []);
+
   const categories = useMemo(() => [
-    { id: "all", label: t.projects.all },
-    { id: "saas", label: t.projects.saas },
-    { id: "ecommerce", label: t.projects.ecommerce },
-    { id: "web", label: t.projects.web },
-  ], [t.projects]);
+    { id: "all", label: t.projects.all, count: categoryCounts.all },
+    { id: "saas", label: t.projects.saas, count: categoryCounts.saas },
+    { id: "ecommerce", label: t.projects.ecommerce, count: categoryCounts.ecommerce },
+    { id: "web", label: t.projects.web, count: categoryCounts.web },
+  ], [t.projects, categoryCounts]);
 
   const filteredProjects = useMemo(() => {
     return projectsData.filter((project) => {
@@ -85,7 +94,7 @@ const ProjectsSection = () => {
                       hapticSelection();
                       setActiveCategory(category.id);
                     }}
-                    className={`relative px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[40px] cursor-pointer ${
+                    className={`relative px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[40px] cursor-pointer flex items-center gap-1.5 ${
                       isActive
                         ? "text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -99,6 +108,15 @@ const ProjectsSection = () => {
                       />
                     )}
                     <span className="relative z-10">{category.label}</span>
+                    <span
+                      className={`relative z-10 font-mono text-[10px] px-1.5 py-0.5 rounded-md ${
+                        isActive
+                          ? "bg-primary-foreground/20 text-primary-foreground font-bold"
+                          : "bg-secondary text-muted-foreground"
+                      }`}
+                    >
+                      {category.count}
+                    </span>
                   </button>
                 );
               })}

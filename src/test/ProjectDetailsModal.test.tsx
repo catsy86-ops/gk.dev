@@ -29,11 +29,15 @@ describe("ProjectDetailsModal", () => {
     expect(screen.queryByText("Test Project Title")).not.toBeInTheDocument();
   });
 
-  it("renders project details when open", () => {
+  it("renders project details and switches tabs when open", () => {
     const onClose = vi.fn();
     render(<ProjectDetailsModal project={mockProject} isOpen={true} onClose={onClose} />);
     expect(screen.getByText("Test Project Title")).toBeInTheDocument();
     expect(screen.getByText("Detailed case study description for test project.")).toBeInTheDocument();
+
+    // Switch to features tab
+    const featuresTabBtn = screen.getByText(/Funkcjonalności/i);
+    fireEvent.click(featuresTabBtn);
     expect(screen.getByText("Feature One")).toBeInTheDocument();
     expect(screen.getByText("99/100")).toBeInTheDocument();
   });

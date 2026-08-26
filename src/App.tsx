@@ -9,6 +9,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { I18nProvider } from "@/components/I18nProvider";
 import { ClerkAuthProvider } from "@/components/auth/ClerkAuthProvider";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import Index from "./pages/Index.tsx";
 
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -82,6 +83,7 @@ const App = () => {
                 <AnimatedRoutes />
               </ErrorBoundary>
             </BrowserRouter>
+            <PwaInstallPrompt />
             <GrainOverlay />
           </TooltipProvider>
         </ClerkAuthProvider>

@@ -291,6 +291,46 @@ export const ProjectEstimatorModal = ({
                     })}
                   </div>
 
+                  {/* ROI & Business Impact Simulation Box */}
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-['Geist'] text-xs font-bold uppercase tracking-wider text-emerald-500 flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4" />
+                        Symulacja Zwrotu z Inwestycji (ROI)
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        Automatyzacja
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5 text-center">
+                      <div className="rounded-xl border border-border/50 bg-card/60 p-2.5">
+                        <p className="font-mono text-base font-bold text-emerald-500">
+                          {selectedFeatures.length * 12 + (selectedType === "saas" ? 50 : 30)}h/mc
+                        </p>
+                        <p className="font-['Geist'] text-[10px] text-muted-foreground mt-0.5">
+                          Oszczędność czasu
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border/50 bg-card/60 p-2.5">
+                        <p className="font-mono text-base font-bold text-primary">
+                          {selectedType === "ecommerce" ? "+45%" : "+30%"}
+                        </p>
+                        <p className="font-['Geist'] text-[10px] text-muted-foreground mt-0.5">
+                          Wzrost konwersji
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border/50 bg-card/60 p-2.5">
+                        <p className="font-mono text-base font-bold text-amber-500">
+                          ~{(calculation.minPrice / Math.max((selectedFeatures.length * 12 + 40) * 120, 3000)).toFixed(1)} msc
+                        </p>
+                        <p className="font-['Geist'] text-[10px] text-muted-foreground mt-0.5">
+                          Szacowany zwrot
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Summary Card */}
                   <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
@@ -307,7 +347,7 @@ export const ProjectEstimatorModal = ({
 
                     <button
                       onClick={handleApply}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform cursor-pointer"
                     >
                       <Send className="h-4 w-4" />
                       <span>Wyślij z tą wyceną</span>
