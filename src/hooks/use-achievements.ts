@@ -70,6 +70,14 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     xp: 40,
     unlockedAt: null,
   },
+  {
+    id: "matrix_hacker",
+    title: "Matrix Reality Breach",
+    description: "Przełamano barierę rzeczywistości i aktywowano 5s tryb Matrix",
+    icon: "🕶️",
+    xp: 75,
+    unlockedAt: null,
+  },
 ];
 
 const STORAGE_KEY = "gk_dev_achievements";

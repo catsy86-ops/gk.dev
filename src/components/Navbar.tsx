@@ -62,9 +62,10 @@ interface SubItem {
 interface NavbarProps {
   onOpenTerminal?: () => void;
   onOpenPassport?: () => void;
+  onTriggerMatrix?: () => void;
 }
 
-const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
+const Navbar = ({ onOpenTerminal, onOpenPassport, onTriggerMatrix }: NavbarProps) => {
   const { t, lang } = useI18n();
 
   const navItems = [
@@ -220,9 +221,7 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
           >
             {/* Zone 1: Logo with live availability pill */}
             <div className="flex items-center gap-2 shrink-0">
-              <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
-
-
+              <BrandLogo showWordmark={false} onClick={(e) => handleClick(e, "#hero")} />
             </div>
 
             {/* Zone 2: Desktop Nav Items */}
@@ -349,6 +348,28 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                   ~
                 </span>
               </button>
+
+              {/* 5-Second Matrix Reality Breach Trigger */}
+              {onTriggerMatrix && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick();
+                    hapticMedium();
+                    onTriggerMatrix();
+                  }}
+                  className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-400/50 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60 hover:border-emerald-400 transition-all font-['Geist'] shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 group cursor-pointer shrink-0"
+                  aria-label="Tryb Matrix (M)"
+                  title="Uruchom Tryb Matrix Reality Breach (5s / M)"
+                >
+                  <span className="font-mono text-xs font-black tracking-tighter text-emerald-300 group-hover:scale-110 transition-transform">
+                    MATRIX
+                  </span>
+                  <span className="hidden xl:inline-block font-mono text-[9px] font-bold px-1 rounded bg-emerald-400/20 border border-emerald-400/40">
+                    5s
+                  </span>
+                </button>
+              )}
 
               {/* Dev Passport / Achievements Trigger */}
               {onOpenPassport && (

@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSeo } from "@/hooks/use-seo";
+import { MatrixCinematicOverlay } from "@/components/MatrixCinematicOverlay";
 import { soundEngine } from "@/lib/audio";
 import { hapticMedium } from "@/lib/haptics";
 
@@ -65,6 +66,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const location = useLocation();
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const [isMatrixActive, setIsMatrixActive] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   const isAuthRoute =
@@ -102,6 +104,10 @@ const Index = ({ initialAuthModal }: IndexProps) => {
     setIsPassportOpen(true);
   }, []);
 
+  const handleTriggerMatrix = useCallback(() => {
+    setIsMatrixActive(true);
+  }, []);
+
   const handleFocusSearch = useCallback(() => {
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
     if (input) {
@@ -117,12 +123,13 @@ const Index = ({ initialAuthModal }: IndexProps) => {
     }
   }, []);
 
-  // Global Power-User Hotkeys (/, T, P, E)
+  // Global Power-User Hotkeys (/, T, P, E, M)
   useKeyboardShortcuts({
     onOpenTerminal: handleOpenTerminal,
     onOpenPassport: handleOpenPassport,
     onFocusSearch: handleFocusSearch,
     onOpenEstimator: handleOpenEstimator,
+    onTriggerMatrix: handleTriggerMatrix,
   });
 
   return (
@@ -134,9 +141,14 @@ const Index = ({ initialAuthModal }: IndexProps) => {
       <ClickSpark />
       <CustomCursor />
       <ScrollProgress />
+      <MatrixCinematicOverlay
+        isActive={isMatrixActive}
+        onClose={() => setIsMatrixActive(false)}
+      />
       <Navbar
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
+        onTriggerMatrix={handleTriggerMatrix}
       />
       <MobileDock
         onOpenTerminal={handleOpenTerminal}

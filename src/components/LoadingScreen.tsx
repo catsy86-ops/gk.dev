@@ -25,7 +25,6 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       if (pct < 100) {
         rafId = requestAnimationFrame(tick);
       } else {
-        soundEngine.playChime();
         setIsDone(true);
         setTimeout(onComplete, 600);
       }

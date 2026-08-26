@@ -2,6 +2,7 @@
  * Procedural Web Audio UI Sound Synthesizer
  * Generates subtle, crisp micro-interaction sounds with zero external audio files (<1 KB).
  * Supports switchable acoustic profiles: Minimal, Mechanical Keyboard, Retro 8-Bit Arcade.
+ * Equipped with hardware debounce/throttling to prevent sound clutter and audio glitches.
  */
 
 export type SoundProfile = "minimal" | "mechanical" | "arcade";
@@ -10,6 +11,8 @@ class SoundEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = true;
   private profile: SoundProfile = "minimal";
+  private lastPlayTime: number = 0;
+  private readonly minIntervalMs = 70; // Prevent overlapping audio triggers
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -34,6 +37,15 @@ class SoundEngine {
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume();
     }
+  }
+
+  private shouldThrottle(): boolean {
+    const now = performance.now();
+    if (now - this.lastPlayTime < this.minIntervalMs) {
+      return true;
+    }
+    this.lastPlayTime = now;
+    return false;
   }
 
   public toggleMute(): boolean {
@@ -66,7 +78,7 @@ class SoundEngine {
   }
 
   public playClick() {
-    if (this.isMuted) return;
+    if (this.isMuted || this.shouldThrottle()) return;
     this.init();
     if (!this.ctx) return;
 
@@ -76,34 +88,31 @@ class SoundEngine {
       const gain = this.ctx.createGain();
 
       if (this.profile === "mechanical") {
-        // Mechanical switch click (clack sound with low click + high pitch release)
         osc.type = "triangle";
         osc.frequency.setValueAtTime(1400, now);
         osc.frequency.exponentialRampToValueAtTime(320, now + 0.035);
         gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.035);
       } else if (this.profile === "arcade") {
-        // 8-bit retro square chirp
         osc.type = "square";
         osc.frequency.setValueAtTime(650, now);
         osc.frequency.setValueAtTime(980, now + 0.02);
         gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.045);
       } else {
-        // Minimal subtle sine drop
         osc.type = "sine";
         osc.frequency.setValueAtTime(800, now);
         osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
         gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
@@ -115,7 +124,7 @@ class SoundEngine {
   }
 
   public playPop(freq = 520, duration = 0.06) {
-    if (this.isMuted) return;
+    if (this.isMuted || this.shouldThrottle()) return;
     this.init();
     if (!this.ctx) return;
 
@@ -130,7 +139,7 @@ class SoundEngine {
       osc.frequency.exponentialRampToValueAtTime(freq * 0.8, now + duration);
 
       gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
@@ -143,15 +152,15 @@ class SoundEngine {
   }
 
   public playChime() {
-    if (this.isMuted) return;
+    if (this.isMuted || this.shouldThrottle()) return;
     this.init();
     if (!this.ctx) return;
 
     try {
       const freqs =
         this.profile === "arcade"
-          ? [523.25, 659.25, 783.99, 1046.5] // C Major arpeggio
-          : [587.33, 880, 1174.66]; // D5, A5, D6 chord
+          ? [523.25, 659.25, 783.99, 1046.5]
+          : [587.33, 880, 1174.66];
 
       const now = this.ctx.currentTime;
 
@@ -173,6 +182,37 @@ class SoundEngine {
         osc.start(startTime);
         osc.stop(startTime + 0.28);
       });
+    } catch {
+      // Ignore audio errors
+    }
+  }
+
+  /**
+   * Cyberpunk Matrix Reality Glitch Sound
+   */
+  public playMatrixGlitch() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(240, now + 0.35);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.35);
     } catch {
       // Ignore audio errors
     }

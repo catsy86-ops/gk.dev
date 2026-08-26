@@ -3,11 +3,11 @@ import { createPortal } from "react-dom";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 /**
- * Ultra-Responsive Fluid Physics Custom Cursor (Awwwards 2026 Standard)
- * - Zero layout thrashing (no getComputedStyle in loops).
- * - Continuous high-performance requestAnimationFrame loop with velocity-based aerodynamic stretch.
- * - Magnetic snap & expansion on interactive buttons/links.
- * - Glowing chromatic particle aura that never stutters or drops frames.
+ * Ultra-Fluid Pointer Physics Custom Cursor (Awwwards Standard)
+ * - Rock-solid Pointer Events tracking with auto-recovery (never freezes or drops frames).
+ * - Zero layout thrashing (direct transforms without style recomputations).
+ * - High-precision velocity stretch and magnetic spring smoothing.
+ * - Automatic window re-entry and modal focus synchronization.
  */
 export const CustomCursor = () => {
   const isTouch = useMediaQuery("(pointer: coarse)");
@@ -46,33 +46,56 @@ export const CustomCursor = () => {
     let isHovering = false;
     let isClicking = false;
     let isProject = false;
-    let isHidden = false;
+    let isHidden = true; // start hidden until first pointer event detected
+    let isInitialized = false;
 
     let rafId: number;
 
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+    const checkIsInsideModal = (target: HTMLElement | null): boolean => {
+      if (!target) return false;
+      return (
+        target.closest('[role="dialog"]') !== null ||
+        target.closest('[aria-modal="true"]') !== null ||
+        document.body.classList.contains("modal-open")
+      );
     };
 
-    const onMouseDown = () => {
+    const onPointerMove = (e: PointerEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (!isInitialized) {
+        ringX = mouseX;
+        ringY = mouseY;
+        auraX = mouseX;
+        auraY = mouseY;
+        isInitialized = true;
+      }
+
+      const target = (e.target as HTMLElement) || document.elementFromPoint(e.clientX, e.clientY);
+      const isInsideModal = checkIsInsideModal(target as HTMLElement);
+
+      if (isInsideModal) {
+        isHidden = true;
+        setBadgeText("");
+      } else {
+        isHidden = false;
+      }
+    };
+
+    const onPointerDown = () => {
       isClicking = true;
     };
 
-    const onMouseUp = () => {
+    const onPointerUp = () => {
       isClicking = false;
     };
 
-    const onMouseOver = (e: MouseEvent) => {
+    const onPointerOver = (e: PointerEvent) => {
       const target = e.target as HTMLElement;
       if (!target) return;
 
-      const isInsideDialog =
-        target.closest('[role="dialog"]') !== null ||
-        target.closest('[aria-modal="true"]') !== null ||
-        document.body.classList.contains("modal-open");
-
-      if (isInsideDialog) {
+      if (checkIsInsideModal(target)) {
         isHidden = true;
         setBadgeText("");
         return;
@@ -103,35 +126,54 @@ export const CustomCursor = () => {
       }
     };
 
-    const onMouseOut = (e: MouseEvent) => {
-      if (!e.relatedTarget) {
+    const onMouseLeaveDoc = () => {
+      isHidden = true;
+    };
+
+    const onMouseEnterDoc = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      ringX = e.clientX;
+      ringY = e.clientY;
+      auraX = e.clientX;
+      auraY = e.clientY;
+      isHidden = false;
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
         isHidden = true;
       }
     };
 
-    // Continuous ultra-fluid 120/144Hz RAF loop
+    // Continuous 120/144Hz physics interpolation loop
     const loop = () => {
-      // Calculate instantaneous velocity
+      if (!isInitialized) {
+        rafId = requestAnimationFrame(loop);
+        return;
+      }
+
+      // Calculate velocity
       vx = mouseX - prevMouseX;
       vy = mouseY - prevMouseY;
-      speed = Math.hypot(vx, vy);
-      angle = Math.atan2(vy, vx) * (180 / Math.PI);
+      speed = Math.hypot(vx, vy) || 0;
+      if (speed > 0.5) {
+        angle = Math.atan2(vy, vx) * (180 / Math.PI);
+      }
 
       prevMouseX = mouseX;
       prevMouseY = mouseY;
 
-      // Elastic physics lerp
-      // Ring lerps quickly with slight springiness
-      ringX += (mouseX - ringX) * 0.32;
-      ringY += (mouseY - ringY) * 0.32;
+      // Elastic spring physics
+      ringX += (mouseX - ringX) * 0.35;
+      ringY += (mouseY - ringY) * 0.35;
 
-      // Aura follows with gentle ethereal drift
-      auraX += (mouseX - auraX) * 0.15;
-      auraY += (mouseY - auraY) * 0.15;
+      auraX += (mouseX - auraX) * 0.16;
+      auraY += (mouseY - auraY) * 0.16;
 
-      // Velocity-based aerodynamic stretch (scale along velocity vector)
-      const stretch = Math.min(1 + speed * 0.018, 1.45);
-      const squeeze = Math.max(1 - speed * 0.008, 0.75);
+      // Velocity-based aerodynamic stretch
+      const stretch = Math.min(1 + speed * 0.015, 1.4);
+      const squeeze = Math.max(1 - speed * 0.007, 0.78);
 
       if (isHidden) {
         dot.style.opacity = "0";
@@ -142,7 +184,7 @@ export const CustomCursor = () => {
         ring.style.opacity = "1";
         aura.style.opacity = "0.75";
 
-        // Dot follows cursor precisely with velocity stretch
+        // Dot follows cursor precisely
         dot.style.transform = `translate3d(${mouseX - 5}px, ${mouseY - 5}px, 0) rotate(${angle}deg) scale(${isClicking ? 0.7 : stretch}, ${isClicking ? 0.7 : squeeze})`;
 
         // Ring follows with fluid spring damping and hover expansion
@@ -169,21 +211,25 @@ export const CustomCursor = () => {
       rafId = requestAnimationFrame(loop);
     };
 
-    window.addEventListener("mousemove", onMouseMove, { passive: true });
-    window.addEventListener("mousedown", onMouseDown, { passive: true });
-    window.addEventListener("mouseup", onMouseUp, { passive: true });
-    document.addEventListener("mouseover", onMouseOver, { passive: true });
-    document.addEventListener("mouseout", onMouseOut, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("pointerup", onPointerUp, { passive: true });
+    document.addEventListener("pointerover", onPointerOver, { passive: true });
+    document.addEventListener("mouseleave", onMouseLeaveDoc, { passive: true });
+    document.addEventListener("mouseenter", onMouseEnterDoc, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     rafId = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mouseover", onMouseOver);
-      document.removeEventListener("mouseout", onMouseOut);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("pointerover", onPointerOver);
+      document.removeEventListener("mouseleave", onMouseLeaveDoc);
+      document.removeEventListener("mouseenter", onMouseEnterDoc);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       document.body.classList.remove("cursor-none");
     };
   }, [isTouch, prefersReduced]);

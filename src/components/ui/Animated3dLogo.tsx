@@ -6,6 +6,7 @@ import { hapticLight } from "@/lib/haptics";
 interface Animated3dLogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "hero";
   showStatus?: boolean;
+  showWordmark?: boolean;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
@@ -13,6 +14,7 @@ interface Animated3dLogoProps {
 export const Animated3dLogo = ({
   size = "md",
   showStatus = true,
+  showWordmark = true,
   className = "",
   onClick,
 }: Animated3dLogoProps) => {
@@ -184,24 +186,26 @@ export const Animated3dLogo = ({
       </div>
 
       {/* Cybernetic Typographic Wordmark */}
-      <div className="flex items-center gap-1 font-['Geist'] tracking-tight select-none">
-        <span className={`font-black text-foreground ${sizeConfig.wordmark} tracking-tight`}>
-          GK
-        </span>
-        <motion.span
-          className={`bg-gradient-to-r from-primary via-cyan-400 to-indigo-400 bg-clip-text text-transparent font-black ${sizeConfig.wordmark}`}
-          animate={
-            isHovered
-              ? {
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                }
-              : {}
-          }
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          .DEV
-        </motion.span>
-      </div>
+      {showWordmark && (
+        <div className="flex items-center gap-1 font-['Geist'] tracking-tight select-none">
+          <span className={`font-black text-foreground ${sizeConfig.wordmark} tracking-tight`}>
+            GK
+          </span>
+          <motion.span
+            className={`bg-gradient-to-r from-primary via-cyan-400 to-indigo-400 bg-clip-text text-transparent font-black ${sizeConfig.wordmark}`}
+            animate={
+              isHovered
+                ? {
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }
+                : {}
+            }
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            .DEV
+          </motion.span>
+        </div>
+      )}
     </a>
   );
 };

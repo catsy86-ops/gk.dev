@@ -5,6 +5,7 @@ interface KeyboardShortcutHandlers {
   onOpenPassport?: () => void;
   onOpenEstimator?: () => void;
   onFocusSearch?: () => void;
+  onTriggerMatrix?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -12,6 +13,7 @@ export function useKeyboardShortcuts({
   onOpenPassport,
   onOpenEstimator,
   onFocusSearch,
+  onTriggerMatrix,
 }: KeyboardShortcutHandlers) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,6 +34,12 @@ export function useKeyboardShortcuts({
       if (key === "/" && onFocusSearch) {
         e.preventDefault();
         onFocusSearch();
+        return;
+      }
+
+      if (key === "m" && onTriggerMatrix) {
+        e.preventDefault();
+        onTriggerMatrix();
         return;
       }
 
@@ -56,5 +64,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onOpenTerminal, onOpenPassport, onOpenEstimator, onFocusSearch]);
+  }, [onOpenTerminal, onOpenPassport, onOpenEstimator, onFocusSearch, onTriggerMatrix]);
 }

@@ -40,11 +40,9 @@ export function usePwa() {
     // Online / Offline listeners
     const handleOnline = () => {
       setIsOnline(true);
-      soundEngine.playChime();
     };
     const handleOffline = () => {
       setIsOnline(false);
-      soundEngine.playPop(300, 0.05);
     };
 
     window.addEventListener("online", handleOnline);
@@ -61,7 +59,6 @@ export function usePwa() {
       setIsInstalled(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
-      soundEngine.playChime();
       hapticMedium();
     };
 

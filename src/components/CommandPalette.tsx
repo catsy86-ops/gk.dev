@@ -48,6 +48,7 @@ interface CommandPaletteProps {
   onOpenTerminal?: () => void;
   onOpenAi?: () => void;
   onOpenClientPortal?: () => void;
+  onTriggerMatrix?: () => void;
 }
 
 export const CommandPalette = ({
@@ -56,6 +57,7 @@ export const CommandPalette = ({
   onOpenTerminal,
   onOpenAi,
   onOpenClientPortal,
+  onTriggerMatrix,
 }: CommandPaletteProps) => {
   useScrollLock(isOpen);
   const { isSignedIn } = useUser();
@@ -193,6 +195,18 @@ export const CommandPalette = ({
       },
       shortcut: "AI",
       keywords: ["ai", "bot", "asystent", "pytanie", "architekt", "pomoc", "rekrutacja", "stawki"],
+    },
+    {
+      id: "matrix",
+      label: "Uruchom Tryb Matrix Reality Breach (5s)",
+      category: "Akcje",
+      icon: Terminal,
+      action: () => {
+        onClose();
+        if (onTriggerMatrix) onTriggerMatrix();
+      },
+      shortcut: "M",
+      keywords: ["matrix", "hacker", "rain", "cyber", "glitch", "kod", "deszcz"],
     },
     {
       id: "accent-blue",
