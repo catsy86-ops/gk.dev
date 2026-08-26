@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { HolographicCard } from "@/components/ui/HolographicCard";
 import { GithubActivityBadge } from "@/components/GithubActivityBadge";
+import { InteractiveResumeModal } from "@/components/InteractiveResumeModal";
 import { soundEngine } from "@/lib/audio";
 import { hapticSelection } from "@/lib/haptics";
 import { useI18n } from "@/lib/i18n";
@@ -22,6 +23,7 @@ const AboutSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [activeTab, setActiveTab] = useState<"experience" | "education">("experience");
   const [hoveredTimeline, setHoveredTimeline] = useState<number | null>(null);
+  const [isCvOpen, setIsCvOpen] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -162,8 +164,10 @@ const AboutSection = () => {
                   <GlowButton
                     variant="glow"
                     size="sm"
-                    href="/cv.pdf"
-                    download
+                    onClick={() => {
+                      hapticLight();
+                      setIsCvOpen(true);
+                    }}
                     icon={<Download className="h-3.5 w-3.5" />}
                   >
                     {t.about.downloadCv}
@@ -337,6 +341,8 @@ const AboutSection = () => {
           </motion.div>
         </div>
       </div>
+
+      <InteractiveResumeModal isOpen={isCvOpen} onClose={() => setIsCvOpen(false)} />
     </section>
   );
 };

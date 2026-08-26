@@ -274,17 +274,17 @@ const HeroSection = () => {
 
         {/* Heading */}
         <motion.h1
-          className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.05] text-shadow-hero"
-          style={{ fontSize: "clamp(36px, 5.5vw, 80px)" }}
+          className="text-center font-['Geist'] font-medium tracking-[-0.04em] text-foreground leading-[1.08] text-shadow-hero break-words max-w-[95vw]"
+          style={{ fontSize: "clamp(28px, 6.5vw, 80px)" }}
           variants={headingReveal}
           initial="hidden"
           animate="visible"
         >
-          <span className="inline-block min-w-[70px] md:min-w-[120px]" aria-live="polite">
+          <span className="inline-block min-w-[50px] md:min-w-[120px]" aria-live="polite">
             {greetingText}
             <motion.span
-              className="inline-block w-[3px] ml-0.5 align-middle bg-foreground"
-              style={{ height: "clamp(28px, 4vw, 60px)" }}
+              className="inline-block w-[2.5px] ml-0.5 align-middle bg-foreground"
+              style={{ height: "clamp(22px, 4.5vw, 60px)" }}
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
               aria-hidden="true"
@@ -293,7 +293,7 @@ const HeroSection = () => {
           {", jestem "}
           <span
             className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent text-shadow-glow inline-block bg-[length:200%_auto]"
-            style={{ fontSize: "clamp(44px, 6.9vw, 100px)" }}
+            style={{ fontSize: "clamp(34px, 8vw, 100px)" }}
           >
             Grzegorz
           </span>

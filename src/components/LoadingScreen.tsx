@@ -31,7 +31,15 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     };
 
     rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    const safetyTimer = setTimeout(() => {
+      setIsDone(true);
+      onComplete();
+    }, 2000);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(safetyTimer);
+    };
   }, [onComplete]);
 
   return (

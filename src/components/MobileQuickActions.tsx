@@ -15,12 +15,14 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
+  Contact2,
 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useSafeUser } from "@/hooks/use-safe-clerk";
 import { useTheme } from "next-themes";
 import { GoogleIcon, AuthModal } from "@/components/auth/AuthModal";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess, hapticMedium } from "@/lib/haptics";
+import { sharePortfolio, downloadVCard } from "@/lib/mobile-share";
 import { toast } from "@/hooks/use-toast";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { useAchievements } from "@/hooks/use-achievements";
@@ -41,7 +43,7 @@ export const MobileQuickActions = ({
   onOpenPassport,
 }: MobileQuickActionsProps) => {
   useScrollLock(isOpen);
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn, user } = useSafeUser();
   const { resolvedTheme, setTheme } = useTheme();
   const { totalXp, rank, unlockedCount, totalCount } = useAchievements();
   const [copied, setCopied] = useState(false);
@@ -77,23 +79,12 @@ export const MobileQuickActions = ({
   const handleShare = async () => {
     soundEngine.playPop(750, 0.03);
     hapticLight();
+    await sharePortfolio();
+  };
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "GK.dev — Mid Fullstack Developer (Samouk)",
-          text: "Sprawdź portfolio Grzegorza ze Szczecina — nowoczesne aplikacje webowe & mobile w React 19, TypeScript, Next.js.",
-          url: window.location.href,
-        });
-      } catch {
-        // user cancelled or share failed
-      }
-    } else if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      toast({ title: "Link skopiowany!", description: "Adres portfolio jest w Twoim schowku." });
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleDownloadVCard = () => {
+    soundEngine.playPop(750, 0.03);
+    downloadVCard();
   };
 
   const handleCopyPhone = () => {
@@ -330,12 +321,22 @@ export const MobileQuickActions = ({
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 p-3.5 text-primary active:scale-95 transition-all cursor-pointer min-h-[72px] shadow-sm"
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 p-3 text-primary active:scale-95 transition-all cursor-pointer min-h-[68px] shadow-sm"
                 >
                   <Share2 className="h-4.5 w-4.5" />
                   <span className="font-['Geist'] text-xs font-bold">
-                    {copied ? "Skopiowano!" : "Udostępnij profil"}
+                    Udostępnij profil
                   </span>
+                </button>
+
+                {/* Download vCard Phone Contact */}
+                <button
+                  type="button"
+                  onClick={handleDownloadVCard}
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 p-3 text-amber-400 active:scale-95 transition-all cursor-pointer min-h-[68px] shadow-sm"
+                >
+                  <Contact2 className="h-4.5 w-4.5" />
+                  <span className="font-['Geist'] text-xs font-bold">Zapisz wizytówkę</span>
                 </button>
 
                 {/* Download CV */}
@@ -347,7 +348,7 @@ export const MobileQuickActions = ({
                     hapticLight();
                     onClose();
                   }}
-                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-3.5 text-foreground active:scale-95 transition-all cursor-pointer min-h-[72px] shadow-sm"
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-3 text-foreground active:scale-95 transition-all cursor-pointer min-h-[68px] shadow-sm"
                 >
                   <Download className="h-4.5 w-4.5 text-primary" />
                   <span className="font-['Geist'] text-xs font-bold">Pobierz CV (PDF)</span>
@@ -360,21 +361,11 @@ export const MobileQuickActions = ({
                     soundEngine.playClick();
                     onClose();
                   }}
-                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-3.5 text-foreground active:scale-95 transition-all cursor-pointer min-h-[72px] shadow-sm"
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-3 text-foreground active:scale-95 transition-all cursor-pointer min-h-[68px] shadow-sm"
                 >
                   <Mail className="h-4.5 w-4.5 text-primary" />
                   <span className="font-['Geist'] text-xs font-bold">Napisz Email</span>
                 </a>
-
-                {/* Direct Call / Copy Phone */}
-                <button
-                  type="button"
-                  onClick={handleCopyPhone}
-                  className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-3.5 text-foreground active:scale-95 transition-all cursor-pointer min-h-[72px] shadow-sm"
-                >
-                  <Phone className="h-4.5 w-4.5 text-emerald-500" />
-                  <span className="font-['Geist'] text-xs font-bold">Kopiuj Telefon</span>
-                </button>
               </div>
             </motion.div>
           </div>

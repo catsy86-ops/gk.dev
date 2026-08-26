@@ -26,7 +26,7 @@ import {
   X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useUser } from "@clerk/clerk-react";
+import { useSafeUser } from "@/hooks/use-safe-clerk";
 import { toast } from "@/hooks/use-toast";
 import { setGlobalAccent } from "@/lib/theme";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
@@ -49,6 +49,7 @@ interface CommandPaletteProps {
   onOpenAi?: () => void;
   onOpenClientPortal?: () => void;
   onTriggerMatrix?: () => void;
+  onToggleGkgadu?: () => void;
 }
 
 export const CommandPalette = ({
@@ -58,9 +59,10 @@ export const CommandPalette = ({
   onOpenAi,
   onOpenClientPortal,
   onTriggerMatrix,
+  onToggleGkgadu,
 }: CommandPaletteProps) => {
   useScrollLock(isOpen);
-  const { isSignedIn } = useUser();
+  const { isSignedIn } = useSafeUser();
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -183,6 +185,18 @@ export const CommandPalette = ({
       },
       shortcut: "~",
       keywords: ["terminal", "cli", "shell", "hacker", "bash", "komendy"],
+    },
+    {
+      id: "gkgadu",
+      label: "Otwórz Komunikator GKgadu 2026 (Live GG)",
+      category: "Akcje",
+      icon: Sun,
+      action: () => {
+        onClose();
+        if (onToggleGkgadu) onToggleGkgadu();
+      },
+      shortcut: "G",
+      keywords: ["gg", "gadu", "gkgadu", "chat", "czat", "wiadomosc", "realtime", "sloneczko"],
     },
     {
       id: "ai",

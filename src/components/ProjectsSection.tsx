@@ -94,7 +94,7 @@ const ProjectsSection = () => {
                       hapticSelection();
                       setActiveCategory(category.id);
                     }}
-                    className={`relative px-3 sm:px-3.5 py-1 text-xs font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[34px] cursor-pointer flex items-center gap-1.5 ${
+                    className={`relative px-2.5 sm:px-3.5 py-1 text-xs font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[38px] cursor-pointer flex items-center gap-1.5 ${
                       isActive
                         ? "text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"

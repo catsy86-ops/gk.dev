@@ -66,6 +66,8 @@ interface NavbarProps {
   onTriggerMatrix?: () => void;
   onToggleWinamp?: () => void;
   isWinampOpen?: boolean;
+  onToggleGkgadu?: () => void;
+  isGkgaduOpen?: boolean;
 }
 
 const Navbar = ({
@@ -74,6 +76,8 @@ const Navbar = ({
   onTriggerMatrix,
   onToggleWinamp,
   isWinampOpen,
+  onToggleGkgadu,
+  isGkgaduOpen,
 }: NavbarProps) => {
   const { t, lang } = useI18n();
 
@@ -347,7 +351,7 @@ const Navbar = ({
                     onOpenTerminal();
                   }
                 }}
-                className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
+                className="hidden md:flex relative items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
                 aria-label="Otwórz Terminal CLI (~)"
                 title="Terminal CLI (~)"
               >
@@ -366,7 +370,7 @@ const Navbar = ({
                     hapticMedium();
                     onTriggerMatrix();
                   }}
-                  className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-400/50 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60 hover:border-emerald-400 transition-all font-['Geist'] shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 group cursor-pointer shrink-0"
+                  className="hidden lg:flex relative items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-400/50 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60 hover:border-emerald-400 transition-all font-['Geist'] shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 group cursor-pointer shrink-0"
                   aria-label="Tryb Matrix (M)"
                   title="Uruchom Tryb Matrix Reality Breach (5s / M)"
                 >
@@ -387,7 +391,7 @@ const Navbar = ({
                     hapticMedium();
                     onToggleWinamp();
                   }}
-                  className={`relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0 ${
+                  className={`hidden sm:flex relative items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0 ${
                     isWinampOpen
                       ? "border-cyan-400 bg-cyan-950/60 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.35)]"
                       : "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500"
@@ -400,6 +404,32 @@ const Navbar = ({
                 </button>
               )}
 
+              {/* GKgadu 2026 Instant Messenger Trigger */}
+              {onToggleGkgadu && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    hapticMedium();
+                    onToggleGkgadu();
+                  }}
+                  className={`relative flex items-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0 ${
+                    isGkgaduOpen
+                      ? "border-amber-400 bg-amber-500/25 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.5)] ring-1 ring-amber-400/50"
+                      : "border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                  }`}
+                  aria-label="GKgadu 2026 Komunikator Live"
+                  title="GKgadu 2026 Komunikator Live (WebSockets / GG)"
+                >
+                  <div className="relative flex items-center justify-center">
+                    <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 fill-amber-400 group-hover:rotate-45 transition-transform" />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-emerald-400 ring-1 ring-black animate-pulse" />
+                  </div>
+                  <span className="inline text-xs font-black font-mono tracking-tight text-amber-300">
+                    GKgadu
+                  </span>
+                </button>
+              )}
+
               {/* Dev Passport / Achievements Trigger */}
               {onOpenPassport && (
                 <button
@@ -409,7 +439,7 @@ const Navbar = ({
                     hapticMedium();
                     onOpenPassport();
                   }}
-                  className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
+                  className="hidden xl:flex relative items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
                   aria-label="Paszport Dewelopera & Osiągnięcia (P)"
                   title="Paszport Dewelopera & Osiągnięcia (P)"
                 >
@@ -443,7 +473,7 @@ const Navbar = ({
                   soundEngine.playClick();
                   setIsCommandOpen(true);
                 }}
-                className="flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-border/80 bg-secondary/70 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm cursor-pointer shrink-0 group"
+                className="hidden md:flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-border/80 bg-secondary/70 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm cursor-pointer shrink-0 group"
                 aria-label="Otwórz menu poleceń (Cmd+K)"
                 title="Szukaj (Cmd+K)"
               >
@@ -457,7 +487,7 @@ const Navbar = ({
               </button>
 
               {/* Seamless Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks, Auth) */}
-              <div className="hidden sm:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5 shrink-0">
+              <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5 shrink-0">
                 {/* Sound Toggle */}
                 <button
                   onClick={toggleSound}
@@ -582,6 +612,28 @@ const Navbar = ({
                   </span>
                 </button>
 
+                {/* Mobile GKgadu Live Communicator Trigger */}
+                {onToggleGkgadu && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.03);
+                      hapticMedium();
+                      setIsMobileNavOpen(false);
+                      onToggleGkgadu();
+                    }}
+                    className="w-full flex items-center justify-between p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs shadow-sm hover:bg-amber-500/25 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sun className="h-4 w-4 text-amber-400 fill-amber-400" />
+                      <span>GKgadu 2026 (Komunikator Live)</span>
+                    </div>
+                    <span className="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 text-amber-300">
+                      GG Live ☀️
+                    </span>
+                  </button>
+                )}
+
                 <div className="space-y-1">
                   {navItems.map((item) => (
                     <a
@@ -677,6 +729,7 @@ const Navbar = ({
             onOpenTerminal={onOpenTerminal}
             onOpenAi={() => setIsAiOpen(true)}
             onOpenClientPortal={() => setIsClientPortalOpen(true)}
+            onToggleGkgadu={onToggleGkgadu}
           />
         </Suspense>
       )}

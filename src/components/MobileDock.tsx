@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Home, Wrench, FolderOpen, Send, Sparkles, Terminal } from "lucide-react";
+import { Home, Wrench, FolderOpen, Send, Sparkles, Terminal, Sun } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { MobileQuickActions } from "@/components/MobileQuickActions";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -20,9 +20,10 @@ const tabs = [
 interface MobileDockProps {
   onOpenTerminal?: () => void;
   onOpenPassport?: () => void;
+  onToggleGkgadu?: () => void;
 }
 
-export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) => {
+export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu }: MobileDockProps) => {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
@@ -73,13 +74,13 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) 
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 90, opacity: 0, scale: 0.92 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-[420px] z-50 pointer-events-auto"
-              style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+              className="fixed bottom-3 inset-x-0 mx-auto w-[96%] max-w-[430px] z-50 pointer-events-auto"
+              style={{ marginBottom: "max(0.25rem, env(safe-area-inset-bottom, 0px))" }}
               aria-label="Pływające menu mobilne"
             >
-              <div className="relative flex items-center justify-between rounded-full border border-border/80 bg-background/90 dark:bg-card/90 backdrop-blur-2xl p-1.5 shadow-[0_16px_45px_-10px_rgba(0,0,0,0.35)] dark:shadow-[0_20px_55px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
+              <div className="relative flex items-center justify-between rounded-full border border-border/80 bg-background/90 dark:bg-card/90 backdrop-blur-2xl p-1 shadow-[0_16px_45px_-10px_rgba(0,0,0,0.35)] dark:shadow-[0_20px_55px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
                 {/* Navigation Tabs (Start, Stack, Projekty) */}
-                <div className="flex items-center flex-1 justify-around gap-1">
+                <div className="flex items-center flex-1 justify-around gap-0.5 sm:gap-1">
                   {tabs.map((tab) => {
                     const isActive =
                       activeSection === tab.id || (tab.id === "hero" && !activeSection);
@@ -89,7 +90,7 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) 
                         key={tab.id}
                         type="button"
                         onClick={() => scrollTo(tab.href)}
-                        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-full transition-colors min-h-[44px] cursor-pointer ${
+                        className={`relative flex flex-col items-center justify-center py-1 px-1.5 sm:px-2 rounded-full transition-colors min-h-[44px] cursor-pointer ${
                           isActive
                             ? "text-primary font-bold"
                             : "text-muted-foreground hover:text-foreground"
@@ -105,10 +106,10 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) 
                           />
                         )}
                         <tab.icon
-                          className="relative z-10 h-4 w-4"
+                          className="relative z-10 h-3.5 w-3.5 sm:h-4 sm:w-4"
                           strokeWidth={isActive ? 2.4 : 1.8}
                         />
-                        <span className="relative z-10 text-[10px] font-['Geist'] mt-0.5 tracking-tight">
+                        <span className="relative z-10 text-[9px] sm:text-[10px] font-['Geist'] mt-0.5 tracking-tight">
                           {tab.label}
                         </span>
                       </button>
@@ -125,18 +126,41 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) 
                         onOpenTerminal();
                       }
                     }}
-                    className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-full transition-colors min-h-[44px] text-emerald-500 hover:text-emerald-400 active:scale-95 cursor-pointer"
+                    className="relative flex flex-col items-center justify-center py-1 px-1.5 sm:px-2 rounded-full transition-colors min-h-[44px] text-emerald-500 hover:text-emerald-400 active:scale-95 cursor-pointer"
                     aria-label="Terminal CLI"
                     title="Terminal CLI"
                   >
                     <div className="relative">
-                      <Terminal className="h-4 w-4 text-emerald-500" strokeWidth={2.2} />
+                      <Terminal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" strokeWidth={2.2} />
                       <span className="absolute -top-0.5 -right-1 h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     </div>
-                    <span className="text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight font-mono text-emerald-500">
+                    <span className="text-[9px] sm:text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight font-mono text-emerald-500">
                       CLI
                     </span>
                   </button>
+
+                  {/* GKgadu Direct Trigger Tab */}
+                  {onToggleGkgadu && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playPop(850, 0.03);
+                        hapticMedium();
+                        onToggleGkgadu();
+                      }}
+                      className="relative flex flex-col items-center justify-center py-1 px-1.5 sm:px-2 rounded-full transition-colors min-h-[44px] text-amber-400 hover:text-amber-300 active:scale-95 cursor-pointer"
+                      aria-label="GKgadu Live"
+                      title="GKgadu Komunikator Live"
+                    >
+                      <div className="relative">
+                        <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 fill-amber-400" strokeWidth={2.2} />
+                        <span className="absolute -top-0.5 -right-1 h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      </div>
+                      <span className="text-[9px] sm:text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight font-mono text-amber-400">
+                        GKgadu
+                      </span>
+                    </button>
+                  )}
 
                   {/* Quick Action & XP Hub Tab */}
                   <button
@@ -146,18 +170,18 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) 
                       hapticLight();
                       setIsQuickOpen(true);
                     }}
-                    className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-full transition-colors min-h-[44px] text-muted-foreground hover:text-foreground active:scale-95 cursor-pointer"
+                    className="relative flex flex-col items-center justify-center py-1 px-1.5 sm:px-2 rounded-full transition-colors min-h-[44px] text-muted-foreground hover:text-foreground active:scale-95 cursor-pointer"
                     aria-label="Więcej opcji i Paszport XP"
                     title="Więcej opcji & XP"
                   >
                     <div className="relative">
-                      <Sparkles className="h-4 w-4 text-amber-500" strokeWidth={2.2} />
+                      <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-500" strokeWidth={2.2} />
                       <span className="absolute -top-0.5 -right-1 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
                       </span>
                     </div>
-                    <span className="text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight text-foreground">
+                    <span className="text-[9px] sm:text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight text-foreground">
                       Więcej
                     </span>
                   </button>

@@ -78,6 +78,30 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     xp: 75,
     unlockedAt: null,
   },
+  {
+    id: "gkinamp_dj",
+    title: "GKinAmp Maestro",
+    description: "Uruchomiono utwór MIDI, zmieniono skórkę lub włączono dźwięk przestrzenny 8D w GKinAmp",
+    icon: "🎛️",
+    xp: 60,
+    unlockedAt: null,
+  },
+  {
+    id: "beat_master",
+    title: "Beat Catcher Master",
+    description: "Zdobyto punkty w zręcznościowej minigrze rytmicznej w odtwarzaczu GKinAmp",
+    icon: "🎮",
+    xp: 80,
+    unlockedAt: null,
+  },
+  {
+    id: "gkgadu_pioneer",
+    title: "GKgadu Pionier",
+    description: "Napisano wiadomość lub wysłano Puk-Puk na żywo w komunikatorze GKgadu",
+    icon: "☀️",
+    xp: 50,
+    unlockedAt: null,
+  },
 ];
 
 const STORAGE_KEY = "gk_dev_achievements";

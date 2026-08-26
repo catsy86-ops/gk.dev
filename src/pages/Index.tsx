@@ -24,6 +24,8 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSeo } from "@/hooks/use-seo";
 import { MatrixCinematicOverlay } from "@/components/MatrixCinematicOverlay";
 import { WinampPlayer } from "@/components/WinampPlayer";
+import { OfflineNetworkIndicator } from "@/components/OfflineNetworkIndicator";
+import { GkgaduFloatingBubble } from "@/components/GkgaduFloatingBubble";
 import { musicEngine } from "@/lib/music-engine";
 import { hapticMedium } from "@/lib/haptics";
 
@@ -33,6 +35,9 @@ const TerminalDialog = lazy(() =>
 );
 const DevPassportModal = lazy(() =>
   import("@/components/DevPassportModal").then((m) => ({ default: m.DevPassportModal }))
+);
+const GkgaduChatModal = lazy(() =>
+  import("@/components/GkgaduChatModal").then((m) => ({ default: m.GkgaduChatModal }))
 );
 
 function useShouldLoadHeavyContent() {
@@ -69,6 +74,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const [isPassportOpen, setIsPassportOpen] = useState(false);
   const [isMatrixActive, setIsMatrixActive] = useState(false);
   const [isWinampOpen, setIsWinampOpen] = useState(true);
+  const [isGkgaduOpen, setIsGkgaduOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   const isAuthRoute =
@@ -118,6 +124,10 @@ const Index = ({ initialAuthModal }: IndexProps) => {
     });
   }, []);
 
+  const handleToggleGkgadu = useCallback(() => {
+    setIsGkgaduOpen((prev) => !prev);
+  }, []);
+
   const handleFocusSearch = useCallback(() => {
     const input = document.querySelector('input[type="text"]') as HTMLInputElement;
     if (input) {
@@ -147,6 +157,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9998] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm focus:font-medium">
         Przejdź do treści
       </a>
+      <OfflineNetworkIndicator />
       <AmbientBackground />
       <ClickSpark />
       <CustomCursor />
@@ -165,13 +176,20 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         onTriggerMatrix={handleTriggerMatrix}
         onToggleWinamp={handleToggleWinamp}
         isWinampOpen={isWinampOpen}
+        onToggleGkgadu={handleToggleGkgadu}
+        isGkgaduOpen={isGkgaduOpen}
       />
       <MobileDock
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
+        onToggleGkgadu={handleToggleGkgadu}
+      />
+      <GkgaduFloatingBubble
+        isOpen={isGkgaduOpen}
+        onToggle={handleToggleGkgadu}
       />
       <ScrollToTop />
-      <main id="main">
+      <main id="main" className="overflow-x-hidden relative">
         <HeroSection />
         <AboutSection />
         {shouldLoadStats ? (
@@ -207,6 +225,16 @@ const Index = ({ initialAuthModal }: IndexProps) => {
           <DevPassportModal
             isOpen={isPassportOpen}
             onClose={() => setIsPassportOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* GKgadu 2026 Real-Time Instant Messenger */}
+      {isGkgaduOpen && (
+        <Suspense fallback={null}>
+          <GkgaduChatModal
+            isOpen={isGkgaduOpen}
+            onClose={() => setIsGkgaduOpen(false)}
           />
         </Suspense>
       )}

@@ -526,6 +526,20 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
         );
         break;
 
+      case "gg":
+      case "gadu":
+      case "gkgadu":
+        soundEngine.playGgMessage();
+        hapticSuccess();
+        outputNode = (
+          <div className="space-y-1 text-xs text-amber-300">
+            <p className="font-bold">☀️ Komunikator GKgadu 2026 (Live GG):</p>
+            <p>Możesz go otworzyć klikając w przycisk ze słoneczkiem w górnym menu lub naciskając klawisz G w palecie poleceń (Cmd+K).</p>
+            <p className="text-slate-400">Obsługuje WebSockets, czat na żywo, emotki GG, Puk-Puk oraz stały 7-cyfrowy numer GG!</p>
+          </div>
+        );
+        break;
+
       case "play":
       case "melody":
       case "music":
