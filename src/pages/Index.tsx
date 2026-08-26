@@ -18,6 +18,8 @@ import { AmbientBackground } from "@/components/AmbientBackground";
 import { ClickSpark } from "@/components/ui/ClickSpark";
 import { MobileDock } from "@/components/MobileDock";
 import { isSlowConnection } from "@/lib/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 const TerminalDialog = lazy(() =>
@@ -50,9 +52,38 @@ function StatsSkeleton() {
   );
 }
 
-const Index = () => {
+interface IndexProps {
+  initialAuthModal?: "sign-in" | "sign-up";
+}
+
+const Index = ({ initialAuthModal }: IndexProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
+
+  const isAuthRoute =
+    initialAuthModal !== undefined ||
+    location.pathname === "/sign-in" ||
+    location.pathname === "/sign-up";
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(isAuthRoute);
+  const authMode: "sign-in" | "sign-up" =
+    initialAuthModal ||
+    (location.pathname === "/sign-up" ? "sign-up" : "sign-in");
+
+  useEffect(() => {
+    if (isAuthRoute) {
+      setIsAuthModalOpen(true);
+    }
+  }, [isAuthRoute, location.pathname]);
+
+  const handleCloseAuthModal = () => {
+    setIsAuthModalOpen(false);
+    if (location.pathname === "/sign-in" || location.pathname === "/sign-up") {
+      navigate("/", { replace: true });
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -110,6 +141,13 @@ const Index = () => {
           />
         </Suspense>
       )}
+
+      {/* Global Auth Modal for /sign-in, /sign-up and interactive triggers */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={handleCloseAuthModal}
+        initialMode={authMode}
+      />
     </>
   );
 };

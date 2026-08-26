@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MotionConfig } from "motion/react";
+import { BrowserRouter } from "react-router-dom";
 import Index from "@/pages/Index";
 import { I18nProvider } from "@/components/I18nProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,13 +9,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 describe("Index Page & App Tree Rendering Suite", () => {
   it("renders Index page without any ErrorBoundary crash", () => {
     const { unmount } = render(
-      <MotionConfig reducedMotion="always">
-        <I18nProvider>
-          <TooltipProvider>
-            <Index />
-          </TooltipProvider>
-        </I18nProvider>
-      </MotionConfig>
+      <BrowserRouter>
+        <MotionConfig reducedMotion="always">
+          <I18nProvider>
+            <TooltipProvider>
+              <Index />
+            </TooltipProvider>
+          </I18nProvider>
+        </MotionConfig>
+      </BrowserRouter>
     );
 
     // Verify main landmarks and sections render cleanly

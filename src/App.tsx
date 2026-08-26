@@ -45,6 +45,34 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/sign-in"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+            >
+              <Index initialAuthModal="sign-in" />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/sign-up"
+          element={
+            <motion.div
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={pageTransition}
+            >
+              <Index initialAuthModal="sign-up" />
+            </motion.div>
+          }
+        />
+        <Route
           path="*"
           element={
             <Suspense fallback={null}>

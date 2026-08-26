@@ -10,6 +10,7 @@ export default defineConfig({
       overlay: false,
     },
   },
+  envPrefix: ["VITE_", "NEXT_PUBLIC_", "CLERK_", "SUPABASE_"],
   plugins: [react()],
   resolve: {
     alias: {

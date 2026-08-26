@@ -1,13 +1,8 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { useTheme } from "next-themes";
 import { useI18n } from "@/lib/i18n";
-
-// Read publishable key from environment variables (Vite / Next standard)
-const CLERK_PUBLISHABLE_KEY =
-  (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string) ||
-  (import.meta.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY as string) ||
-  "pk_test_Z3VpZGluZy1nYXJmaXNoLTczLmNsZXJrLmFjY291bnRzLmRldiQ";
+import { ENV, logEnvDiagnostics } from "@/lib/env";
 
 interface ClerkAuthProviderProps {
   children: ReactNode;
@@ -17,6 +12,12 @@ export const ClerkAuthProvider: React.FC<ClerkAuthProviderProps> = ({ children }
   const { resolvedTheme } = useTheme();
   const { lang } = useI18n();
   const isDark = resolvedTheme === "dark";
+
+  useEffect(() => {
+    logEnvDiagnostics();
+  }, []);
+
+  const publishableKey = ENV.clerk.publishableKey;
 
   // Appearance customization matching the portfolio design system tokens
   const appearance = {
@@ -51,13 +52,15 @@ export const ClerkAuthProvider: React.FC<ClerkAuthProviderProps> = ({ children }
     },
   };
 
-  if (!CLERK_PUBLISHABLE_KEY || CLERK_PUBLISHABLE_KEY.trim() === "") {
+  if (!publishableKey || publishableKey.trim() === "") {
     return <>{children}</>;
   }
 
   return (
     <ClerkProvider
-      publishableKey={CLERK_PUBLISHABLE_KEY}
+      publishableKey={publishableKey}
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
       appearance={appearance}
       localization={
         lang === "pl"

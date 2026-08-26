@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { ENV } from "@/lib/env";
 
 export interface Database {
   public: {
@@ -132,12 +133,10 @@ export interface Database {
   };
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://xyzcompany.supabase.co";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key";
+const supabaseUrl = ENV.supabase.url;
+const supabaseAnonKey = ENV.supabase.anonKey;
 
-export const isSupabaseConfigured = Boolean(
-  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+export const isSupabaseConfigured = ENV.supabase.isConfigured;
 
 // Create resilient typed Supabase client
 export const supabase: SupabaseClient<Database> = createClient<Database>(
