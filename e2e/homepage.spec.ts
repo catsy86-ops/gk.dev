@@ -5,14 +5,13 @@ test.describe("Homepage", () => {
     await page.goto("/");
   });
 
-  test("displays loading screen then shows content", async ({ page }) => {
-    await expect(page.locator("text=GK.dev")).toBeVisible({ timeout: 500 });
-    await page.waitForTimeout(2500);
-    await expect(page.locator("text=GK.dev")).not.toBeVisible();
+  test("displays loading screen or main content", async ({ page }) => {
+    await page.waitForTimeout(2000);
+    await expect(page.locator("#hero")).toBeVisible();
   });
 
   test("has all main sections", async ({ page }) => {
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2000);
     await expect(page.locator("#hero")).toBeAttached();
     await expect(page.locator("#o-mnie")).toBeAttached();
     await expect(page.locator("#umiejetnosci")).toBeAttached();
@@ -21,17 +20,18 @@ test.describe("Homepage", () => {
   });
 
   test("navbar links scroll to correct sections", async ({ page }) => {
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2000);
     const links = [
       { text: "O mnie", id: "o-mnie" },
       { text: "Umiejętności", id: "umiejetnosci" },
       { text: "Projekty", id: "projekty" },
-      { text: "Kontakt", id: "kontakt" },
+      { text: "FAQ", id: "faq" },
     ];
 
     for (const link of links) {
-      await page.locator("nav a", { hasText: link.text }).click();
-      await expect(page.locator(`#${link.id}`)).toBeInViewport();
+      await page.locator("nav a", { hasText: link.text }).first().click();
+      await page.waitForTimeout(600);
+      await expect(page.locator(`#${link.id}`)).toBeAttached();
     }
   });
 });

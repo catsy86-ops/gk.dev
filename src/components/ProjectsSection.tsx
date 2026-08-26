@@ -1,7 +1,7 @@
 import { motion, useInView, AnimatePresence } from "motion/react";
 import { soundEngine } from "@/lib/audio";
 import { hapticSelection, hapticLight } from "@/lib/haptics";
-import { Star, Github, Filter, Sparkles, Search, LayoutGrid, List, ArrowRight, ExternalLink } from "lucide-react";
+import { Github, Sparkles, Search, LayoutGrid, List, ArrowRight, ExternalLink } from "lucide-react";
 import { useState, useRef, useMemo, lazy, Suspense } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -69,7 +69,7 @@ const ProjectsSection = () => {
       {/* Depth Gradient Overlay */}
       <div className="absolute inset-0 z-[1] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,hsl(var(--background)/0.6)_100%)]" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto max-w-[1240px]">
+      <div className="relative z-10 mx-auto max-w-[1360px]">
         <SectionHeader
           badge={t.projects.badge}
           badgeIcon={<Sparkles className="h-3 w-3" />}
@@ -79,10 +79,10 @@ const ProjectsSection = () => {
         />
 
         {/* Interactive Filter & View Toolbar */}
-        <div className="mb-10 space-y-4">
+        <div className="mb-6 space-y-3">
           {/* Category Pills with Mobile Snap-Rail */}
           <div className="flex items-center justify-center px-2">
-            <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm overflow-x-auto scrollbar-none max-w-full snap-x snap-mandatory">
+            <div className="flex items-center justify-start sm:justify-center gap-1 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm overflow-x-auto scrollbar-none max-w-full snap-x snap-mandatory">
               {categories.map((category) => {
                 const isActive = activeCategory === category.id;
                 return (
@@ -94,7 +94,7 @@ const ProjectsSection = () => {
                       hapticSelection();
                       setActiveCategory(category.id);
                     }}
-                    className={`relative px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[40px] cursor-pointer flex items-center gap-1.5 ${
+                    className={`relative px-3 sm:px-3.5 py-1 text-xs font-semibold font-['Geist'] rounded-xl transition-all whitespace-nowrap shrink-0 snap-center min-h-[34px] cursor-pointer flex items-center gap-1.5 ${
                       isActive
                         ? "text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -109,7 +109,7 @@ const ProjectsSection = () => {
                     )}
                     <span className="relative z-10">{category.label}</span>
                     <span
-                      className={`relative z-10 font-mono text-[10px] px-1.5 py-0.5 rounded-md ${
+                      className={`relative z-10 font-mono text-[9px] px-1.5 py-0.2 rounded-md ${
                         isActive
                           ? "bg-primary-foreground/20 text-primary-foreground font-bold"
                           : "bg-secondary text-muted-foreground"
@@ -124,21 +124,21 @@ const ProjectsSection = () => {
           </div>
 
           {/* Search bar & View switch row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 max-w-3xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 max-w-2xl mx-auto">
             {/* Live Search Input */}
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder={t.projects.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-border/70 bg-card/70 backdrop-blur-md pl-9 pr-4 py-1.5 text-xs font-['Geist'] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                className="w-full rounded-full border border-border/70 bg-card/70 backdrop-blur-md pl-8 pr-4 py-1 text-xs font-['Geist'] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                 >
                   ✕
                 </button>
@@ -147,24 +147,24 @@ const ProjectsSection = () => {
 
             {/* Results counter & Layout switcher */}
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted-foreground">
+              <span className="font-mono text-[11px] text-muted-foreground">
                 {t.projects.found} <strong className="text-foreground">{filteredProjects.length}</strong> {t.projects.of} {projectsData.length}
               </span>
 
-              <div className="flex items-center rounded-xl border border-border/60 bg-card/60 backdrop-blur-md p-1 shadow-sm">
+              <div className="flex items-center rounded-lg border border-border/60 bg-card/60 backdrop-blur-md p-0.5 shadow-sm">
                 <button
                   onClick={() => {
                     soundEngine.playClick();
                     hapticLight();
                     setViewMode("grid");
                   }}
-                  className={`p-1.5 rounded-lg transition-colors ${
+                  className={`p-1 rounded transition-colors cursor-pointer ${
                     viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
-                  aria-label="Widok siatki Bento"
-                  title="Siatka Bento"
+                  aria-label="Widok kompaktowej siatki wielokolumnowej"
+                  title="Siatka 4-kolumnowa"
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => {
@@ -172,29 +172,29 @@ const ProjectsSection = () => {
                     hapticLight();
                     setViewMode("list");
                   }}
-                  className={`p-1.5 rounded-lg transition-colors ${
+                  className={`p-1 rounded transition-colors cursor-pointer ${
                     viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                   aria-label="Widok listy inżynierskiej"
                   title="Lista inżynierska"
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bento Grid (with Mobile Horizontal Snap-Swipe) or Engineering List View */}
+        {/* Compact 4-Column Responsive Grid or Engineering List View */}
         {viewMode === "grid" ? (
           <div className="relative">
             <motion.div
               layout
-              className="flex sm:grid sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-7 overflow-x-auto sm:overflow-visible snap-x snap-mandatory pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none"
+              className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5 overflow-x-auto sm:overflow-visible snap-x snap-mandatory pb-3 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-none"
             >
               <AnimatePresence mode="popLayout">
                 {filteredProjects.map((project, i) => (
-                  <div key={project.id} className="w-[86vw] sm:w-auto shrink-0 snap-center">
+                  <div key={project.id} className="w-[78vw] sm:w-auto shrink-0 snap-center">
                     <ProjectCard
                       project={project}
                       index={i}
@@ -205,74 +205,74 @@ const ProjectsSection = () => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Mobile Swipe Hint and dots */}
-            <div className="flex sm:hidden items-center justify-center gap-1.5 pt-2 pb-1">
+            {/* Mobile Swipe Hint */}
+            <div className="flex sm:hidden items-center justify-center gap-1 pt-2 pb-1">
               <span className="text-[10px] font-mono text-muted-foreground/70">
                 {t.projects.swipeHint}
               </span>
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <AnimatePresence mode="popLayout">
               {filteredProjects.map((project, i) => (
                 <motion.div
                   key={project.id}
                   layout
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25, delay: i * 0.04 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.18, delay: i * 0.02 }}
                   onClick={() => setSelectedProject(project)}
-                  className="group flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 hover:border-primary/50 hover:bg-card hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  className="group flex flex-col md:flex-row md:items-center justify-between gap-2.5 rounded-xl border border-border/80 bg-card/80 backdrop-blur-xl p-2.5 sm:p-3 hover:border-primary/50 hover:bg-card hover:shadow-md transition-all duration-200 cursor-pointer"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="h-16 w-24 object-cover rounded-xl border border-border/60 shrink-0"
+                      className="h-11 w-16 object-cover rounded-lg border border-border/60 shrink-0"
                     />
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-['Geist'] text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                        <h3 className="font-['Geist'] text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
                           {project.title}
                         </h3>
-                        <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 font-mono text-[10px] text-primary">
+                        <span className="rounded-full bg-primary/10 border border-primary/20 px-1.5 py-0.2 font-mono text-[9px] text-primary">
                           {project.categoryLabel}
                         </span>
                       </div>
-                      <p className="font-['Geist'] text-xs text-muted-foreground line-clamp-1 max-w-xl">
+                      <p className="font-['Geist'] text-[11px] text-muted-foreground line-clamp-1 max-w-xl">
                         {project.description}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 justify-between md:justify-end shrink-0">
-                    <div className="hidden sm:flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap items-center gap-2 justify-between md:justify-end shrink-0">
+                    <div className="hidden sm:flex flex-wrap gap-1">
                       {project.tags.slice(0, 3).map((t) => (
-                        <span key={t} className="rounded-lg bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                        <span key={t} className="rounded bg-secondary px-1.5 py-0.2 font-mono text-[9px] text-muted-foreground">
                           {t}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <a
                         href={project.demo}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-secondary text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                        className="flex h-6.5 w-6.5 items-center justify-center rounded-md border border-border bg-secondary text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
                         title={t.projects.viewLive}
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3 w-3" />
                       </a>
                       <button
                         onClick={() => setSelectedProject(project)}
-                        className="flex items-center gap-1 rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all"
+                        className="flex items-center gap-1 rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all cursor-pointer"
                       >
                         <span>{t.projects.caseStudy}</span>
-                        <ArrowRight className="h-3 w-3" />
+                        <ArrowRight className="h-2.5 w-2.5" />
                       </button>
                     </div>
                   </div>
@@ -284,15 +284,15 @@ const ProjectsSection = () => {
 
         {/* Empty state when no projects match */}
         {filteredProjects.length === 0 && (
-          <div className="py-16 text-center space-y-3">
-            <p className="font-['Geist'] text-lg font-bold text-foreground">{t.projects.emptyTitle}</p>
-            <p className="text-sm text-muted-foreground font-mono">{t.projects.emptyDesc}</p>
+          <div className="py-12 text-center space-y-2">
+            <p className="font-['Geist'] text-base font-bold text-foreground">{t.projects.emptyTitle}</p>
+            <p className="text-xs text-muted-foreground font-mono">{t.projects.emptyDesc}</p>
             <button
               onClick={() => {
                 setSearchQuery("");
                 setActiveCategory("all");
               }}
-              className="mt-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+              className="mt-2 rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground cursor-pointer"
             >
               {t.projects.reset}
             </button>
@@ -301,23 +301,23 @@ const ProjectsSection = () => {
 
         {/* Call-to-action bottom */}
         <motion.div
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
+          className="mt-8 text-center"
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
         >
-          <p className="text-muted-foreground font-['Geist'] mb-4 text-sm">
+          <p className="text-muted-foreground font-['Geist'] mb-3 text-xs">
             {t.projects.bottomHeading}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             <a
               href="https://github.com/gkdev"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 backdrop-blur-md px-5 py-2.5 text-xs font-medium font-['Geist'] text-foreground hover:border-primary/40 hover:text-primary transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/60 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium font-['Geist'] text-foreground hover:border-primary/40 hover:text-primary transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <Github className="h-4 w-4" />
+              <Github className="h-3.5 w-3.5" />
               {t.projects.githubCta}
             </a>
             <a
@@ -326,9 +326,9 @@ const ProjectsSection = () => {
                 e.preventDefault();
                 document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-medium font-['Geist'] text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-medium font-['Geist'] text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-3 w-3" />
               {t.projects.startProjectCta}
             </a>
           </div>

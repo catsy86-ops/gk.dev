@@ -870,3 +870,15 @@ export const allProjectsData: ProjectData[] = [
     ],
   },
 ];
+
+/**
+ * Pre-indeksowana mapa O(1) do błyskawicznego wyszukiwania projektów po ID w modalach
+ */
+export const projectsById: Readonly<Record<string, ProjectData>> = Object.freeze(
+  Object.fromEntries(allProjectsData.map((project) => [project.id, project]))
+);
+
+export function getProjectById(id: string): ProjectData | undefined {
+  return projectsById[id];
+}
+

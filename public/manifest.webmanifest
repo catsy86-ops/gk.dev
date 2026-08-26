@@ -1,16 +1,19 @@
 {
-  "name": "GK.dev — Senior Fullstack Developer & Cloud Architect",
+  "name": "GK.dev — Senior Full-Stack & Cloud Architect",
   "short_name": "GK.dev",
-  "description": "Portfolio inżynierskie, case studies 22 aplikacji produkcyjnych, kalkulator wycen i laboratorium architektury systemów.",
-  "start_url": "/",
+  "description": "Portfolio inżynierskie, case studies systemów chmurowych, darmowy kurs JavaScript i interaktywny terminal CLI.",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#090d16",
   "theme_color": "#3b82f6",
   "lang": "pl",
   "dir": "ltr",
-  "categories": ["portfolio", "developer", "productivity", "business"],
+  "prefer_related_applications": false,
+  "categories": ["portfolio", "developer", "productivity", "business", "education"],
   "icons": [
     {
       "src": "/icon-192.svg",
@@ -34,8 +37,22 @@
     {
       "name": "Projekty & Case Studies",
       "short_name": "Projekty",
-      "description": "Przeglądaj 22 aplikacje produkcyjne i case studies",
+      "description": "Przeglądaj aplikacje produkcyjne, architekturę i case studies",
       "url": "/#projekty",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kurs JavaScript ES6+",
+      "short_name": "Kurs JS",
+      "description": "Darmowy interaktywny kurs programowania z konsolą kodu i quizami",
+      "url": "/#kurs-js",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Interaktywny Terminal CLI",
+      "short_name": "Terminal",
+      "description": "Uruchom terminal deweloperski z minigrami i narzędziami",
+      "url": "/#hero",
       "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     },
     {
@@ -43,13 +60,6 @@
       "short_name": "Wycena",
       "description": "Oszacuj koszt i czas realizacji aplikacji",
       "url": "/#kontakt",
-      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
-    },
-    {
-      "name": "Strefa Klienta",
-      "short_name": "Klient",
-      "description": "Zapisane projekty i briefy technologiczne",
-      "url": "/#projekty",
       "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     }
   ]

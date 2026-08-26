@@ -2,13 +2,13 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkillsSection from "@/components/SkillsSection";
 import TechMarquee from "@/components/TechMarquee";
 import ProjectsSection from "@/components/ProjectsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import ArticlesSection from "@/components/ArticlesSection";
+import JsCourseSection from "@/components/JsCourseSection";
 import ContactSection from "@/components/ContactSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
@@ -20,10 +20,16 @@ import { MobileDock } from "@/components/MobileDock";
 import { isSlowConnection } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { soundEngine } from "@/lib/audio";
+import { hapticMedium } from "@/lib/haptics";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 const TerminalDialog = lazy(() =>
   import("@/components/TerminalDialog").then((m) => ({ default: m.TerminalDialog }))
+);
+const DevPassportModal = lazy(() =>
+  import("@/components/DevPassportModal").then((m) => ({ default: m.DevPassportModal }))
 );
 
 function useShouldLoadHeavyContent() {
@@ -60,6 +66,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   const isAuthRoute =
@@ -85,20 +92,40 @@ const Index = ({ initialAuthModal }: IndexProps) => {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Toggle terminal on ` or ~ key if not typing in form input
-      if (
-        (e.key === "`" || e.key === "~") &&
-        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault();
-        setIsTerminalOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+  const handleOpenTerminal = useCallback(() => {
+    soundEngine.playPop(850, 0.03);
+    hapticMedium();
+    setIsTerminalOpen(true);
   }, []);
+
+  const handleOpenPassport = useCallback(() => {
+    soundEngine.playPop(850, 0.03);
+    hapticMedium();
+    setIsPassportOpen(true);
+  }, []);
+
+  const handleFocusSearch = useCallback(() => {
+    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+    if (input) {
+      input.focus();
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, []);
+
+  const handleOpenEstimator = useCallback(() => {
+    const el = document.getElementById("kontakt");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  // Global Power-User Hotkeys (/, T, P, E)
+  useKeyboardShortcuts({
+    onOpenTerminal: handleOpenTerminal,
+    onOpenPassport: handleOpenPassport,
+    onFocusSearch: handleFocusSearch,
+    onOpenEstimator: handleOpenEstimator,
+  });
 
   return (
     <>
@@ -109,8 +136,14 @@ const Index = ({ initialAuthModal }: IndexProps) => {
       <ClickSpark />
       <CustomCursor />
       <ScrollProgress />
-      <Navbar onOpenTerminal={() => setIsTerminalOpen(true)} />
-      <MobileDock />
+      <Navbar
+        onOpenTerminal={handleOpenTerminal}
+        onOpenPassport={handleOpenPassport}
+      />
+      <MobileDock
+        onOpenTerminal={handleOpenTerminal}
+        onOpenPassport={handleOpenPassport}
+      />
       <ScrollToTop />
       <main id="main">
         <HeroSection />
@@ -126,7 +159,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         <TechMarquee />
         <ProjectsSection />
         <TestimonialsSection />
-        <ArticlesSection />
+        <JsCourseSection />
         <ContactSection />
         <FaqSection className="bg-secondary/30" />
       </main>
@@ -138,6 +171,16 @@ const Index = ({ initialAuthModal }: IndexProps) => {
           <TerminalDialog
             isOpen={isTerminalOpen}
             onClose={() => setIsTerminalOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Dev Passport & Gamification Modal */}
+      {isPassportOpen && (
+        <Suspense fallback={null}>
+          <DevPassportModal
+            isOpen={isPassportOpen}
+            onClose={() => setIsPassportOpen(false)}
           />
         </Suspense>
       )}

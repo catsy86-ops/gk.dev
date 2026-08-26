@@ -22,6 +22,7 @@ import {
   Bot,
   LogIn,
   Bookmark,
+  Code2,
   X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -111,6 +112,7 @@ export const CommandPalette = ({
     { id: "o-mnie", label: "O mnie & Doświadczenie", category: "Nawigacja", icon: User, action: () => scrollTo("o-mnie"), keywords: ["bio", "doswiadczenie", "edukacja", "career"] },
     { id: "umiejetnosci", label: "Umiejętności & Tech Stack", category: "Nawigacja", icon: Wrench, action: () => scrollTo("umiejetnosci"), keywords: ["skills", "stack", "react", "typescript", "node"] },
     { id: "projekty", label: "Realizacje & Case Studies (Projekty)", category: "Nawigacja", icon: FolderOpen, action: () => scrollTo("projekty"), keywords: ["projekty", "portfolio", "realizacje", "case studies", "apps"] },
+    { id: "kurs-js", label: "Darmowy Mini-Kurs JavaScript (ES6+)", category: "Nawigacja", icon: Code2, action: () => scrollTo("kurs-js"), keywords: ["kurs", "javascript", "js", "nauka", "darmowy kurs", "programowanie", "es6"] },
     { id: "kontakt", label: "Formularz kontaktowy", category: "Nawigacja", icon: Mail, action: () => scrollTo("kontakt"), keywords: ["contact", "napisz", "email", "wiadomosc"] },
     { id: "faq", label: "Często zadawane pytania (FAQ)", category: "Nawigacja", icon: HelpCircle, action: () => scrollTo("faq"), keywords: ["pytania", "pomoc", "wycena", "cena"] },
 

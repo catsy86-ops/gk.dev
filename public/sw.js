@@ -1,5 +1,14 @@
-const CACHE_NAME = "gkdev-pwa-v1";
-const STATIC_ASSETS = [
+// GK.dev Advanced PWA Service Worker v2.0
+// High-Performance Multi-Tier Caching & Offline Resilience
+
+const CACHE_VERSION = "v2";
+const CACHE_NAMES = {
+  core: `gkdev-core-${CACHE_VERSION}`,
+  assets: `gkdev-assets-${CACHE_VERSION}`,
+  runtime: `gkdev-runtime-${CACHE_VERSION}`,
+};
+
+const PRECACHE_ASSETS = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
@@ -8,109 +17,145 @@ const STATIC_ASSETS = [
   "/icon-512.svg",
 ];
 
-// Install event - precache core shell
+// Max items for dynamic caches to prevent unbounded storage consumption
+const MAX_RUNTIME_ITEMS = 60;
+
+async function trimCache(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    await cache.delete(keys[0]);
+    trimCache(cacheName, maxItems);
+  }
+}
+
+// 1. Install Event: Pre-cache application shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    caches
+      .open(CACHE_NAMES.core)
+      .then((cache) => {
+        return cache.addAll(PRECACHE_ASSETS);
+      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - clean up previous cache versions
+// 2. Activate Event: Purge obsolete cache tiers
 self.addEventListener("activate", (event) => {
+  const currentCaches = Object.values(CACHE_NAMES);
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cache) => {
+            if (!currentCaches.includes(cache)) {
+              return caches.delete(cache);
+            }
+          })
+        );
+      })
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch event - Cache-First for static assets, Network-First for navigation
+// 3. Fetch Event: Intelligent multi-strategy caching
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip cross-origin requests (except Google Fonts / unpkg if needed) and non-GET requests
-  if (request.method !== "GET") return;
+  // Skip non-GET requests and browser-extension or chrome-extension schemes
+  if (request.method !== "GET" || !url.protocol.startsWith("http")) return;
 
-  // For HTML navigation requests: Network-First with cache fallback
+  // A. Navigation requests (HTML pages): Network-First with Cache Fallback
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
           if (response.status === 200) {
             const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+            caches.open(CACHE_NAMES.core).then((cache) => {
+              cache.put(request, responseClone);
+            });
           }
           return response;
         })
-        .catch(() => {
-          return caches.match(request).then((cachedResponse) => {
-            return cachedResponse || caches.match("/index.html");
-          });
+        .catch(async () => {
+          const cachedPage = await caches.match(request);
+          if (cachedPage) return cachedPage;
+          const fallbackShell = await caches.match("/index.html");
+          return fallbackShell || Response.error();
         })
     );
     return;
   }
 
-  // For static assets (JS, CSS, SVGs, Fonts, Images): Cache-First
-  if (
+  // B. Static Assets (Vite Bundles, Styles, SVGs, WOFF2 Fonts): Cache-First + Stale-While-Revalidate
+  const isStaticAsset =
     url.pathname.startsWith("/assets/") ||
     url.pathname.endsWith(".svg") ||
     url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".webp") ||
     url.pathname.endsWith(".woff2") ||
     url.hostname.includes("fonts.googleapis.com") ||
-    url.hostname.includes("fonts.gstatic.com")
-  ) {
+    url.hostname.includes("fonts.gstatic.com");
+
+  if (isStaticAsset) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          // Revalidate in background (Stale-While-Revalidate)
-          fetch(request).then((networkResponse) => {
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAMES.assets).then((cache) => {
+                cache.put(request, responseClone);
+              });
             }
-          }).catch(() => {});
-          return cachedResponse;
-        }
-
-        return fetch(request).then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200) {
             return networkResponse;
-          }
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-          return networkResponse;
-        });
+          })
+          .catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
       })
     );
     return;
   }
 
-  // Default: Network with Cache Fallback
+  // C. Dynamic & API requests: Network-First with Runtime Cache Fallback
   event.respondWith(
     fetch(request)
-      .then((response) => {
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAMES.runtime).then((cache) => {
+            cache.put(request, responseClone);
+            trimCache(CACHE_NAMES.runtime, MAX_RUNTIME_ITEMS);
+          });
         }
-        return response;
+        return networkResponse;
       })
-      .catch(() => caches.match(request))
+      .catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        return new Response(JSON.stringify({ offline: true, message: "Offline mode active" }), {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        });
+      })
   );
 });
 
-// Listen for message events (e.g. skipWaiting trigger from UI)
+// 4. Message Event: Remote control (skipWaiting, cache clear)
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
+  if (event.data) {
+    if (event.data.type === "SKIP_WAITING") {
+      self.skipWaiting();
+    }
+    if (event.data.type === "CLEAR_CACHE") {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => caches.delete(key));
+      });
+    }
   }
 });

@@ -54,7 +54,7 @@ const Footer = () => {
     { label: t.nav.skills, href: "#umiejetnosci" },
     { label: t.nav.projects, href: "#projekty" },
     { label: t.nav.reviews, href: "#opinie" },
-    { label: t.nav.articles, href: "#artykuly" },
+    { label: t.nav.course, href: "#kurs-js" },
     { label: t.nav.faq, href: "#faq" },
     { label: t.nav.contact, href: "#kontakt" },
     { label: t.nav.downloadCv, href: "/cv.pdf", isDownload: true },

@@ -11,7 +11,7 @@ test.describe("Navigation", () => {
     await expect(nav.locator("text=O mnie")).toBeVisible();
     await expect(nav.locator("text=Umiejętności")).toBeVisible();
     await expect(nav.locator("text=Projekty")).toBeVisible();
-    await expect(nav.locator("text=Kontakt")).toBeVisible();
+    await expect(nav.locator("text=Napisz")).toBeVisible();
   });
 
   test("scroll progress bar exists and updates", async ({ page }) => {

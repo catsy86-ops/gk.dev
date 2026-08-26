@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Calculator, X, Check, ArrowRight, ArrowLeft, Sparkles, Layers, Clock, Send } from "lucide-react";
+import { Calculator, X, Check, ArrowRight, ArrowLeft, Sparkles, Layers, Clock, Send, Share2, Printer } from "lucide-react";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight, hapticSuccess, hapticSelection } from "@/lib/haptics";
+import { hapticLight, hapticSuccess, hapticSelection, hapticMedium } from "@/lib/haptics";
 import { triggerConfetti } from "@/lib/confetti";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
+import { useAchievements } from "@/hooks/use-achievements";
+import { toast } from "@/hooks/use-toast";
 
 interface ProjectEstimatorModalProps {
   isOpen: boolean;
@@ -99,6 +101,8 @@ export const ProjectEstimatorModal = ({
     };
   }, [selectedType, selectedFeatures, selectedTimeline]);
 
+  const { unlock } = useAchievements();
+
   const toggleFeature = (id: string) => {
     soundEngine.playPop(750, 0.03);
     hapticLight();
@@ -107,10 +111,33 @@ export const ProjectEstimatorModal = ({
     );
   };
 
+  const handleCopyShareLink = () => {
+    soundEngine.playClick();
+    hapticMedium();
+    const typeName = projectTypes.find((p) => p.id === selectedType)?.name;
+    const text = `📋 Wycena Projektu GK.dev: ${typeName} (~${calculation.minPrice.toLocaleString("pl-PL")} - ${calculation.maxPrice.toLocaleString("pl-PL")} PLN, ~${calculation.totalWeeks} tyg.). Szczegóły: ${window.location.origin}/#kontakt`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      toast({
+        title: "Skopiowano specyfikację do schowka!",
+        description: "Możesz przesłać wycenę swojemu zespołowi.",
+      });
+    }
+  };
+
+  const handlePrintBrief = () => {
+    soundEngine.playClick();
+    hapticMedium();
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
   const handleApply = () => {
     soundEngine.playChime();
     hapticSuccess();
     triggerConfetti();
+    unlock("quote_creator");
     const typeName = projectTypes.find((p) => p.id === selectedType)?.name;
     const featNames = selectedFeatures
       .map((fId) => featuresList.find((f) => f.id === fId)?.name)
@@ -343,11 +370,30 @@ export const ProjectEstimatorModal = ({
                       <p className="font-mono text-xs text-muted-foreground mt-0.5">
                         Szacowany czas realizacji: ~{calculation.totalWeeks} tygodni
                       </p>
+
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          type="button"
+                          onClick={handleCopyShareLink}
+                          className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground bg-secondary/80 hover:bg-secondary px-2.5 py-1 rounded-lg border border-border/50 transition-colors cursor-pointer"
+                        >
+                          <Share2 className="h-3 w-3 text-primary" />
+                          <span>Kopiuj link</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handlePrintBrief}
+                          className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground bg-secondary/80 hover:bg-secondary px-2.5 py-1 rounded-lg border border-border/50 transition-colors cursor-pointer"
+                        >
+                          <Printer className="h-3 w-3 text-primary" />
+                          <span>Drukuj / PDF</span>
+                        </button>
+                      </div>
                     </div>
 
                     <button
                       onClick={handleApply}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform cursor-pointer"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform cursor-pointer shrink-0"
                     >
                       <Send className="h-4 w-4" />
                       <span>Wyślij z tą wyceną</span>

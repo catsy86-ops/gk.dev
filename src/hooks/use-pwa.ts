@@ -15,12 +15,20 @@ export function usePwa() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
   const [hasUpdate, setHasUpdate] = useState(false);
 
   // Register service worker and listen for events
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Check if device is iOS Safari (where beforeinstallprompt is not natively emitted)
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+    // @ts-expect-error - MSStream check
+    const isNotWindows = !window.MSStream;
+    setIsIos(isIosDevice && isNotWindows);
 
     // Check if running as installed standalone PWA
     const isStandalone =
@@ -117,12 +125,25 @@ export function usePwa() {
     }
   }, []);
 
+  const clearAppCache = useCallback(async () => {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: "CLEAR_CACHE" });
+      }
+      window.location.reload();
+    }
+  }, []);
+
   return {
     isInstallable,
     isInstalled,
+    isIos,
     isOnline,
     hasUpdate,
     promptInstall,
     applyUpdate,
+    clearAppCache,
   };
 }

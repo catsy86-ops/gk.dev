@@ -29,7 +29,7 @@ class MockIntersectionObserver implements IntersectionObserver {
   }
 
   observe(target: Element) {
-    observedElements.set(target, {
+    const entry: IntersectionObserverEntry = {
       isIntersecting: true,
       intersectionRatio: 1,
       target,
@@ -37,7 +37,13 @@ class MockIntersectionObserver implements IntersectionObserver {
       intersectionRect: {} as DOMRectReadOnly,
       rootBounds: null,
       time: Date.now(),
-    });
+    };
+    observedElements.set(target, entry);
+    try {
+      this.callback([entry], this);
+    } catch {
+      // ignore
+    }
   }
 
   unobserve = vi.fn();
@@ -92,6 +98,7 @@ if (typeof HTMLCanvasElement !== "undefined") {
         resetTransform: vi.fn(),
         beginPath: vi.fn(),
         arc: vi.fn(),
+        ellipse: vi.fn(),
         fill: vi.fn(),
         stroke: vi.fn(),
         moveTo: vi.fn(),

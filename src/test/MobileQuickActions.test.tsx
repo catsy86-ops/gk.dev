@@ -7,13 +7,14 @@ describe("MobileQuickActions", () => {
     const onClose = vi.fn();
     render(<MobileQuickActions isOpen={true} onClose={onClose} />);
 
-    expect(screen.getByText("Szybki Kontakt & Udostępnianie")).toBeInTheDocument();
-    expect(screen.getByText("Udostępnij profil")).toBeInTheDocument();
-    expect(screen.getByText("Pobierz CV (PDF)")).toBeInTheDocument();
-    expect(screen.getByText("Napisz Email")).toBeInTheDocument();
-    expect(screen.getByText("Kopiuj Telefon")).toBeInTheDocument();
+    expect(screen.getByText(/Szybkie Akcje & Narzędzia/i)).toBeInTheDocument();
+    expect(screen.getByText(/Terminal Deweloperski \(CLI\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Udostępnij profil/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pobierz CV \(PDF\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Napisz Email/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kopiuj Telefon/i)).toBeInTheDocument();
 
-    const shareBtn = screen.getByText("Udostępnij profil");
+    const shareBtn = screen.getByText(/Udostępnij profil/i);
     fireEvent.click(shareBtn);
   });
 });

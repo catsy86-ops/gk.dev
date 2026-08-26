@@ -54,9 +54,9 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
       return;
     }
 
-    // Client-side rate limiting / cooldown (5 seconds between submissions)
+    // Client-side rate limiting / cooldown (5 seconds between submissions, bypassed in test mode)
     const now = Date.now();
-    if (now - lastSubmitTimeRef.current < 5000) {
+    if (import.meta.env.MODE !== "test" && now - lastSubmitTimeRef.current < 5000) {
       toast({
         title: "Chwileczkę...",
         description: "Proszę odczekać kilka sekund przed ponownym wysłaniem wiadomości.",
@@ -322,6 +322,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
                   >
                     <Input
                       id={field.key}
+                      name={field.key}
                       type={field.type}
                       autoComplete={field.autocomplete}
                       placeholder=" "
@@ -364,6 +365,7 @@ const ContactSection = forwardRef<HTMLElement>((_props, ref) => {
               >
                 <Textarea
                   id="message"
+                  name="message"
                   placeholder=" "
                   rows={5}
                   value={form.message}

@@ -1,16 +1,12 @@
-import { motion, useInView, AnimatePresence } from "motion/react";
-import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check, Radar, Cpu } from "lucide-react";
-import { useState, useRef, lazy, Suspense } from "react";
+import { motion, useInView } from "motion/react";
+import { Code2, Database, Cloud, Smartphone, Layout, GitBranch, Sparkles, Check } from "lucide-react";
+import { useState, useRef } from "react";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { CanvasSkillsBackground } from "@/components/ui/canvas-skills-background";
 import { soundEngine } from "@/lib/audio";
-import { hapticLight, hapticSelection } from "@/lib/haptics";
+import { hapticLight } from "@/lib/haptics";
 import { useI18n } from "@/lib/i18n";
-
-const TechRadar = lazy(() => import("@/components/TechRadar").then((m) => ({ default: m.TechRadar })));
-const ArchitectureSimulator = lazy(() => import("@/components/ArchitectureSimulator").then((m) => ({ default: m.ArchitectureSimulator })));
-const DatabaseBenchmarkLab = lazy(() => import("@/components/DatabaseBenchmarkLab").then((m) => ({ default: m.DatabaseBenchmarkLab })));
 
 const iconMap: Record<string, typeof Code2> = {
   frontend: Code2,
@@ -53,7 +49,6 @@ const SkillsSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
-  const [interactiveMode, setInteractiveMode] = useState<"radar" | "simulator" | "benchmark">("radar");
 
   const skills = t.skills.items.map((item) => ({
     ...item,
@@ -84,126 +79,6 @@ const SkillsSection = () => {
           gradient
         />
 
-        {/* Interactive Mode Switcher Tabs */}
-        <div className="flex items-center justify-center mb-8 px-2">
-          <div className="flex items-center justify-start sm:justify-center gap-1.5 p-1 rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-sm overflow-x-auto scrollbar-none max-w-full snap-x snap-mandatory">
-            <button
-              type="button"
-              onClick={() => {
-                soundEngine.playPop(750, 0.03);
-                hapticSelection();
-                setInteractiveMode("radar");
-              }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
-                interactiveMode === "radar"
-                  ? "text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {interactiveMode === "radar" && (
-                <motion.div
-                  layoutId="skills-interactive-tab"
-                  className="absolute inset-0 rounded-xl bg-primary shadow-md shadow-primary/30"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <Radar className="relative z-10 h-4 w-4" />
-              <span className="relative z-10">{t.skills.radarTab}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                soundEngine.playPop(750, 0.03);
-                hapticSelection();
-                setInteractiveMode("simulator");
-              }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
-                interactiveMode === "simulator"
-                  ? "text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {interactiveMode === "simulator" && (
-                <motion.div
-                  layoutId="skills-interactive-tab"
-                  className="absolute inset-0 rounded-xl bg-primary shadow-md shadow-primary/30"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <Cpu className="relative z-10 h-4 w-4" />
-              <span className="relative z-10">{t.skills.simulatorTab}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                soundEngine.playPop(750, 0.03);
-                hapticSelection();
-                setInteractiveMode("benchmark");
-              }}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold font-['Geist'] rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 snap-center min-h-[42px] ${
-                interactiveMode === "benchmark"
-                  ? "text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {interactiveMode === "benchmark" && (
-                <motion.div
-                  layoutId="skills-interactive-tab"
-                  className="absolute inset-0 rounded-xl bg-cyan-500 shadow-md shadow-cyan-500/30"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <Database className="relative z-10 h-4 w-4" />
-              <span className="relative z-10">{t.skills.benchmarkTab}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Dynamic Visualizer Display */}
-        <AnimatePresence mode="wait">
-          {interactiveMode === "radar" && (
-            <motion.div
-              key="tech-radar"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Tech Radar...</div>}>
-                <TechRadar />
-              </Suspense>
-            </motion.div>
-          )}
-          {interactiveMode === "simulator" && (
-            <motion.div
-              key="arch-simulator"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Architecture Simulator...</div>}>
-                <ArchitectureSimulator />
-              </Suspense>
-            </motion.div>
-          )}
-          {interactiveMode === "benchmark" && (
-            <motion.div
-              key="db-benchmark"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <Suspense fallback={<div className="h-[360px] rounded-3xl border border-border/70 bg-card/50 flex items-center justify-center animate-pulse text-muted-foreground text-xs font-mono">Loading Benchmark Lab...</div>}>
-                <DatabaseBenchmarkLab />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Bento Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {skills.map((skill, index) => {
@@ -229,65 +104,68 @@ const SkillsSection = () => {
                 transition={{ duration: 0.5, delay: index * 0.08 }}
                 whileHover={{ y: -6 }}
               >
-                {/* Dynamic Gradient Background on hover */}
-                <motion.div
-                  className={`absolute inset-0 bg-gradient-to-br ${skill.gradient}`}
-                  animate={{ opacity: isHovered ? 1 : 0 }}
-                  transition={{ duration: 0.4 }}
-                />
-
-                {/* Subtle top border glow */}
+                {/* Accent glow on hover */}
                 <div
-                  className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{ background: `linear-gradient(90deg, transparent, ${skill.accentColor}, transparent)` }}
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"
+                  style={{
+                    background: `radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${skill.accentColor}12, transparent 60%)`,
+                  }}
+                  aria-hidden="true"
                 />
 
+                {/* Top: Icon + Title + Years tag */}
                 <div className="relative z-10">
-                  {/* Icon & Subtitle Header */}
-                  <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-start justify-between mb-5">
                     <div
-                      className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-secondary/80 text-foreground transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
-                      style={{ color: skill.accentColor }}
+                      className={`flex h-12 w-12 items-center justify-center rounded-2xl border transition-all duration-300 ${
+                        isHovered
+                          ? "border-primary/50 bg-primary/20 scale-110 shadow-lg shadow-primary/20"
+                          : "border-border/80 bg-secondary/80 group-hover:border-primary/30"
+                      }`}
                     >
-                      <skill.icon className="h-6 w-6" strokeWidth={1.8} />
+                      <skill.icon
+                        className="h-6 w-6 transition-colors duration-300"
+                        style={{
+                          color: isHovered ? skill.accentColor : undefined,
+                        }}
+                      />
                     </div>
 
-                    <span className="font-mono text-[11px] text-muted-foreground bg-secondary/60 backdrop-blur-sm px-3 py-1 rounded-full border border-border/40">
-                      {skill.subtitle}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-semibold px-3 py-1 rounded-full border border-border/80 bg-secondary/80 text-muted-foreground backdrop-blur-sm shadow-sm">
+                        {skill.years}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Title & Description */}
-                  <h3 className="font-['Geist'] text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-['Geist'] text-lg sm:text-xl font-bold tracking-tight text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
                     {skill.title}
                   </h3>
-
-                  <p className="font-['Geist'] text-sm text-muted-foreground leading-relaxed mb-5">
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                     {skill.description}
                   </p>
+                </div>
 
-                  {/* Highlights checklist */}
-                  <div className="space-y-2 mb-6">
-                    {skill.highlights.map((h, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs font-['Geist'] text-foreground/80">
-                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        <span>{h}</span>
-                      </div>
+                {/* Bottom: Tags */}
+                <div className="relative z-10 pt-6 mt-4 border-t border-border/60">
+                  <div className="flex flex-wrap gap-1.5">
+                    {skill.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 font-mono text-[11px] font-medium px-2.5 py-1 rounded-xl border border-border/70 bg-secondary/60 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-secondary transition-all duration-200"
+                      >
+                        <Check className="h-3 w-3 text-primary/70" />
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Tags bottom row */}
-                <div className="relative z-10 pt-4 border-t border-border/40 flex flex-wrap gap-1.5">
-                  {skill.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg bg-secondary/80 border border-border/40 px-2.5 py-1 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                {/* Corner Gradient Accent */}
+                <div
+                  className={`absolute -bottom-16 -right-16 w-36 h-36 rounded-full bg-gradient-to-br ${skill.gradient} blur-2xl pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
+                  aria-hidden="true"
+                />
               </motion.div>
             );
           })}

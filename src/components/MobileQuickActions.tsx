@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Share2, Phone, Mail, Download, Sparkles, X, Check, Copy, User } from "lucide-react";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { Share2, Phone, Mail, Download, X, Terminal, User, Trophy } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 import { GoogleIcon, AuthModal } from "@/components/auth/AuthModal";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticSuccess, hapticMedium } from "@/lib/haptics";
@@ -12,12 +12,13 @@ import { useScrollLock } from "@/hooks/use-scroll-lock";
 interface MobileQuickActionsProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenTerminal?: () => void;
+  onOpenPassport?: () => void;
 }
 
-export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps) => {
+export const MobileQuickActions = ({ isOpen, onClose, onOpenTerminal, onOpenPassport }: MobileQuickActionsProps) => {
   useScrollLock(isOpen);
   const { isSignedIn, user } = useUser();
-  const { openSignIn } = useClerk();
   const [copied, setCopied] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
@@ -104,7 +105,7 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
             aria-modal="true"
             aria-label="Szybkie akcje mobilne"
           >
-            {/* Top drag handle pill (Tactile Indicator) */}
+            {/* Top drag handle pill */}
             <div className="w-full flex justify-center pb-2 cursor-grab active:cursor-grabbing">
               <div className="h-1.5 w-14 rounded-full bg-muted-foreground/40 hover:bg-primary transition-colors" />
             </div>
@@ -114,7 +115,7 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
               <div className="flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <h3 className="font-['Geist'] text-base font-bold text-foreground">
-                  Szybki Kontakt & Udostępnianie
+                  Szybkie Akcje & Narzędzia
                 </h3>
               </div>
 
@@ -133,6 +134,33 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
                 <X className="h-4 w-4 pointer-events-none" />
               </button>
             </div>
+
+            {/* Terminal CLI Mobile Banner */}
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playPop(850, 0.03);
+                hapticMedium();
+                onClose();
+                if (onOpenTerminal) {
+                  onOpenTerminal();
+                }
+              }}
+              className="w-full p-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 flex items-center justify-between gap-3 text-emerald-500 font-['Geist'] transition-colors cursor-pointer shadow-sm"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-black/80 border border-emerald-500/50 flex items-center justify-center text-emerald-400">
+                  <Terminal className="h-4.5 w-4.5" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-xs text-foreground">Terminal Deweloperski (CLI)</p>
+                  <p className="text-[10px] font-mono text-emerald-400">Graj w Snake, Matrix, komendy CLI</p>
+                </div>
+              </div>
+              <span className="font-mono text-xs font-bold px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/40">
+                Otwórz ~
+              </span>
+            </button>
 
             {/* Google Authentication & Client Portal Banner */}
             <div className="p-3.5 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/15 via-background to-primary/10 flex items-center justify-between gap-3 shadow-sm">
@@ -180,11 +208,31 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
 
             {/* Action Grid */}
             <div className="grid grid-cols-2 gap-3 pt-1">
+              {/* Dev Passport / Achievements */}
+              {onOpenPassport && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playPop(850, 0.03);
+                    hapticMedium();
+                    onClose();
+                    onOpenPassport();
+                  }}
+                  className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 p-4 text-amber-500 active:scale-95 transition-all cursor-pointer min-h-[80px] shadow-sm col-span-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5" />
+                    <span className="font-['Geist'] text-xs font-bold text-foreground">Paszport Dewelopera & Osiągnięcia (XP)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-muted-foreground">Zobacz swoje odznaki i poziom zaawansowania</span>
+                </button>
+              )}
+
               {/* Native Web Share */}
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 p-4 text-primary active:scale-95 transition-all cursor-pointer min-h-[85px] shadow-sm"
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 p-4 text-primary active:scale-95 transition-all cursor-pointer min-h-[80px] shadow-sm"
               >
                 <Share2 className="h-5 w-5" />
                 <span className="font-['Geist'] text-xs font-bold">
@@ -201,7 +249,7 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
                   hapticLight();
                   onClose();
                 }}
-                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[85px] shadow-sm"
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[80px] shadow-sm"
               >
                 <Download className="h-5 w-5 text-primary" />
                 <span className="font-['Geist'] text-xs font-bold">Pobierz CV (PDF)</span>
@@ -214,7 +262,7 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
                   soundEngine.playClick();
                   onClose();
                 }}
-                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[85px] shadow-sm"
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[80px] shadow-sm"
               >
                 <Mail className="h-5 w-5 text-primary" />
                 <span className="font-['Geist'] text-xs font-bold">Napisz Email</span>
@@ -224,7 +272,7 @@ export const MobileQuickActions = ({ isOpen, onClose }: MobileQuickActionsProps)
               <button
                 type="button"
                 onClick={handleCopyPhone}
-                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[85px] shadow-sm"
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border/80 bg-secondary/80 hover:bg-secondary p-4 text-foreground active:scale-95 transition-all cursor-pointer min-h-[80px] shadow-sm"
               >
                 <Phone className="h-5 w-5 text-emerald-500" />
                 <span className="font-['Geist'] text-xs font-bold">Kopiuj Telefon</span>

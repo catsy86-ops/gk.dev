@@ -28,9 +28,9 @@ const fadeUp = {
 const badgeGlow = {
   animate: {
     boxShadow: [
-      "0 0 0px hsl(var(--primary) / 0)",
-      "0 0 20px hsl(var(--primary) / 0.25)",
-      "0 0 0px hsl(var(--primary) / 0)",
+      "0 0 0px rgba(59, 130, 246, 0)",
+      "0 0 20px rgba(59, 130, 246, 0.25)",
+      "0 0 0px rgba(59, 130, 246, 0)",
     ],
   },
   transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
@@ -47,11 +47,10 @@ const floatingBadge = {
 };
 
 const headingReveal = {
-  hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
+  hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { delay: 0.15, duration: 0.8, ease: EASE_STANDARD },
   },
 };
@@ -292,14 +291,12 @@ const HeroSection = () => {
             />
           </span>
           {", jestem "}
-          <motion.span
+          <span
             className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent text-shadow-glow inline-block bg-[length:200%_auto]"
             style={{ fontSize: "clamp(44px, 6.9vw, 100px)" }}
-            animate={{ backgroundPosition: ["0% center", "200% center"] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           >
             Grzegorz
-          </motion.span>
+          </span>
         </motion.h1>
 
         {/* Description */}

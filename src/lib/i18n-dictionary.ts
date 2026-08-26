@@ -8,6 +8,7 @@ export interface Translations {
     projects: string;
     reviews: string;
     articles: string;
+    course: string;
     faq: string;
     contact: string;
     downloadCv: string;
@@ -222,6 +223,7 @@ export const translations: Record<Language, Translations> = {
       projects: "Projekty",
       reviews: "Opinie",
       articles: "Baza Wiedzy",
+      course: "Kurs JS",
       faq: "FAQ",
       contact: "Kontakt",
       downloadCv: "Pobierz CV",
@@ -593,6 +595,7 @@ export const translations: Record<Language, Translations> = {
       projects: "Projects",
       reviews: "Testimonials",
       articles: "Knowledge Base",
+      course: "JS Course",
       faq: "FAQ",
       contact: "Contact",
       downloadCv: "Resume PDF",

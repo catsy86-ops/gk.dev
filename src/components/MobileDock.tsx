@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Home, User, Wrench, FolderOpen, Send, Sparkles } from "lucide-react";
+import { Home, User, Wrench, FolderOpen, Send, Sparkles, Terminal } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { MobileQuickActions } from "@/components/MobileQuickActions";
@@ -19,7 +19,12 @@ const tabs = [
   { id: "projekty", label: "Projekty", href: "#projekty", icon: FolderOpen },
 ] as const;
 
-export const MobileDock = () => {
+interface MobileDockProps {
+  onOpenTerminal?: () => void;
+  onOpenPassport?: () => void;
+}
+
+export const MobileDock = ({ onOpenTerminal, onOpenPassport }: MobileDockProps) => {
   const { isSignedIn } = useUser();
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -71,7 +76,7 @@ export const MobileDock = () => {
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 90, opacity: 0, scale: 0.92 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="fixed bottom-4 inset-x-0 mx-auto w-[95%] max-w-[420px] z-50 pointer-events-auto"
+              className="fixed bottom-4 inset-x-0 mx-auto w-[96%] max-w-[430px] z-50 pointer-events-auto"
               style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
               aria-label="Pływające menu mobilne"
             >
@@ -87,7 +92,7 @@ export const MobileDock = () => {
                         key={tab.id}
                         type="button"
                         onClick={() => scrollTo(tab.href)}
-                        className={`relative flex flex-col items-center justify-center py-1.5 px-2.5 rounded-full transition-colors min-h-[44px] cursor-pointer ${
+                        className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-full transition-colors min-h-[44px] cursor-pointer ${
                           isActive
                             ? "text-primary font-bold"
                             : "text-muted-foreground hover:text-foreground"
@@ -113,6 +118,26 @@ export const MobileDock = () => {
                     );
                   })}
 
+                  {/* Terminal Direct Trigger Tab */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.03);
+                      hapticMedium();
+                      if (onOpenTerminal) {
+                        onOpenTerminal();
+                      }
+                    }}
+                    className="relative flex flex-col items-center justify-center py-1 px-2 rounded-full transition-colors min-h-[44px] text-emerald-500 hover:text-emerald-400 active:scale-95 cursor-pointer"
+                    aria-label="Terminal CLI"
+                    title="Terminal CLI"
+                  >
+                    <Terminal className="h-4 w-4 text-emerald-500" strokeWidth={2.2} />
+                    <span className="text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight font-mono text-emerald-500">
+                      CLI
+                    </span>
+                  </button>
+
                   {/* Direct Account & Google Login Tab */}
                   <button
                     type="button"
@@ -125,7 +150,7 @@ export const MobileDock = () => {
                         setIsAuthModalOpen(true);
                       }
                     }}
-                    className="relative flex flex-col items-center justify-center py-1.5 px-2.5 rounded-full transition-colors min-h-[44px] text-muted-foreground hover:text-foreground active:scale-95 cursor-pointer"
+                    className="relative flex flex-col items-center justify-center py-1 px-2 rounded-full transition-colors min-h-[44px] text-muted-foreground hover:text-foreground active:scale-95 cursor-pointer"
                     aria-label={isSignedIn ? "Moje Konto" : "Zaloguj z Google"}
                     title={isSignedIn ? "Strefa Klienta" : "Zaloguj z Google"}
                   >
@@ -151,7 +176,7 @@ export const MobileDock = () => {
                     hapticLight();
                     setIsQuickOpen(true);
                   }}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-1 active:scale-90 cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-0.5 active:scale-90 cursor-pointer"
                   aria-label="Szybkie akcje"
                   title="Szybkie akcje"
                 >
@@ -166,7 +191,7 @@ export const MobileDock = () => {
                     hapticMedium();
                     scrollTo("#kontakt");
                   }}
-                  className="relative flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2.5 text-primary-foreground font-['Geist'] text-xs font-bold shadow-md shadow-primary/30 active:scale-95 transition-transform shrink-0 ml-1 cursor-pointer min-h-[40px]"
+                  className="relative flex items-center gap-1 rounded-full bg-primary px-3 py-2 text-primary-foreground font-['Geist'] text-xs font-bold shadow-md shadow-primary/30 active:scale-95 transition-transform shrink-0 ml-0.5 cursor-pointer min-h-[38px]"
                   aria-label="Napisz wiadomość"
                 >
                   <Send className="h-3.5 w-3.5" />
@@ -182,6 +207,8 @@ export const MobileDock = () => {
       <MobileQuickActions
         isOpen={isQuickOpen}
         onClose={() => setIsQuickOpen(false)}
+        onOpenTerminal={onOpenTerminal}
+        onOpenPassport={onOpenPassport}
       />
 
       {/* Dedicated Auth Dialog */}

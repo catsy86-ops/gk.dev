@@ -18,6 +18,8 @@ import {
   Bot,
   Calendar,
   Bookmark,
+  Terminal,
+  Trophy,
 } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useTheme } from "next-themes";
@@ -29,6 +31,7 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { useI18n } from "@/lib/i18n";
 import { soundEngine } from "@/lib/audio";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { hapticLight, hapticMedium } from "@/lib/haptics";
 
 const CommandPalette = lazy(() =>
   import("@/components/CommandPalette").then((m) => ({ default: m.CommandPalette }))
@@ -53,9 +56,10 @@ interface SubItem {
 
 interface NavbarProps {
   onOpenTerminal?: () => void;
+  onOpenPassport?: () => void;
 }
 
-const Navbar = ({ onOpenTerminal }: NavbarProps) => {
+const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
   const { t, lang } = useI18n();
 
   const navItems = [
@@ -112,7 +116,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
       ] as SubItem[],
     },
     { label: t.nav.reviews, href: "#opinie", id: "opinie" },
-    { label: t.nav.articles, href: "#artykuly", id: "artykuly" },
+    { label: t.nav.course, href: "#kurs-js", id: "kurs-js" },
     { label: t.nav.faq, href: "#faq", id: "faq" },
   ];
 
@@ -158,11 +162,11 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      if (href.startsWith("#")) {
-        e.preventDefault();
-        const id = href.replace("#", "");
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      e.preventDefault();
+      const targetId = href.replace("#", "");
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: "smooth" });
       }
     },
     []
@@ -170,12 +174,12 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > NAVBAR_SCROLL_THRESHOLD);
+    };
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > NAVBAR_SCROLL_THRESHOLD);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleMouseEnter = (label: string) => {
@@ -198,10 +202,10 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
         role="banner"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="mx-auto max-w-[1360px] px-3 sm:px-6">
+        <div className="mx-auto max-w-[1360px] px-2 sm:px-4 lg:px-6">
           {/* Floating Capsule Bar */}
           <nav
-            className={`pointer-events-auto relative flex items-center justify-between rounded-full border px-3.5 sm:px-5 py-2.5 transition-all duration-300 shadow-lg ${
+            className={`pointer-events-auto relative flex items-center justify-between gap-2 lg:gap-3 rounded-full border px-3 sm:px-4 py-2 transition-all duration-300 shadow-lg ${
               scrolled
                 ? "border-border/80 bg-background/95 backdrop-blur-2xl shadow-[0_10px_35px_-5px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.7)]"
                 : "border-border/60 bg-background/80 backdrop-blur-xl shadow-md"
@@ -209,20 +213,20 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
             role="navigation"
             aria-label="Główna nawigacja"
           >
-            {/* Zone 1: Logo with subtle status ping */}
-            <div className="flex items-center gap-2.5 shrink-0">
+            {/* Zone 1: Logo with live availability pill */}
+            <div className="flex items-center gap-2 shrink-0">
               <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
 
-              {/* Desktop Live Availability status subtle pill */}
+              {/* Desktop Live Availability Status */}
               <div className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] text-emerald-500 font-semibold select-none">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>{t.nav.available}</span>
               </div>
             </div>
 
-            {/* Zone 2: Desktop Nav Items (visible from lg: with zero clipping & crisp typography) */}
+            {/* Zone 2: Desktop Nav Items */}
             <div
-              className="hidden lg:flex items-center gap-1 bg-secondary/50 dark:bg-secondary/30 backdrop-blur-md rounded-full p-1 border border-border/60 shadow-inner shrink-0"
+              className="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-secondary/50 dark:bg-secondary/30 backdrop-blur-md rounded-full p-1 border border-border/60 shadow-inner shrink-0"
               role="list"
             >
               {navItems.map((item) => {
@@ -246,7 +250,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                       role="listitem"
                       aria-current={isActive ? "page" : undefined}
                       aria-expanded={hasSub ? isOpen : undefined}
-                      className={`relative flex items-center gap-1.5 px-3.5 py-1.5 text-xs xl:text-[13px] 2xl:text-sm font-semibold tracking-tight whitespace-nowrap rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 select-none ${
+                      className={`relative flex items-center gap-1 px-2.5 xl:px-3.5 py-1.5 text-xs xl:text-[13px] font-semibold tracking-tight whitespace-nowrap rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 select-none ${
                         isActive
                           ? "text-primary font-bold shadow-sm"
                           : "text-foreground/80 hover:text-foreground hover:bg-secondary/80 dark:hover:bg-secondary/60"
@@ -262,7 +266,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                       <span className="relative z-10">{item.label}</span>
                       {hasSub && (
                         <ChevronDown
-                          className={`relative z-10 h-3.5 w-3.5 transition-transform duration-200 ${
+                          className={`relative z-10 h-3 w-3 transition-transform duration-200 ${
                             isOpen ? "rotate-180 text-primary" : "text-muted-foreground/70"
                           }`}
                         />
@@ -323,7 +327,46 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
             </div>
 
             {/* Zone 3: Polished Action Tools Hub */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              {/* Terminal CLI Trigger Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playPop(850, 0.03);
+                  hapticMedium();
+                  if (onOpenTerminal) {
+                    onOpenTerminal();
+                  }
+                }}
+                className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
+                aria-label="Otwórz Terminal CLI (~)"
+                title="Terminal CLI (~)"
+              >
+                <Terminal className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:rotate-6 transition-transform" />
+                <span className="hidden xl:inline text-xs font-bold font-mono">CLI</span>
+                <span className="hidden 2xl:inline-block font-mono text-[9px] font-bold px-1 rounded bg-emerald-500/15 border border-emerald-500/30">
+                  ~
+                </span>
+              </button>
+
+              {/* Dev Passport / Achievements Trigger */}
+              {onOpenPassport && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playPop(850, 0.03);
+                    hapticMedium();
+                    onOpenPassport();
+                  }}
+                  className="relative flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500 transition-all font-['Geist'] shadow-sm active:scale-95 group cursor-pointer shrink-0"
+                  aria-label="Paszport Dewelopera & Osiągnięcia (P)"
+                  title="Paszport Dewelopera & Osiągnięcia (P)"
+                >
+                  <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:rotate-12 transition-transform" />
+                  <span className="hidden xl:inline text-xs font-bold font-mono">XP</span>
+                </button>
+              )}
+
               {/* AI Architect Assistant Trigger */}
               <button
                 onClick={() => {
@@ -344,20 +387,20 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                   soundEngine.playClick();
                   setIsCommandOpen(true);
                 }}
-                className="flex items-center gap-2 h-8 sm:h-9 px-2.5 sm:px-3 rounded-full border border-border/80 bg-secondary/70 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm cursor-pointer shrink-0 group"
+                className="flex items-center gap-1.5 h-8 sm:h-9 px-2 sm:px-2.5 rounded-full border border-border/80 bg-secondary/70 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all font-['Geist'] shadow-sm cursor-pointer shrink-0 group"
                 aria-label="Otwórz menu poleceń (Cmd+K)"
                 title="Szukaj (Cmd+K)"
               >
-                <Search className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span className="hidden xl:inline text-xs text-muted-foreground group-hover:text-foreground transition-colors font-medium">
-                  {lang === "pl" ? "Szukaj..." : "Search..."}
+                <Search className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <span className="hidden 2xl:inline text-xs text-muted-foreground group-hover:text-foreground transition-colors font-medium">
+                  {lang === "pl" ? "Szukaj" : "Search"}
                 </span>
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border/70 bg-background/80 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground group-hover:border-primary/30 group-hover:text-foreground transition-colors">
-                  <span className="text-[11px]">⌘</span>K
+                <kbd className="hidden xl:inline-flex items-center gap-0.5 rounded border border-border/70 bg-background/80 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground group-hover:border-primary/30 group-hover:text-foreground transition-colors">
+                  <span className="text-[10px]">⌘</span>K
                 </kbd>
               </button>
 
-              {/* Preferences Capsule (Theme, Palette, Lang, Bookmarks) */}
+              {/* Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks) */}
               <div className="hidden sm:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5 shrink-0">
                 {/* Sound Toggle */}
                 <button
@@ -424,7 +467,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
               {/* Clerk Authentication Button */}
               <AuthButton />
 
-              {/* CTA Button (Napisz) */}
+              {/* CTA Button (Napisz) - compact & never overflows */}
               <div className="hidden md:block shrink-0">
                 <GlowButton
                   variant="glow"
@@ -473,6 +516,28 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                   <AuthButton />
                 </div>
 
+                {/* Mobile Terminal CLI Trigger */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playPop(850, 0.03);
+                    hapticMedium();
+                    setIsMobileNavOpen(false);
+                    if (onOpenTerminal) {
+                      onOpenTerminal();
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 font-bold text-xs shadow-sm hover:bg-emerald-500/25 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Terminal className="h-4 w-4" />
+                    <span>Terminal Deweloperski (CLI)</span>
+                  </div>
+                  <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">
+                    Otwórz ~
+                  </span>
+                </button>
+
                 <div className="space-y-1">
                   {navItems.map((item) => (
                     <a
@@ -512,7 +577,7 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
                         setIsMobileNavOpen(false);
                         setIsBookingOpen(true);
                       }}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 text-xs font-bold transition-colors"
+                      className="flex items-center justify-between p-3 rounded-2xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold transition-colors"
                     >
                       <span>{t.nav.bookConsultation} (30 min)</span>
                       <Calendar className="h-4 w-4" />
@@ -588,12 +653,11 @@ const Navbar = ({ onOpenTerminal }: NavbarProps) => {
           <ClientPortalModal
             isOpen={isClientPortalOpen}
             onClose={() => setIsClientPortalOpen(false)}
-            onOpenBooking={() => setIsBookingOpen(true)}
           />
         </Suspense>
       )}
 
-      {/* Consultation Booking Modal */}
+      {/* Booking Consultation Modal */}
       {isBookingOpen && (
         <Suspense fallback={null}>
           <BookingConsultationModal
