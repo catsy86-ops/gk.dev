@@ -1,4 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import {
+  supabase,
+  persistGkgaduMessageToSupabase,
+  fetchGkgaduMessagesFromSupabase,
+} from "@/lib/supabase";
 import { soundEngine } from "@/lib/audio";
 import { encryptMessage, decryptMessage, EncryptedPayload } from "@/lib/gkgadu-crypto";
 import { ggNotificationService } from "@/lib/gkgadu-notifications";
@@ -554,16 +558,22 @@ class GkGaduEngine {
     // Mark as delivered after brief network ACK
     setTimeout(() => {
       message.deliveryStatus = "delivered";
-      this.saveMessages();
       this.notify();
     }, 400);
 
-    // Auto-Responses for Author & AI Bot
-    if (activeId === "1001") {
-      this.handleAuthorAutoReply(trimmed);
-    } else if (activeId === "1002") {
-      this.handleAiBotReply(trimmed);
-    }
+    // Persist to Supabase Database (Real-time Cloud Sync)
+    persistGkgaduMessageToSupabase({
+      id: message.id,
+      chatId: message.chatId,
+      senderGgNumber: message.senderGgNumber,
+      senderName: message.senderName,
+      senderAvatar: message.senderAvatar,
+      text: message.text,
+      timestamp: message.timestamp,
+    });
+
+    // Real-Time Intelligent Living Chat Responses
+    this.handleRealtimePeerReply(activeId, trimmed);
   }
 
   public addReaction(messageId: string, emoji: string) {
@@ -799,6 +809,86 @@ class GkGaduEngine {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  private handleRealtimePeerReply(chatId: string, userText: string) {
+    if (chatId === "1001") {
+      this.handleAuthorAutoReply(userText);
+    } else if (chatId === "1002") {
+      this.handleAiBotReply(userText);
+    } else if (chatId === "lounge") {
+      this.handleLoungeRoomReply(userText);
+    } else if (chatId === "projects") {
+      this.handleProjectsRoomReply(userText);
+    } else if (chatId === "b2b") {
+      this.handleB2bRoomReply(userText);
+    }
+  }
+
+  private handleLoungeRoomReply(userText: string) {
+    const peers = [
+      { name: "Grzegorz (GK.dev)", num: 1001, desc: "Siema! Dzięki za aktywność na Lounge ☀️" },
+      { name: "Krzysztof [DevOps]", num: 4281093, desc: "Potwierdzam, WebSockets i pipeline działają stabilnie!" },
+      { name: "Magda [Product Lead]", num: 5192847, desc: "Świetny UX tego czatu, przypomina stare dobre czasy GG :)" },
+    ];
+    const peer = peers[Math.floor(Math.random() * peers.length)];
+
+    this.state.typingUsers["lounge"] = peer.name;
+    this.notify();
+
+    setTimeout(() => {
+      delete this.state.typingUsers["lounge"];
+      const replyMsg: GgMessage = {
+        id: `lounge-rep-${Date.now()}`,
+        chatId: "lounge",
+        recipientGgNumber: 0,
+        senderGgNumber: peer.num,
+        senderName: peer.name,
+        text: peer.desc,
+        timestamp: Date.now(),
+        reactions: { "☀️": [peer.name] },
+      };
+      this.receiveIncomingMessage(replyMsg, false);
+    }, 1500);
+  }
+
+  private handleProjectsRoomReply(userText: string) {
+    this.state.typingUsers["projects"] = "Grzegorz (GK.dev)";
+    this.notify();
+
+    setTimeout(() => {
+      delete this.state.typingUsers["projects"];
+      const replyMsg: GgMessage = {
+        id: `proj-rep-${Date.now()}`,
+        chatId: "projects",
+        recipientGgNumber: 0,
+        senderGgNumber: 1001,
+        senderName: "Grzegorz (GK.dev)",
+        text: `Co do projektów: architekturę buduję na React 19 + TypeScript + Supabase Realtime + Edge Functions. Jeśli masz pytania o konkretny projekt, pytaj śmiało! 💻`,
+        timestamp: Date.now(),
+      };
+      this.receiveIncomingMessage(replyMsg, false);
+    }, 1400);
+  }
+
+  private handleB2bRoomReply(userText: string) {
+    this.state.typingUsers["b2b"] = "GKgadu AI Consultant";
+    this.notify();
+
+    setTimeout(() => {
+      delete this.state.typingUsers["b2b"];
+      const replyMsg: GgMessage = {
+        id: `b2b-rep-${Date.now()}`,
+        chatId: "b2b",
+        recipientGgNumber: 0,
+        senderGgNumber: 1002,
+        senderName: "GKgadu AI Consultant",
+        text: `W sprawach wycen B2B i audytów kodu zapraszam do kontaktu: kontakt@gkdev.pl lub przez formularz szybkiej wyceny w zakładce Kontakt! 💼`,
+        timestamp: Date.now(),
+        isAi: true,
+      };
+      this.receiveIncomingMessage(replyMsg, false);
+    }, 1200);
   }
 
   private handleAuthorAutoReply(userText: string) {

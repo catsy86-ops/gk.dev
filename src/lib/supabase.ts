@@ -129,6 +129,38 @@ export interface Database {
           created_at?: string;
         };
       };
+      gkgadu_messages: {
+        Row: {
+          id: string;
+          chat_id: string;
+          sender_gg_number: number;
+          sender_name: string;
+          sender_avatar: string | null;
+          text: string;
+          timestamp: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chat_id: string;
+          sender_gg_number: number;
+          sender_name: string;
+          sender_avatar?: string | null;
+          text: string;
+          timestamp: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          chat_id?: string;
+          sender_gg_number?: number;
+          sender_name?: string;
+          sender_avatar?: string | null;
+          text?: string;
+          timestamp?: number;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -242,5 +274,69 @@ export async function saveContactMessageToSupabase(message: {
     return { success: true, data };
   } catch (err) {
     return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Zapisuje wiadomość GKgadu w chmurze Supabase
+ */
+export async function persistGkgaduMessageToSupabase(message: {
+  id: string;
+  chatId: string;
+  senderGgNumber: number;
+  senderName: string;
+  senderAvatar?: string;
+  text: string;
+  timestamp: number;
+}) {
+  if (!isSupabaseConfigured) {
+    return { success: true, mode: "local-fallback" };
+  }
+
+  try {
+    const { data, error } = await supabase.from("gkgadu_messages").insert({
+      id: message.id,
+      chat_id: message.chatId,
+      sender_gg_number: message.senderGgNumber,
+      sender_name: message.senderName,
+      sender_avatar: message.senderAvatar || null,
+      text: message.text,
+      timestamp: message.timestamp,
+    });
+
+    if (error) {
+      console.warn("Supabase GKgadu message save note:", error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Pobiera najnowsze wiadomości GKgadu z Supabase
+ */
+export async function fetchGkgaduMessagesFromSupabase(chatId: string, limit = 50) {
+  if (!isSupabaseConfigured) {
+    return { success: false, data: [] };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("gkgadu_messages")
+      .select("*")
+      .eq("chat_id", chatId)
+      .order("timestamp", { ascending: true })
+      .limit(limit);
+
+    if (error) {
+      return { success: false, error: error.message, data: [] };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (err) {
+    return { success: false, error: String(err), data: [] };
   }
 }
