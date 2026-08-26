@@ -5,7 +5,11 @@ import { soundEngine } from "@/lib/audio";
 import { hapticLight } from "@/lib/haptics";
 import { accentThemes, setGlobalAccent, type AccentTheme } from "@/lib/theme";
 
-export const ThemeAccentPicker = () => {
+interface ThemeAccentPickerProps {
+  variant?: "ghost" | "bordered";
+}
+
+export const ThemeAccentPicker = ({ variant = "ghost" }: ThemeAccentPickerProps) => {
   const [activeAccent, setActiveAccent] = useState<string>("blue");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -25,6 +29,11 @@ export const ThemeAccentPicker = () => {
     setIsOpen(false);
   };
 
+  const triggerClasses =
+    variant === "ghost"
+      ? "h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+      : "relative h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all active:scale-95 cursor-pointer";
+
   return (
     <div className="relative">
       {/* Palette Trigger Button */}
@@ -33,12 +42,12 @@ export const ThemeAccentPicker = () => {
           soundEngine.playClick();
           setIsOpen((prev) => !prev);
         }}
-        className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all active:scale-95"
+        className={triggerClasses}
         aria-label="Wybierz akcent kolorystyczny"
         title="Personalizuj akcent kolorystyczny"
         aria-expanded={isOpen}
       >
-        <Palette className="h-4 w-4 text-primary" strokeWidth={1.8} />
+        <Palette className="h-3.5 w-3.5 text-primary" strokeWidth={1.8} />
       </button>
 
       {/* Floating Accent Palette Menu */}
@@ -78,3 +87,5 @@ export const ThemeAccentPicker = () => {
     </div>
   );
 };
+
+export default ThemeAccentPicker;

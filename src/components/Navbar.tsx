@@ -217,9 +217,12 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
             <div className="flex items-center gap-2 shrink-0">
               <BrandLogo onClick={(e) => handleClick(e, "#hero")} />
 
-              {/* Desktop Live Availability Status */}
-              <div className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] text-emerald-500 font-semibold select-none">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {/* Desktop Live Availability Status with Radar Pulse */}
+              <div className="hidden 2xl:flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] text-emerald-500 font-semibold select-none shadow-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
                 <span>{t.nav.available}</span>
               </div>
             </div>
@@ -273,15 +276,15 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                       )}
                     </a>
 
-                    {/* Mega Flyout Dropdown */}
+                    {/* Mega Flyout Dropdown with Invisible Hover Bridge */}
                     <AnimatePresence>
                       {hasSub && isOpen && (
                         <motion.div
-                          className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-72 lg:w-80 z-50 pointer-events-auto"
-                          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-72 lg:w-80 z-50 pointer-events-auto before:absolute before:-top-3 before:h-4 before:inset-x-0 before:content-['']"
+                          initial={{ opacity: 0, y: 6, scale: 0.96 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                          transition={{ duration: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+                          exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                          transition={{ duration: 0.18, ease: [0.25, 0.4, 0.25, 1] }}
                         >
                           <div className="rounded-2xl border border-border/80 bg-card/95 backdrop-blur-2xl p-2 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] overflow-hidden">
                             <div className="p-1 space-y-1">
@@ -400,7 +403,7 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                 </kbd>
               </button>
 
-              {/* Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks) */}
+              {/* Seamless Preferences Capsule (Theme, Sound, Accent, Lang, Bookmarks) */}
               <div className="hidden sm:flex items-center gap-0.5 rounded-full border border-border/60 bg-secondary/50 backdrop-blur-md p-0.5 shrink-0">
                 {/* Sound Toggle */}
                 <button
@@ -445,10 +448,10 @@ const Navbar = ({ onOpenTerminal, onOpenPassport }: NavbarProps) => {
                 </button>
 
                 {/* Theme Color Accent Picker */}
-                <ThemeAccentPicker />
+                <ThemeAccentPicker variant="ghost" />
 
                 {/* Language Switcher */}
-                <LanguageToggle />
+                <LanguageToggle variant="ghost" />
 
                 {/* Client Portal / Bookmarks Trigger */}
                 <button

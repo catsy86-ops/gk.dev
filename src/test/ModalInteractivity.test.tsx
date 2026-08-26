@@ -71,7 +71,7 @@ describe("Modal Interactivity & ESC/Dismiss Suite", () => {
     const handleClose = vi.fn();
     render(<MobileQuickActions isOpen={true} onClose={handleClose} />);
 
-    expect(screen.getByText(/Szybkie Akcje|Szybki Kontakt/i)).toBeInTheDocument();
+    expect(screen.getByText(/Centrum Narzędzi/i)).toBeInTheDocument();
     fireEvent.keyDown(window, { key: "Escape" });
     expect(handleClose).toHaveBeenCalled();
   });
