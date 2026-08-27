@@ -20,6 +20,7 @@ import { queryAiAssistant } from "@/lib/ai-engine";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { useAchievements } from "@/hooks/use-achievements";
 import { toast } from "@/hooks/use-toast";
+import { TerminalMemoryGame } from "@/components/ui/TerminalMemoryGame";
 
 interface TerminalDialogProps {
   isOpen: boolean;
@@ -310,6 +311,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
   const [theme, setTheme] = useState<TerminalTheme>("matrix");
   const [matrixActive, setMatrixActive] = useState(false);
   const [isPlayingSnake, setIsPlayingSnake] = useState(false);
+  const [isPlayingMemory, setIsPlayingMemory] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [copiedLogs, setCopiedLogs] = useState(false);
 
@@ -446,6 +448,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
               <p>• <span className="text-primary font-bold">neofetch</span> — Statystyki profilu i technologie</p>
               <p>• <span className="text-primary font-bold">snake</span> — Mini-gra retro Snake w oknie terminala</p>
+              <p>• <span className="text-primary font-bold">memory</span> — 🧠 Gra pamięciowa z kartami technologii</p>
               <p>• <span className="text-primary font-bold">matrix</span> — Włącz/wyłącz cyfrowy deszcz Matrix</p>
               <p>• <span className="text-primary font-bold">ai &lt;pytanie&gt;</span> — Zapytaj inteligentnego asystenta AI</p>
               <p>• <span className="text-primary font-bold">pwa / offline</span> — Status pamięci podręcznej i trybu Offline</p>
@@ -515,6 +518,16 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
       case "game":
         setIsPlayingSnake(true);
         outputNode = <p className="text-xs text-emerald-400">Uruchamianie minigry Retro Snake...</p>;
+        break;
+
+      case "memory":
+      case "memo":
+        setIsPlayingMemory(true);
+        outputNode = (
+          <p className="text-xs text-cyan-400">
+            🧠 Uruchamianie Stack Memory Game... odkryj wszystkie pary technologii!
+          </p>
+        );
         break;
 
       case "matrix":
@@ -669,7 +682,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
       }
     } else if (e.key === "Tab") {
       e.preventDefault();
-      const commandsList = ["help", "neofetch", "snake", "matrix", "ai", "skills", "projects", "whoami", "contact", "sudo hire", "clear", "theme"];
+      const commandsList = ["help", "neofetch", "snake", "memory", "matrix", "ai", "skills", "projects", "whoami", "contact", "sudo hire", "clear", "theme", "bios", "receipt", "gg"];
       const match = commandsList.find((c) => c.startsWith(inputVal.trim().toLowerCase()));
       if (match) {
         setInputVal(match);
@@ -805,6 +818,11 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
             <div className="p-4 sm:p-6 space-y-4 overflow-y-auto font-mono text-xs sm:text-sm flex-1 relative z-10 scrollbar-thin">
               {isPlayingSnake ? (
                 <TerminalSnakeGame onExit={() => setIsPlayingSnake(false)} />
+              ) : isPlayingMemory ? (
+                <TerminalMemoryGame
+                  theme={theme}
+                  onExit={() => setIsPlayingMemory(false)}
+                />
               ) : (
                 <>
                   {logs.map((log) => (

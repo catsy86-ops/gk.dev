@@ -14,8 +14,10 @@ describe("HeroSection Comprehensive Suite", () => {
       </BrowserRouter>
     );
 
-    // Name
-    expect(screen.getByText("Grzegorz")).toBeInTheDocument();
+    // Name — rendered as canvas with aria-label (desktop) or span text (mobile/reduced motion)
+    const nameByLabel = screen.queryByLabelText("Grzegorz");
+    const nameByText = screen.queryByText("Grzegorz");
+    expect(nameByLabel || nameByText).toBeTruthy();
 
     // CTA buttons
     expect(screen.getByText("Zobacz projekty")).toBeInTheDocument();

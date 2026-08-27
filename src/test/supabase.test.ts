@@ -23,7 +23,7 @@ describe("Supabase Enhanced Integration Suite", () => {
     expect(health).toBeDefined();
     expect(typeof health.isHealthy).toBe("boolean");
     expect(typeof health.latencyMs).toBe("number");
-  });
+  }, 15000);
 
   it("syncs brief to Supabase or handles graceful fallback", async () => {
     const result = await syncBriefToSupabase({
@@ -37,7 +37,7 @@ describe("Supabase Enhanced Integration Suite", () => {
 
     expect(result).toBeDefined();
     expect(typeof result.success).toBe("boolean");
-  });
+  }, 15000);
 
   it("saves contact form message to Supabase", async () => {
     const result = await saveContactMessageToSupabase({
@@ -49,5 +49,5 @@ describe("Supabase Enhanced Integration Suite", () => {
 
     expect(result).toBeDefined();
     expect(typeof result.success).toBe("boolean");
-  });
+  }, 15000);
 });

@@ -8,6 +8,7 @@ import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
 import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { HeroCodeTerminal } from "@/components/HeroCodeTerminal";
+import { GravityTextCanvas } from "@/components/ui/GravityTextCanvas";
 import {
   EASE_STANDARD,
   TYPEWRITER_TYPING_SPEED,
@@ -292,12 +293,30 @@ const HeroSection = () => {
             />
           </span>
           {", jestem "}
-          <span
-            className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent text-shadow-glow inline-block bg-[length:200%_auto]"
-            style={{ fontSize: "clamp(34px, 8vw, 100px)" }}
-          >
-            Grzegorz
-          </span>
+          {!prefersReduced && !isMobile ? (
+            <span
+              className="inline-block align-middle"
+              style={{ fontSize: "clamp(34px, 8vw, 100px)" }}
+            >
+              <GravityTextCanvas
+                text="Grzegorz"
+                fontSize={
+                  typeof window !== "undefined"
+                    ? Math.min(100, Math.max(34, Math.round(window.innerWidth * 0.08)))
+                    : 80
+                }
+                color={["#3b82f6", "#6366f1"]}
+                aria-label="Grzegorz"
+              />
+            </span>
+          ) : (
+            <span
+              className="font-['Instrument_Serif'] italic bg-gradient-to-r from-primary via-accent-blue to-primary bg-clip-text text-transparent text-shadow-glow inline-block bg-[length:200%_auto]"
+              style={{ fontSize: "clamp(34px, 8vw, 100px)" }}
+            >
+              Grzegorz
+            </span>
+          )}
         </motion.h1>
 
         {/* Description */}

@@ -3,6 +3,7 @@ import { Briefcase, GraduationCap, Sparkles, Download, ArrowUpRight, Award, Chec
 import { useRef, useState } from "react";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { HolographicCard } from "@/components/ui/HolographicCard";
+import { BusinessCard3D } from "@/components/ui/BusinessCard3D";
 import { GithubActivityBadge } from "@/components/GithubActivityBadge";
 import { InteractiveResumeModal } from "@/components/InteractiveResumeModal";
 import { soundEngine } from "@/lib/audio";
@@ -187,6 +188,20 @@ const AboutSection = () => {
                   </GlowButton>
                 </div>
               </HolographicCard>
+
+              {/* 3D Business Card — Hover/Tap to flip */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.35, duration: 0.6 }}
+                className="flex flex-col items-center gap-2"
+              >
+                <p className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest">
+                  ✦ Interaktywna wizytówka — najedź aby obrócić
+                </p>
+                <BusinessCard3D />
+              </motion.div>
             </div>
           </motion.div>
 

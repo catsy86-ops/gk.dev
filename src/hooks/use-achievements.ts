@@ -102,6 +102,22 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     xp: 50,
     unlockedAt: null,
   },
+  {
+    id: "card_flipper",
+    title: "Card Flipper",
+    description: "Obrócono interaktywną wizytówkę 3D Grzegorza w sekcji O mnie",
+    icon: "🃏",
+    xp: 40,
+    unlockedAt: null,
+  },
+  {
+    id: "memory_champion",
+    title: "Memory Champion",
+    description: "Ukończono Stack Memory Game — wszystkie pary technologii odkryte!",
+    icon: "🧠",
+    xp: 80,
+    unlockedAt: null,
+  },
 ];
 
 const STORAGE_KEY = "gk_dev_achievements";

@@ -108,6 +108,9 @@ if (typeof HTMLCanvasElement !== "undefined") {
         closePath: vi.fn(),
         drawImage: vi.fn(),
         getImageData: vi.fn(),
+        fillText: vi.fn(),
+        strokeText: vi.fn(),
+        measureText: vi.fn().mockReturnValue({ width: 12 }),
         createLinearGradient: vi.fn().mockReturnValue({ addColorStop: vi.fn() }),
         createRadialGradient: vi.fn().mockReturnValue({ addColorStop: vi.fn() }),
         canvas: { width: 800, height: 600 },
@@ -115,6 +118,8 @@ if (typeof HTMLCanvasElement !== "undefined") {
         fillStyle: "#000",
         strokeStyle: "#000",
         lineWidth: 1,
+        font: "",
+        textBaseline: "alphabetic",
       };
     }
     return null;
