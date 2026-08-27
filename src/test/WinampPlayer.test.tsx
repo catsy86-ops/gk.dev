@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { WinampPlayer } from "@/components/WinampPlayer";
+import { WinampFloatingButton } from "@/components/WinampFloatingButton";
 
 describe("WinampPlayer / GKinAmp Pro Suite", () => {
   it("renders GKinAmp player chassis with title, marquee, and transport buttons", () => {
@@ -81,5 +82,24 @@ describe("WinampPlayer / GKinAmp Pro Suite", () => {
   it("does not render when isOpen is false", () => {
     render(<WinampPlayer isOpen={false} />);
     expect(screen.queryByText("GKinAmp 2026")).not.toBeInTheDocument();
+  });
+});
+
+describe("WinampFloatingButton / GKinAmp FAB Suite", () => {
+  it("renders GKinAmp FAB button when player is closed and triggers onToggle on click", () => {
+    const handleToggle = vi.fn();
+    render(<WinampFloatingButton isOpen={false} onToggle={handleToggle} />);
+
+    const fab = screen.getByLabelText("Otwórz GKinAmp 2026");
+    expect(fab).toBeInTheDocument();
+    expect(screen.getByText("GKinAmp")).toBeInTheDocument();
+
+    fireEvent.click(fab);
+    expect(handleToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not render GKinAmp FAB button when isOpen is true", () => {
+    render(<WinampFloatingButton isOpen={true} onToggle={() => {}} />);
+    expect(screen.queryByLabelText("Otwórz GKinAmp 2026")).not.toBeInTheDocument();
   });
 });

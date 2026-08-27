@@ -24,6 +24,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSeo } from "@/hooks/use-seo";
 import { MatrixCinematicOverlay } from "@/components/MatrixCinematicOverlay";
 import { WinampPlayer } from "@/components/WinampPlayer";
+import { WinampFloatingButton } from "@/components/WinampFloatingButton";
 import { OfflineNetworkIndicator } from "@/components/OfflineNetworkIndicator";
 import { GkgaduFloatingBubble } from "@/components/GkgaduFloatingBubble";
 import { musicEngine } from "@/lib/music-engine";
@@ -73,7 +74,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isPassportOpen, setIsPassportOpen] = useState(false);
   const [isMatrixActive, setIsMatrixActive] = useState(false);
-  const [isWinampOpen, setIsWinampOpen] = useState(true);
+  const [isWinampOpen, setIsWinampOpen] = useState(false);
   const [isGkgaduOpen, setIsGkgaduOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
@@ -183,6 +184,10 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
         onToggleGkgadu={handleToggleGkgadu}
+      />
+      <WinampFloatingButton
+        isOpen={isWinampOpen}
+        onToggle={handleToggleWinamp}
       />
       <GkgaduFloatingBubble
         isOpen={isGkgaduOpen}
