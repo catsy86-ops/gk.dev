@@ -600,8 +600,33 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
         );
         setTimeout(() => {
           onClose();
-          document.getElementById("kontakt")?.scrollIntoView({ behavior: "smooth" });
-        }, 1000);
+          window.location.href = "#kontakt";
+        }, 1200);
+        break;
+
+      case "receipt":
+      case "faktura":
+      case "paragon":
+        soundEngine.playChime();
+        hapticSuccess();
+        outputNode = (
+          <div className="space-y-1 text-xs text-emerald-400">
+            <p>🧾 Generowanie oficjalnego paragonu inżynierskiego GK.dev...</p>
+            <p className="text-muted-foreground">Otwórz widok paragonu w menu narzędzi lub CV!</p>
+          </div>
+        );
+        break;
+
+      case "bios":
+      case "overclock":
+        soundEngine.playPop(900, 0.05);
+        hapticMedium();
+        outputNode = (
+          <div className="space-y-1 text-xs text-cyan-400">
+            <p>💾 Inicjalizacja ROM PCI/ISA BIOS Setup Utility v2026...</p>
+            <p className="text-muted-foreground">Wciśnij skrót klawiszowy lub wybierz z menu!</p>
+          </div>
+        );
         break;
 
       default:
@@ -688,7 +713,7 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
           {/* Terminal Window */}
           <motion.div
             className={`relative w-full rounded-2xl border ${currentTheme.border} ${currentTheme.bg} ${currentTheme.glow} ${currentTheme.text} backdrop-blur-2xl overflow-hidden z-10 font-mono text-sm pointer-events-auto flex flex-col transition-all duration-300 ${
-              isMaximized ? "max-w-5xl h-[85vh]" : "max-w-2xl max-h-[75vh]"
+              isMaximized ? "max-w-5xl h-[85dvh]" : "max-w-2xl max-h-[80dvh]"
             }`}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -806,6 +831,10 @@ export const TerminalDialog = ({ isOpen, onClose }: TerminalDialogProps) => {
                       className="flex-1 bg-transparent focus:outline-none font-mono text-xs sm:text-sm caret-emerald-400 text-foreground"
                       placeholder="Wpisz komendę (np. help, snake, ai, neofetch)..."
                       autoFocus
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      enterKeyHint="go"
                     />
                   </div>
                 </>

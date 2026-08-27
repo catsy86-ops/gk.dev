@@ -21,15 +21,35 @@ interface MobileDockProps {
   onOpenTerminal?: () => void;
   onOpenPassport?: () => void;
   onToggleGkgadu?: () => void;
+  onToggleWinamp?: () => void;
 }
 
-export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu }: MobileDockProps) => {
+export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu, onToggleWinamp }: MobileDockProps) => {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
   const lastScrollY = useRef(0);
   const activeSection = useActiveSection();
+
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName)) {
+        setIsTyping(true);
+      }
+    };
+    const handleFocusOut = () => {
+      setIsTyping(false);
+    };
+
+    window.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("focusout", handleFocusOut);
+    return () => {
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,7 +87,7 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu }: M
     <>
       <aside className="md:hidden">
         <AnimatePresence>
-          {isVisible && (
+          {isVisible && !isTyping && (
             <motion.div
               key="mobile-dock"
               initial={{ y: 90, opacity: 0, scale: 0.92 }}
@@ -213,6 +233,8 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu }: M
         onClose={() => setIsQuickOpen(false)}
         onOpenTerminal={onOpenTerminal}
         onOpenPassport={onOpenPassport}
+        onToggleGkgadu={onToggleGkgadu}
+        onToggleWinamp={onToggleWinamp}
       />
 
       {/* Dedicated Auth Dialog */}

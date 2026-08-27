@@ -25,7 +25,7 @@ export const NOTE_FREQS: Record<string, number> = {
 
 export type TrackCategory = "midi" | "ambient" | "custom";
 export type PlayerSkin = "classic" | "cyberpunk" | "matrix" | "vaporwave";
-export type VisualizerMode = "bars" | "waveform" | "starfield";
+export type VisualizerMode = "bars" | "waveform" | "starfield" | "tunnel";
 export type EqPreset = "lofi" | "deep-bass" | "ambient" | "vocal" | "techno" | "flat";
 
 export interface MidiStep {
@@ -53,6 +53,64 @@ export interface TrackInfo {
 
 export const SOUNDSCAPE_TRACKS: TrackInfo[] = [
   // ── 🎹 RETRO MIDI & SYNTH CLASSICS ────────────────────────────────
+  {
+    id: "voodoo-people",
+    title: "Voodoo People (Chiptune 90s Rave)",
+    artist: "The Prodigy / GK Rework",
+    genre: "Big Beat / Chiptune",
+    category: "midi",
+    duration: "2:45",
+    bpm: 140,
+    bitrate: "320 kbps",
+    samplerate: "44.1 kHz",
+    sequence: [
+      { bass: "D2", lead: "D4", drum: "kick" },
+      { bass: "D2", lead: "F4", drum: "hihat" },
+      { bass: "D2", lead: "G4", drum: "none" },
+      { bass: "D2", lead: "Ab4", drum: "snare" },
+      { bass: "D2", lead: "G4", drum: "kick" },
+      { bass: "D2", lead: "F4", drum: "hihat" },
+      { bass: "C2", lead: "D4", drum: "none" },
+      { bass: "C2", lead: "C4", drum: "snare" },
+      { bass: "D2", lead: "D4", drum: "kick" },
+      { bass: "D2", lead: "F4", drum: "hihat" },
+      { bass: "D2", lead: "G4", drum: "none" },
+      { bass: "D2", lead: "Ab4", drum: "snare" },
+      { bass: "F2", lead: "A4", drum: "kick" },
+      { bass: "F2", lead: "G4", drum: "hihat" },
+      { bass: "G2", lead: "F4", drum: "none" },
+      { bass: "G2", lead: "D4", drum: "snare" },
+    ],
+  },
+  {
+    id: "aerodynamic",
+    title: "Aerodynamic (Synth Neo-Solo)",
+    artist: "Daft Punk / GK Retro Synth",
+    genre: "French House / Electro",
+    category: "midi",
+    duration: "3:10",
+    bpm: 123,
+    bitrate: "320 kbps",
+    samplerate: "44.1 kHz",
+    sequence: [
+      { bass: "D3", lead: "D5", drum: "kick" },
+      { bass: "D3", lead: "F5", drum: "hihat" },
+      { bass: "D3", lead: "A5", drum: "none" },
+      { bass: "D3", lead: "D6", drum: "snare" },
+      { bass: "Bb2", lead: "Bb5", drum: "kick" },
+      { bass: "Bb2", lead: "D6", drum: "hihat" },
+      { bass: "Bb2", lead: "F6", drum: "none" },
+      { bass: "Bb2", lead: "D6", drum: "snare" },
+      { bass: "C3", lead: "C6", drum: "kick" },
+      { bass: "C3", lead: "E5", drum: "hihat" },
+      { bass: "C3", lead: "G5", drum: "none" },
+      { bass: "C3", lead: "C6", drum: "snare" },
+      { bass: "A2", lead: "A5", drum: "kick" },
+      { bass: "A2", lead: "C6", drum: "hihat" },
+      { bass: "A2", lead: "E5", drum: "none" },
+      { bass: "A2", lead: "A5", drum: "snare" },
+    ],
+  },
   {
     id: "sweet-dreams",
     title: "Sweet Dreams (Are Made of This)",
@@ -470,6 +528,50 @@ class MusicEngine {
       if (savedVol !== null) {
         this.volume = parseFloat(savedVol);
       }
+      this.initMediaSession();
+    }
+  }
+
+  private initMediaSession() {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+
+    try {
+      navigator.mediaSession.setActionHandler("play", () => {
+        this.play();
+      });
+      navigator.mediaSession.setActionHandler("pause", () => {
+        this.pause();
+      });
+      navigator.mediaSession.setActionHandler("previoustrack", () => {
+        this.prevTrack();
+      });
+      navigator.mediaSession.setActionHandler("nexttrack", () => {
+        this.nextTrack();
+      });
+      navigator.mediaSession.setActionHandler("stop", () => {
+        this.pause();
+      });
+    } catch {
+      // Browsers without full mediaSession support
+    }
+  }
+
+  private updateMediaSessionMetadata() {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+
+    try {
+      const track = this.getTrack();
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist,
+        album: `GK.dev Cyber Audio (${track.genre})`,
+        artwork: [
+          { src: "/favicon.ico", sizes: "64x64", type: "image/x-icon" },
+        ],
+      });
+      navigator.mediaSession.playbackState = this.isPlaying ? "playing" : "paused";
+    } catch {
+      // Ignored
     }
   }
 
@@ -609,6 +711,7 @@ class MusicEngine {
   private notify() {
     const state = this.getState();
     this.listeners.forEach((fn) => fn(state));
+    this.updateMediaSessionMetadata();
   }
 
   public getTrack(): TrackInfo {
@@ -621,6 +724,11 @@ class MusicEngine {
 
   public getIsPlaying(): boolean {
     return this.isPlaying;
+  }
+
+  public getCurrentTrackDescription(): string {
+    const track = this.getTrack();
+    return `${track.artist} - ${track.title} (${track.genre}, ${track.bpm} BPM)`;
   }
 
   public getVolume(): number {

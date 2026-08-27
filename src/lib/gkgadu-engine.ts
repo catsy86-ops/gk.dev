@@ -7,8 +7,28 @@ import { soundEngine } from "@/lib/audio";
 import { encryptMessage, decryptMessage, EncryptedPayload } from "@/lib/gkgadu-crypto";
 import { ggNotificationService } from "@/lib/gkgadu-notifications";
 import { gkgaduDataPipeline } from "@/lib/gkgadu-pipeline";
+import { musicEngine } from "@/lib/music-engine";
 
 export type GgStatus = "online" | "away" | "busy" | "invisible" | "offline";
+
+export interface SlashCommandInfo {
+  command: string;
+  description: string;
+  example: string;
+  icon: string;
+}
+
+export const GKGADU_SLASH_COMMANDS: SlashCommandInfo[] = [
+  { command: "/music", description: "Udostępnij aktualnie słuchany utwór z GKinAmp", example: "/music", icon: "🎵" },
+  { command: "/nudge", description: "Wyślij Puk-Puk (potrząśnij oknem rozmówcy)", example: "/nudge", icon: "🔔" },
+  { command: "/roll", description: "Rzuć kością (losuje liczbę od 1 do 100)", example: "/roll", icon: "🎲" },
+  { command: "/moneta", description: "Rzuć monetą (orzeł lub reszka)", example: "/moneta", icon: "🪙" },
+  { command: "/poll", description: "Utwórz szybką ankietę dla pokoju", example: "/poll Twój ulubiony framework?", icon: "📊" },
+  { command: "/shrug", description: "Wyślij emotkę ¯\\_(ツ)_/¯", example: "/shrug", icon: "🤷" },
+  { command: "/status", description: "Zmień swój opis statusu na czacie", example: "/status Koduję w React 19 ☕", icon: "✏️" },
+  { command: "/clear", description: "Wyczyść historię wiadomości na ekranie", example: "/clear", icon: "🧹" },
+  { command: "/help", description: "Wyświetl pomoc i listę komend", example: "/help", icon: "ℹ️" },
+];
 
 export interface GgContact {
   ggNumber: number;
@@ -241,6 +261,56 @@ class GkGaduEngine {
       this.loadPersistedData();
       this.initBroadcastChannel();
       this.initSupabaseRealtime();
+      this.initConnectivityListeners();
+    }
+  }
+
+  private initConnectivityListeners() {
+    if (typeof window === "undefined") return;
+
+    window.addEventListener("online", () => {
+      this.loadSupabaseCloudHistory("lounge");
+      this.loadSupabaseCloudHistory("projects");
+      this.loadSupabaseCloudHistory("b2b");
+      this.refreshPresence();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        this.refreshPresence();
+      }
+    });
+
+    // 30s heartbeat keep-alive to stay always-online in Supabase
+    setInterval(() => {
+      if (this.state.currentUser.isLoggedIn || this.state.currentUser.status !== "offline") {
+        this.refreshPresence();
+      }
+    }, 30000);
+  }
+
+  public refreshPresence() {
+    if (this.realtimeChannel && this.state.currentUser.status !== "offline") {
+      try {
+        this.realtimeChannel.track({
+          ggNumber: this.state.currentUser.ggNumber,
+          name: this.state.currentUser.name,
+          avatarUrl: this.state.currentUser.avatarUrl,
+          status: this.state.currentUser.status,
+          statusDescription: this.state.currentUser.statusDescription,
+          onlineAt: new Date().toISOString(),
+        });
+      } catch {
+        // Ignored
+      }
+    }
+  }
+
+  public syncMusicStatus() {
+    if (musicEngine.getIsPlaying()) {
+      const track = musicEngine.getTrack();
+      const newDesc = `Słucham: ${track.artist} - ${track.title} 🎵`;
+      this.setStatus(this.state.currentUser.status, newDesc);
     }
   }
 
@@ -637,6 +707,11 @@ class GkGaduEngine {
       const cmd = parts[0].toLowerCase();
       const arg = parts.slice(1).join(" ");
 
+      if (cmd === "/music" || cmd === "/muzyka") {
+        const trackDesc = musicEngine.getCurrentTrackDescription();
+        const isPlaying = musicEngine.getIsPlaying();
+        return this.sendMessage(`🎵 **Słucham w GKinAmp:** ${trackDesc} ${isPlaying ? "▶ (Odtwarzanie)" : "⏸ (Pauza)"}`);
+      }
       if (cmd === "/nudge" || cmd === "/puk") {
         this.sendNudge();
         return;

@@ -25,6 +25,8 @@ import {
   Check,
   CheckCheck,
   ShieldCheck,
+  Music,
+  Play,
 } from "lucide-react";
 import {
   gkGaduEngine,
@@ -32,12 +34,15 @@ import {
   GgContact,
   GgMessage,
   GkGaduRoom,
+  GKGADU_SLASH_COMMANDS,
 } from "@/lib/gkgadu-engine";
 import { ggNotificationService } from "@/lib/gkgadu-notifications";
 import { SignInButton } from "@clerk/clerk-react";
 import { useSafeUser } from "@/hooks/use-safe-clerk";
 import { useAchievements } from "@/hooks/use-achievements";
 import { hapticLight, hapticSuccess, hapticSelection } from "@/lib/haptics";
+import { musicEngine } from "@/lib/music-engine";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface GkgaduChatModalProps {
   isOpen: boolean;
@@ -67,6 +72,7 @@ const REACTION_OPTIONS = ["☀️", "❤️", "🚀", "🍺", "🔥", "👍"];
 export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
   const { user, isLoaded } = useSafeUser();
   const { unlock } = useAchievements();
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   const [state, setState] = useState(gkGaduEngine.getState());
   const [inputText, setInputText] = useState("");
@@ -219,14 +225,26 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
           : { opacity: 1, y: 0, scale: 1 }
       }
       exit={{ opacity: 0, y: 30, scale: 0.96 }}
-      drag
-      className="fixed bottom-20 left-2 right-2 sm:bottom-auto sm:left-auto sm:top-20 sm:right-8 z-[99999] select-none font-['Geist'] text-xs shadow-[0_20px_50px_rgba(0,0,0,0.85)] rounded-2xl overflow-hidden border border-amber-500/40 bg-[#0f172a]/95 backdrop-blur-2xl w-auto sm:w-[410px] max-w-[calc(100vw-16px)] max-h-[82vh] text-slate-200 flex flex-col pointer-events-auto"
+      drag={isMobile ? "y" : true}
+      dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
+      dragElastic={isMobile ? { top: 0.05, bottom: 0.75 } : undefined}
+      onDragEnd={(_e, info) => {
+        if (isMobile && (info.offset.y > 80 || info.velocity.y > 400)) {
+          hapticLight();
+          onClose();
+        }
+      }}
+      className="fixed inset-x-0 bottom-0 sm:bottom-auto sm:left-auto sm:top-20 sm:right-8 z-[99999] select-none font-['Geist'] text-xs shadow-[0_20px_50px_rgba(0,0,0,0.85)] rounded-t-3xl sm:rounded-2xl overflow-hidden border-t sm:border border-amber-500/40 bg-[#0f172a]/95 backdrop-blur-2xl w-full sm:w-[410px] max-w-full sm:max-w-[calc(100vw-16px)] max-h-[92dvh] sm:max-h-[82vh] text-slate-200 flex flex-col pointer-events-auto"
       style={{
         boxShadow: "0 0 35px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+        paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))",
       }}
     >
+      {/* Mobile Swipe Handle Pill */}
+      <div className="w-12 h-1.5 bg-slate-500/40 hover:bg-slate-400 rounded-full mx-auto my-2 sm:hidden shrink-0 cursor-grab active:cursor-grabbing" />
+
       {/* ── Title Bar ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-[#1e293b] via-[#334155] to-[#1e293b] border-b border-amber-500/30 cursor-grab sm:cursor-grab active:cursor-grabbing text-xs font-bold text-slate-200">
+      <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-[#1e293b] via-[#334155] to-[#1e293b] border-b border-amber-500/30 cursor-grab sm:cursor-grab active:cursor-grabbing text-xs font-bold text-slate-200">
         <div className="flex items-center gap-2">
           {/* GG Sun Monogram */}
           <div className="relative">
@@ -538,7 +556,28 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
                           : "bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-none"
                       }`}
                     >
-                      {msg.text.includes("```") ? (
+                      {msg.text.includes("🎵 **Słucham w GKinAmp:**") ? (
+                        <div className="space-y-1.5 my-1">
+                          <p>{parseEmoticons(msg.text)}</p>
+                          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-black/80 border border-emerald-500/40 text-[10px]">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <Music className="h-3.5 w-3.5 text-emerald-400 shrink-0 animate-pulse" />
+                              <span className="font-mono text-emerald-300 font-bold truncate">GKinAmp Track</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                hapticSuccess();
+                                musicEngine.play();
+                              }}
+                              className="px-2 py-0.5 rounded bg-emerald-500 hover:bg-emerald-400 text-black font-bold flex items-center gap-1 shrink-0 cursor-pointer transition-colors shadow-sm"
+                            >
+                              <Play className="h-2.5 w-2.5 fill-current" />
+                              <span>Odtwórz</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : msg.text.includes("```") ? (
                         <div className="space-y-1 my-0.5">
                           {msg.text.split("```").map((chunk, idx) => {
                             if (idx % 2 === 1) {
@@ -627,6 +666,46 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Slash Commands Autocomplete Popover */}
+          <AnimatePresence>
+            {inputText.startsWith("/") && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="p-1.5 rounded-xl bg-slate-900/95 border border-amber-500/40 shadow-2xl max-h-44 overflow-y-auto space-y-1"
+              >
+                <div className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-400 flex items-center justify-between">
+                  <span>Komendy GKgadu</span>
+                  <span className="font-mono text-[8px] text-slate-500">KLIKNIJ ABY WYBRAĆ</span>
+                </div>
+                {GKGADU_SLASH_COMMANDS.filter((c) =>
+                  c.command.toLowerCase().includes(inputText.toLowerCase().split(" ")[0])
+                ).map((cmd) => (
+                  <button
+                    key={cmd.command}
+                    type="button"
+                    onClick={() => {
+                      hapticLight();
+                      setInputText(cmd.command + " ");
+                    }}
+                    className="w-full text-left px-2 py-1 rounded-lg hover:bg-slate-800 flex items-center justify-between text-xs transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{cmd.icon}</span>
+                      <span className="font-mono font-bold text-amber-300 group-hover:text-amber-200">
+                        {cmd.command}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 truncate max-w-[180px]">
+                      {cmd.description}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Emoticon Picker Popover */}
           <AnimatePresence>
             {showEmojiPicker && (
@@ -665,6 +744,19 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
               <Smile className="h-4 w-4" />
             </button>
 
+            <button
+              type="button"
+              onClick={() => {
+                const trackDesc = musicEngine.getCurrentTrackDescription();
+                const isPlaying = musicEngine.getIsPlaying();
+                gkGaduEngine.sendMessage(`🎵 **Słucham w GKinAmp:** ${trackDesc} ${isPlaying ? "▶" : "⏸"}`);
+              }}
+              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-emerald-400 cursor-pointer shrink-0 transition-all"
+              title="Udostępnij aktualnie grany utwór z GKinAmp na czacie"
+            >
+              <Music className="h-4 w-4" />
+            </button>
+
             <input
               type="text"
               value={inputText}
@@ -676,8 +768,9 @@ export const GkgaduChatModal = ({ isOpen, onClose }: GkgaduChatModalProps) => {
                   gkGaduEngine.broadcastTyping();
                 }, 300);
               }}
-              placeholder="Napisz wiadomość... (Enter)"
+              placeholder="Napisz wiadomość lub /komendę... (Enter)"
               className="flex-1 h-8 bg-black/60 border border-slate-700 rounded-lg px-2.5 text-xs text-slate-200 placeholder:text-slate-500 outline-none focus:border-amber-500/80 transition-colors font-['Geist']"
+              enterKeyHint="send"
             />
 
             <button

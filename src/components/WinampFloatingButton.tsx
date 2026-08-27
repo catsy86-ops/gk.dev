@@ -22,6 +22,25 @@ export function WinampFloatingButton({
 }: WinampFloatingButtonProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackTitle, setTrackTitle] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName)) {
+        setIsTyping(true);
+      }
+    };
+    const handleFocusOut = () => {
+      setIsTyping(false);
+    };
+
+    window.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("focusout", handleFocusOut);
+    return () => {
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = musicEngine.subscribe((state) => {
@@ -42,9 +61,9 @@ export function WinampFloatingButton({
   };
 
   return (
-    <div className="fixed bottom-40 right-4 sm:bottom-20 sm:right-6 z-[99997] pointer-events-auto select-none">
+    <div className="hidden sm:block fixed bottom-40 right-4 sm:bottom-20 sm:right-6 z-[99997] pointer-events-auto select-none">
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && !isTyping && (
           <motion.button
             type="button"
             initial={{ scale: 0, opacity: 0, y: 20 }}

@@ -6,6 +6,8 @@ interface KeyboardShortcutHandlers {
   onOpenEstimator?: () => void;
   onFocusSearch?: () => void;
   onTriggerMatrix?: () => void;
+  onOpenBios?: () => void;
+  onOpenReceipt?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -14,6 +16,8 @@ export function useKeyboardShortcuts({
   onOpenEstimator,
   onFocusSearch,
   onTriggerMatrix,
+  onOpenBios,
+  onOpenReceipt,
 }: KeyboardShortcutHandlers) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,9 +64,29 @@ export function useKeyboardShortcuts({
         onOpenEstimator();
         return;
       }
+
+      if ((key === "b" || e.key === "F12") && onOpenBios) {
+        e.preventDefault();
+        onOpenBios();
+        return;
+      }
+
+      if (key === "r" && onOpenReceipt) {
+        e.preventDefault();
+        onOpenReceipt();
+        return;
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onOpenTerminal, onOpenPassport, onOpenEstimator, onFocusSearch, onTriggerMatrix]);
+  }, [
+    onOpenTerminal,
+    onOpenPassport,
+    onOpenEstimator,
+    onFocusSearch,
+    onTriggerMatrix,
+    onOpenBios,
+    onOpenReceipt,
+  ]);
 }

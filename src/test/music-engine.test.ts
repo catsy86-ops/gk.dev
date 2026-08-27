@@ -64,11 +64,13 @@ describe("MusicEngine / GKinAmp Pro Synthesizer & DSP Suite", () => {
     expect(timeDomain.length).toBeGreaterThanOrEqual(16);
   });
 
-  it("switches to next and previous tracks", () => {
+  it("switches to next and previous tracks and handles mediaSession updates", () => {
     musicEngine.nextTrack();
     expect(musicEngine.getTrack().id).toBe(SOUNDSCAPE_TRACKS[1].id);
 
     musicEngine.prevTrack();
     expect(musicEngine.getTrack().id).toBe(SOUNDSCAPE_TRACKS[0].id);
+
+    expect(musicEngine.getCurrentTrackDescription()).toContain("The Prodigy");
   });
 });

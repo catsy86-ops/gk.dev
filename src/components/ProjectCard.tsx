@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Star, Globe, Layers } from "lucide-react";
 import { useState, forwardRef, useRef } from "react";
 import { ProjectSvgThumbnail } from "@/components/ProjectSvgThumbnail";
+import { DeviceFrame } from "@/components/ui/DeviceFrame";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { EASE_STANDARD } from "@/constants/animations";
 import { cn } from "@/lib/utils";
@@ -146,47 +147,51 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
             </div>
           </div>
 
-          {/* Ultra-compact thumbnail container with Vector SVG artwork */}
-          <div className="relative mt-2 mx-2.5 sm:mx-3 overflow-hidden rounded-lg aspect-[16/8] bg-secondary/50 border border-border/50">
-            <ProjectSvgThumbnail
-              projectId={project.id}
-              category={project.category}
-              accent={project.accent}
-              isHovered={isHovered}
-            />
+          {/* Ultra-compact thumbnail container with Vector SVG artwork in DeviceFrame */}
+          <div className="relative mt-2 mx-2.5 sm:mx-3">
+            <DeviceFrame variant="macbook" title={`gk.dev/apps/${project.id}`}>
+              <div className="relative w-full h-full">
+                <ProjectSvgThumbnail
+                  projectId={project.id}
+                  category={project.category}
+                  accent={project.accent}
+                  isHovered={isHovered}
+                />
 
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/10 to-transparent pointer-events-none" />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/10 to-transparent pointer-events-none" />
 
-            {/* Micro Action buttons */}
-            <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 z-20">
-              {onOpenDetails && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    unlock("architect_explorer");
-                    onOpenDetails(project);
-                  }}
-                  className="flex h-6 items-center gap-1 rounded-md border border-border/70 bg-card/90 backdrop-blur-md px-2 text-[10px] font-semibold text-foreground hover:bg-card hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer"
-                >
-                  <Layers className="h-2.5 w-2.5 text-primary" />
-                  Case Study
-                </button>
-              )}
+                {/* Micro Action buttons */}
+                <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 z-20">
+                  {onOpenDetails && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        unlock("architect_explorer");
+                        onOpenDetails(project);
+                      }}
+                      className="flex h-6 items-center gap-1 rounded-md border border-border/70 bg-card/90 backdrop-blur-md px-2 text-[10px] font-semibold text-foreground hover:bg-card hover:border-primary/50 transition-all shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <Layers className="h-2.5 w-2.5 text-primary" />
+                      Case Study
+                    </button>
+                  )}
 
-              <a
-                href={project.demo}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Demo – ${project.title}`}
-                className="flex h-6 items-center gap-1 rounded-md bg-primary px-2 text-[10px] font-semibold text-primary-foreground shadow-sm shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95"
-              >
-                <Globe className="h-2.5 w-2.5" />
-                Demo
-                <ArrowUpRight className="h-2.5 w-2.5" />
-              </a>
-            </div>
+                  <a
+                    href={project.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Demo – ${project.title}`}
+                    className="flex h-6 items-center gap-1 rounded-md bg-primary px-2 text-[10px] font-semibold text-primary-foreground shadow-sm shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95"
+                  >
+                    <Globe className="h-2.5 w-2.5" />
+                    Demo
+                    <ArrowUpRight className="h-2.5 w-2.5" />
+                  </a>
+                </div>
+              </div>
+            </DeviceFrame>
           </div>
 
           {/* Project Title & Description (ultra-compact) */}

@@ -152,6 +152,7 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
 
   const animFrameRef = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
   // Subscribe to engine state updates
   useEffect(() => {
@@ -218,7 +219,7 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
     };
   }, [showGame, isPlaying, currentTrack.bpm, pitchSpeed]);
 
-  // Real-time Visualizer Animation Loop (Bars, Waveform, Oscilloscope)
+  // Real-time Visualizer Animation Loop (Bars, Waveform, Oscilloscope, Tunnel)
   useEffect(() => {
     const renderVisualizer = () => {
       if (isPlaying || isMicActive) {
@@ -239,6 +240,75 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
     animFrameRef.current = requestAnimationFrame(renderVisualizer);
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [isPlaying, isMicActive]);
+
+  // Global Winamp Power-User Hotkeys (Space, Z, X, C, V, B, M, ArrowUp/Down)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in form fields
+      if (["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        hapticLight();
+        if (isPlaying) {
+          musicEngine.pause();
+        } else {
+          musicEngine.play();
+        }
+      } else if (e.key === "z" || e.key === "Z") {
+        e.preventDefault();
+        hapticLight();
+        musicEngine.prevTrack();
+        setElapsedSeconds(0);
+      } else if (e.key === "b" || e.key === "B") {
+        e.preventDefault();
+        hapticLight();
+        musicEngine.nextTrack();
+        setElapsedSeconds(0);
+      } else if (e.key === "x" || e.key === "X") {
+        e.preventDefault();
+        hapticLight();
+        musicEngine.play();
+      } else if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        hapticLight();
+        musicEngine.pause();
+      } else if (e.key === "v" || e.key === "V") {
+        e.preventDefault();
+        hapticLight();
+        musicEngine.pause();
+        setElapsedSeconds(0);
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        hapticLight();
+        if (volume > 0) {
+          musicEngine.setVolume(0);
+          setVolume(0);
+        } else {
+          musicEngine.setVolume(0.7);
+          setVolume(0.7);
+        }
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const newVol = Math.min(1, volume + 0.05);
+        musicEngine.setVolume(newVol);
+        setVolume(newVol);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const newVol = Math.max(0, volume - 0.05);
+        musicEngine.setVolume(newVol);
+        setVolume(newVol);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isPlaying, volume]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60)
@@ -321,6 +391,21 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
         }
       }
     }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (diff > 40) {
+      handlePrev();
+    } else if (diff < -40) {
+      handleNext();
+    }
+    touchStartX.current = null;
   };
 
   // Recording Handler
@@ -455,7 +540,10 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
         <div className="p-3 bg-black/40 text-slate-200 space-y-2.5">
           {/* LCD Matrix Screen */}
           <div
-            className={`rounded border ${currentSkin.lcdBorder} ${currentSkin.lcdBg} p-2.5 shadow-inner relative overflow-hidden`}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className={`rounded border ${currentSkin.lcdBorder} ${currentSkin.lcdBg} p-2.5 shadow-inner relative overflow-hidden touch-pan-y`}
+            title="Przesuń palcem w lewo/prawo, aby przełączyć utwór"
           >
             {/* CRT Scanline overlay */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_3px] pointer-events-none opacity-40" />
@@ -547,15 +635,37 @@ export const WinampPlayer = ({ isOpen = true, onClose }: WinampPlayerProps) => {
                   </div>
                 )}
 
+                {visMode === "tunnel" && (
+                  <div className="h-8 w-24 rounded bg-black/90 border border-emerald-500/40 flex items-center justify-center overflow-hidden relative shadow-[inset_0_0_10px_rgba(16,185,129,0.3)]">
+                    <div
+                      className="absolute inset-0 border border-emerald-500/40 rounded-full transition-transform duration-75"
+                      style={{
+                        transform: `scale(${1 + (freqBars[0] || 4) / 18})`,
+                        opacity: isPlaying ? 0.8 : 0.2,
+                      }}
+                    />
+                    <div
+                      className="absolute inset-1 border border-cyan-400/50 rounded-full transition-transform duration-75"
+                      style={{
+                        transform: `scale(${1 + (freqBars[4] || 4) / 24})`,
+                        opacity: isPlaying ? 0.9 : 0.3,
+                      }}
+                    />
+                    <div
+                      className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"
+                    />
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => {
-                    const modes: VisualizerMode[] = ["bars", "waveform", "starfield"];
+                    const modes: VisualizerMode[] = ["bars", "waveform", "starfield", "tunnel"];
                     const next = modes[(modes.indexOf(visMode) + 1) % modes.length];
                     setVisMode(next);
                   }}
                   className="text-[8px] font-bold text-slate-400 hover:text-slate-200 uppercase cursor-pointer"
-                  title="Zmień tryb wizualizacji (Bars / Waveform / Starfield)"
+                  title="Zmień tryb wizualizacji (Bars / Waveform / Starfield / 3D Tunnel)"
                 >
                   VIS: {visMode}
                 </button>

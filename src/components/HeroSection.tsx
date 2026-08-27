@@ -3,6 +3,7 @@ import { Code2, Github, Linkedin, Mail, Sparkles, ArrowUpRight } from "lucide-re
 import { useRef, useState, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { GlowButton } from "@/components/ui/GlowButton";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 import { CanvasGridBackground } from "@/components/ui/canvas-grid-background";
 import { CanvasBubblesBackground } from "@/components/ui/canvas-bubbles-background";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
@@ -324,24 +325,28 @@ const HeroSection = () => {
           animate="visible"
         >
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <GlowButton
-              variant="glow"
-              size="lg"
-              onClick={scrollToSection("projekty")}
-              icon={<Sparkles className="h-3.5 w-3.5" />}
-            >
-              Zobacz projekty
-            </GlowButton>
+            <MagneticButton strength={0.3}>
+              <GlowButton
+                variant="glow"
+                size="lg"
+                onClick={scrollToSection("projekty")}
+                icon={<Sparkles className="h-3.5 w-3.5" />}
+              >
+                Zobacz projekty
+              </GlowButton>
+            </MagneticButton>
 
-            <GlowButton
-              variant="glass"
-              size="lg"
-              href="#kontakt"
-              onClick={scrollToSection("kontakt")}
-              icon={<ArrowUpRight className="h-3.5 w-3.5" />}
-            >
-              Napisz do mnie
-            </GlowButton>
+            <MagneticButton strength={0.3}>
+              <GlowButton
+                variant="glass"
+                size="lg"
+                href="#kontakt"
+                onClick={scrollToSection("kontakt")}
+                icon={<ArrowUpRight className="h-3.5 w-3.5" />}
+              >
+                Napisz do mnie
+              </GlowButton>
+            </MagneticButton>
           </div>
 
           <motion.div

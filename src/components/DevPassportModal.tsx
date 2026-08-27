@@ -85,7 +85,7 @@ export const DevPassportModal = ({ isOpen, onClose }: DevPassportModalProps) => 
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", stiffness: 350, damping: 28 }}
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-primary/30 bg-card/95 backdrop-blur-2xl p-5 sm:p-7 shadow-2xl shadow-primary/20 text-foreground"
+          className="relative w-full max-w-2xl max-h-[92dvh] overflow-y-auto rounded-3xl border border-primary/30 bg-card/95 backdrop-blur-2xl p-5 sm:p-7 shadow-2xl shadow-primary/20 text-foreground pb-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))]"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-4 border-b border-border/50 pb-4 mb-5">

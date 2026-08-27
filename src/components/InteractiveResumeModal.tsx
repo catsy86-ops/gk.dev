@@ -15,11 +15,13 @@ import {
   Code2,
   Sparkles,
   ExternalLink,
+  Receipt,
 } from "lucide-react";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "@/hooks/use-toast";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
+import { DevReceiptModal } from "@/components/DevReceiptModal";
 
 interface InteractiveResumeModalProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ interface InteractiveResumeModalProps {
 export const InteractiveResumeModal = ({ isOpen, onClose }: InteractiveResumeModalProps) => {
   const { lang, t } = useI18n();
   const [copied, setCopied] = useState(false);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const isPl = lang === "pl";
 
   const handlePrint = () => {
@@ -128,7 +131,7 @@ Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 350 }}
-            className="relative w-full max-w-4xl bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden z-10 my-auto flex flex-col max-h-[92vh]"
+            className="relative w-full max-w-4xl bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden z-10 my-auto flex flex-col max-h-[92dvh] pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]"
           >
             {/* Top Toolbar (Non-printable) */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 bg-secondary/30 print:hidden shrink-0">
@@ -143,6 +146,20 @@ Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playPop(850, 0.03);
+                    hapticLight();
+                    setIsReceiptOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  title="Generuj Paragon Inżynierski"
+                >
+                  <Receipt className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Paragon Dev</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handleCopyMarkdown}
@@ -326,6 +343,14 @@ Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych
             </div>
           </motion.div>
         </div>
+      )}
+
+      {/* Dev Receipt Modal */}
+      {isReceiptOpen && (
+        <DevReceiptModal
+          isOpen={isReceiptOpen}
+          onClose={() => setIsReceiptOpen(false)}
+        />
       )}
     </AnimatePresence>
   );

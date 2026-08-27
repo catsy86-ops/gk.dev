@@ -16,6 +16,8 @@ import {
   VolumeX,
   Sparkles,
   Contact2,
+  Music,
+  Radio,
 } from "lucide-react";
 import { useSafeUser } from "@/hooks/use-safe-clerk";
 import { useTheme } from "next-themes";
@@ -34,6 +36,8 @@ interface MobileQuickActionsProps {
   onClose: () => void;
   onOpenTerminal?: () => void;
   onOpenPassport?: () => void;
+  onToggleGkgadu?: () => void;
+  onToggleWinamp?: () => void;
 }
 
 export const MobileQuickActions = ({
@@ -41,6 +45,8 @@ export const MobileQuickActions = ({
   onClose,
   onOpenTerminal,
   onOpenPassport,
+  onToggleGkgadu,
+  onToggleWinamp,
 }: MobileQuickActionsProps) => {
   useScrollLock(isOpen);
   const { isSignedIn, user } = useSafeUser();
@@ -131,7 +137,7 @@ export const MobileQuickActions = ({
                   onClose();
                 }
               }}
-              className="relative w-full rounded-t-[32px] border-t border-border/80 bg-card/95 backdrop-blur-2xl p-5 sm:p-6 pb-[max(2.5rem,env(safe-area-inset-bottom,2.5rem))] shadow-2xl z-10 space-y-3.5 pointer-events-auto touch-none max-h-[90vh] overflow-y-auto"
+              className="relative w-full rounded-t-[32px] border-t border-border/80 bg-card/95 backdrop-blur-2xl p-5 sm:p-6 pb-[max(2.5rem,env(safe-area-inset-bottom,2.5rem))] shadow-2xl z-10 space-y-3.5 pointer-events-auto touch-none max-h-[92dvh] overflow-y-auto"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
@@ -243,6 +249,53 @@ export const MobileQuickActions = ({
                   </div>
                 </button>
               )}
+
+              {/* Terminal, GKgadu & GKinAmp Micro Apps Hub */}
+              <div className="grid grid-cols-2 gap-2">
+                {/* GKgadu 2026 Launcher */}
+                {onToggleGkgadu && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.03);
+                      hapticMedium();
+                      onClose();
+                      onToggleGkgadu();
+                    }}
+                    className="p-2.5 rounded-2xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 flex items-center gap-2 text-left transition-colors cursor-pointer shadow-sm"
+                  >
+                    <div className="h-8 w-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                      <Sun className="h-4 w-4 fill-amber-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-foreground truncate">GKgadu Live</p>
+                      <p className="text-[9px] font-mono text-amber-500 truncate">Czat na żywo ☀️</p>
+                    </div>
+                  </button>
+                )}
+
+                {/* GKinAmp Music Launcher */}
+                {onToggleWinamp && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(920, 0.03);
+                      hapticMedium();
+                      onClose();
+                      onToggleWinamp();
+                    }}
+                    className="p-2.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-left transition-colors cursor-pointer shadow-sm"
+                  >
+                    <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                      <Music className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-foreground truncate">GKinAmp</p>
+                      <p className="text-[9px] font-mono text-emerald-400 truncate">Cyber Player 🎵</p>
+                    </div>
+                  </button>
+                )}
+              </div>
 
               {/* Terminal CLI Mobile Banner */}
               <button

@@ -40,6 +40,12 @@ const DevPassportModal = lazy(() =>
 const GkgaduChatModal = lazy(() =>
   import("@/components/GkgaduChatModal").then((m) => ({ default: m.GkgaduChatModal }))
 );
+const BiosSimulatorModal = lazy(() =>
+  import("@/components/BiosSimulatorModal").then((m) => ({ default: m.BiosSimulatorModal }))
+);
+const DevReceiptModal = lazy(() =>
+  import("@/components/DevReceiptModal").then((m) => ({ default: m.DevReceiptModal }))
+);
 
 function useShouldLoadHeavyContent() {
   const [shouldLoad, setShouldLoad] = useState(true);
@@ -76,6 +82,8 @@ const Index = ({ initialAuthModal }: IndexProps) => {
   const [isMatrixActive, setIsMatrixActive] = useState(false);
   const [isWinampOpen, setIsWinampOpen] = useState(false);
   const [isGkgaduOpen, setIsGkgaduOpen] = useState(false);
+  const [isBiosOpen, setIsBiosOpen] = useState(false);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const shouldLoadStats = useShouldLoadHeavyContent();
 
   const isAuthRoute =
@@ -144,13 +152,27 @@ const Index = ({ initialAuthModal }: IndexProps) => {
     }
   }, []);
 
-  // Global Power-User Hotkeys (/, T, P, E, M)
+  const handleOpenBios = useCallback(() => {
+    soundEngine.playPop(900, 0.05);
+    hapticMedium();
+    setIsBiosOpen(true);
+  }, []);
+
+  const handleOpenReceipt = useCallback(() => {
+    soundEngine.playChime();
+    hapticMedium();
+    setIsReceiptOpen(true);
+  }, []);
+
+  // Global Power-User Hotkeys (/, T, P, E, M, B, R)
   useKeyboardShortcuts({
     onOpenTerminal: handleOpenTerminal,
     onOpenPassport: handleOpenPassport,
     onFocusSearch: handleFocusSearch,
     onOpenEstimator: handleOpenEstimator,
     onTriggerMatrix: handleTriggerMatrix,
+    onOpenBios: handleOpenBios,
+    onOpenReceipt: handleOpenReceipt,
   });
 
   return (
@@ -184,6 +206,7 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
         onToggleGkgadu={handleToggleGkgadu}
+        onToggleWinamp={handleToggleWinamp}
       />
       <WinampFloatingButton
         isOpen={isWinampOpen}
@@ -240,6 +263,26 @@ const Index = ({ initialAuthModal }: IndexProps) => {
           <GkgaduChatModal
             isOpen={isGkgaduOpen}
             onClose={() => setIsGkgaduOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Retro Award BIOS Setup Utility */}
+      {isBiosOpen && (
+        <Suspense fallback={null}>
+          <BiosSimulatorModal
+            isOpen={isBiosOpen}
+            onClose={() => setIsBiosOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Dev Receipt Modal */}
+      {isReceiptOpen && (
+        <Suspense fallback={null}>
+          <DevReceiptModal
+            isOpen={isReceiptOpen}
+            onClose={() => setIsReceiptOpen(false)}
           />
         </Suspense>
       )}
