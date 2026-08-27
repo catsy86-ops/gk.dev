@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Bot, X, Send, ArrowUpRight, User, RefreshCw } from "lucide-react";
+import { Bot, X, Send, ArrowUpRight, User, RefreshCw, Volume2, VolumeX, Mic, Radio } from "lucide-react";
 import { queryAiAssistant, AiResponse } from "@/lib/ai-engine";
 import { BorderBeam } from "@/components/ui/BorderBeam";
 import { soundEngine } from "@/lib/audio";
@@ -39,10 +39,30 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
   ]);
   const [inputQuery, setInputQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const speakText = (text: string) => {
+    if (!isVoiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[*_#`[\]()]/g, "").trim();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = "pl-PL";
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      setIsSpeaking(false);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView?.({ behavior: "smooth" });
@@ -120,6 +140,7 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
           setIsGenerating(false);
           soundEngine.playChime();
           hapticSuccess();
+          speakText(fullText);
         } else {
           setMessages((prev) =>
             prev.map((msg) =>
@@ -218,11 +239,49 @@ export const AiAssistantDialog = ({ isOpen, onClose }: AiAssistantDialogProps) =
               </div>
 
               <div className="flex items-center gap-2 relative z-30">
+                {/* Voice Note Synthesizer Toggle */}
                 <button
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    soundEngine.playPop(750, 0.03);
+                    hapticLight();
+                    if (isSpeaking) {
+                      window.speechSynthesis?.cancel();
+                      setIsSpeaking(false);
+                    }
+                    setIsVoiceEnabled(!isVoiceEnabled);
+                  }}
+                  className={`h-8 px-2.5 rounded-full border text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isVoiceEnabled
+                      ? "border-primary/40 bg-primary/15 text-primary"
+                      : "border-border bg-secondary text-muted-foreground"
+                  }`}
+                  title={isVoiceEnabled ? "Głos lektora włączony (Speech Synthesis)" : "Głos wyłączony"}
+                >
+                  {isVoiceEnabled ? (
+                    <>
+                      <Volume2 className={`h-3.5 w-3.5 ${isSpeaking ? "animate-pulse text-emerald-400" : ""}`} />
+                      <span className="text-[10px] font-bold hidden sm:inline">{isSpeaking ? "Mówi..." : "Głos ON"}</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-3.5 w-3.5" />
+                      <span className="text-[10px] hidden sm:inline">Głos OFF</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isSpeaking) {
+                      window.speechSynthesis?.cancel();
+                      setIsSpeaking(false);
+                    }
                     handleReset();
                   }}
                   className="h-8 w-8 rounded-full border border-border bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer pointer-events-auto"

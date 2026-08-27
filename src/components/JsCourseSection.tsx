@@ -20,6 +20,8 @@ import {
   RefreshCw,
   BookOpen,
   Terminal,
+  Share2,
+  Lightbulb,
 } from "lucide-react";
 import { soundEngine } from "@/lib/audio";
 import { hapticLight, hapticMedium, hapticSuccess } from "@/lib/haptics";
@@ -96,6 +98,32 @@ export const JsCourseSection = () => {
     });
     setTimeout(() => setIsCopied(false), 2000);
   };
+
+  const handleShareCode = async () => {
+    soundEngine.playPop(850, 0.03);
+    hapticLight();
+    const encoded = encodeURIComponent(editableCode);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?code=${encoded}#kurs-js`;
+    
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: lang === "pl" ? "Skopiowano link do kodu!" : "Code link copied!",
+        description: lang === "pl" ? "Możesz przesłać ten link znajomemu lub rekruterowi." : "Share this URL with your custom code snippet.",
+      });
+    }
+  };
+
+  const codeChallenges = [
+    {
+      title: "Wyzwanie 1: Formatowanie Waluty (PLN)",
+      snippet: `// Zadanie: Sformatuj liczbę jako kwotę w PLN (np. 1250.5 -> "1 250,50 zł")\nfunction formatPLN(amount) {\n  return new Intl.NumberFormat('pl-PL', {\n    style: 'currency',\n    currency: 'PLN'\n  }).format(amount);\n}\n\nconsole.log(formatPLN(14999.99));\nconsole.log(formatPLN(420));`,
+    },
+    {
+      title: "Wyzwanie 2: Funkcja Debounce (TS/JS)",
+      snippet: `// Zadanie: Implementacja opóźnienia wykonania (Debounce)\nfunction debounce(fn, delay) {\n  let timer;\n  return function(...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), delay);\n  };\n}\n\nconst logMsg = debounce((msg) => console.log('Wywołano:', msg), 100);\nlogMsg('Test 1');\nlogMsg('Test 2 (Ostateczny)');`,
+    },
+  ];
 
   const handleRunCode = async () => {
     soundEngine.playChime();
@@ -553,6 +581,16 @@ export const JsCourseSection = () => {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    onClick={handleShareCode}
+                    title="Udostępnij link do swojego kodu"
+                    className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border/50 bg-secondary/40 hover:bg-secondary text-slate-300 hover:text-white transition-all cursor-pointer"
+                  >
+                    <Share2 className="h-3 w-3 text-cyan-400" />
+                    <span className="hidden sm:inline">Udostępnij</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleResetCode}
                     title="Przywróć kod lekcji"
                     className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border/50 bg-secondary/40 hover:bg-secondary text-slate-300 hover:text-white transition-all cursor-pointer"
@@ -585,7 +623,33 @@ export const JsCourseSection = () => {
               </div>
 
               {/* Interactive Live Code Editor Textarea */}
-              <div className="relative p-3 sm:p-4 bg-[#0d1117]">
+              <div className="relative p-3 sm:p-4 bg-[#0d1117] space-y-2">
+                {/* Algorithmic Challenge Selector Bar */}
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 text-[10px]">
+                  <span className="text-muted-foreground flex items-center gap-1 shrink-0">
+                    <Lightbulb className="h-3 w-3 text-amber-400" />
+                    Wyzwania:
+                  </span>
+                  {codeChallenges.map((ch, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playPop(800, 0.03);
+                        hapticLight();
+                        setEditableCode(ch.snippet);
+                        toast({
+                          title: ch.title,
+                          description: "Załadowano kod zadania algorytmicznego.",
+                        });
+                      }}
+                      className="px-2 py-0.5 rounded-md border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold shrink-0 cursor-pointer transition-colors"
+                    >
+                      {ch.title.split(":")[0]}
+                    </button>
+                  ))}
+                </div>
+
                 <textarea
                   value={editableCode}
                   onChange={(e) => setEditableCode(e.target.value)}

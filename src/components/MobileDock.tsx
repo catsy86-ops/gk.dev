@@ -22,9 +22,18 @@ interface MobileDockProps {
   onOpenPassport?: () => void;
   onToggleGkgadu?: () => void;
   onToggleWinamp?: () => void;
+  onOpenBios?: () => void;
+  onOpenReceipt?: () => void;
 }
 
-export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu, onToggleWinamp }: MobileDockProps) => {
+export const MobileDock = ({
+  onOpenTerminal,
+  onOpenPassport,
+  onToggleGkgadu,
+  onToggleWinamp,
+  onOpenBios,
+  onOpenReceipt,
+}: MobileDockProps) => {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
@@ -235,6 +244,8 @@ export const MobileDock = ({ onOpenTerminal, onOpenPassport, onToggleGkgadu, onT
         onOpenPassport={onOpenPassport}
         onToggleGkgadu={onToggleGkgadu}
         onToggleWinamp={onToggleWinamp}
+        onOpenBios={onOpenBios}
+        onOpenReceipt={onOpenReceipt}
       />
 
       {/* Dedicated Auth Dialog */}

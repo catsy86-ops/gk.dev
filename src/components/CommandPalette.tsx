@@ -23,6 +23,8 @@ import {
   LogIn,
   Bookmark,
   Code2,
+  Receipt,
+  Cpu,
   X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -50,6 +52,8 @@ interface CommandPaletteProps {
   onOpenClientPortal?: () => void;
   onTriggerMatrix?: () => void;
   onToggleGkgadu?: () => void;
+  onOpenBios?: () => void;
+  onOpenReceipt?: () => void;
 }
 
 export const CommandPalette = ({
@@ -60,6 +64,8 @@ export const CommandPalette = ({
   onOpenClientPortal,
   onTriggerMatrix,
   onToggleGkgadu,
+  onOpenBios,
+  onOpenReceipt,
 }: CommandPaletteProps) => {
   useScrollLock(isOpen);
   const { isSignedIn } = useSafeUser();
@@ -197,6 +203,30 @@ export const CommandPalette = ({
       },
       shortcut: "G",
       keywords: ["gg", "gadu", "gkgadu", "chat", "czat", "wiadomosc", "realtime", "sloneczko"],
+    },
+    {
+      id: "receipt",
+      label: "Generuj Oficjalny Paragon Inżynierski (Dev Receipt)",
+      category: "Akcje",
+      icon: Receipt,
+      action: () => {
+        onClose();
+        if (onOpenReceipt) onOpenReceipt();
+      },
+      shortcut: "R",
+      keywords: ["paragon", "faktura", "receipt", "godziny", "koszt", "cena", "cv"],
+    },
+    {
+      id: "bios",
+      label: "Uruchom ROM PCI/ISA BIOS Setup Utility v2026",
+      category: "Akcje",
+      icon: Cpu,
+      action: () => {
+        onClose();
+        if (onOpenBios) onOpenBios();
+      },
+      shortcut: "B",
+      keywords: ["bios", "setup", "overclock", "retro", "90s", "hacker"],
     },
     {
       id: "ai",

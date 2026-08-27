@@ -201,12 +201,16 @@ const Index = ({ initialAuthModal }: IndexProps) => {
         isWinampOpen={isWinampOpen}
         onToggleGkgadu={handleToggleGkgadu}
         isGkgaduOpen={isGkgaduOpen}
+        onOpenBios={handleOpenBios}
+        onOpenReceipt={handleOpenReceipt}
       />
       <MobileDock
         onOpenTerminal={handleOpenTerminal}
         onOpenPassport={handleOpenPassport}
         onToggleGkgadu={handleToggleGkgadu}
         onToggleWinamp={handleToggleWinamp}
+        onOpenBios={handleOpenBios}
+        onOpenReceipt={handleOpenReceipt}
       />
       <WinampFloatingButton
         isOpen={isWinampOpen}

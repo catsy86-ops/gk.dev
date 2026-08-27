@@ -16,7 +16,7 @@ describe("Navbar Desktop Menu", () => {
     expect(screen.getByText("Umiejętności")).toBeInTheDocument();
     expect(screen.getByText("Projekty")).toBeInTheDocument();
     expect(screen.getByText("Opinie")).toBeInTheDocument();
-    expect(screen.getByText("Kurs JS")).toBeInTheDocument();
+    expect(screen.getByText("Narzędzia & Lab")).toBeInTheDocument();
     expect(screen.getByText("FAQ")).toBeInTheDocument();
   });
 });

@@ -18,6 +18,8 @@ import {
   Contact2,
   Music,
   Radio,
+  Receipt,
+  Cpu,
 } from "lucide-react";
 import { useSafeUser } from "@/hooks/use-safe-clerk";
 import { useTheme } from "next-themes";
@@ -38,6 +40,8 @@ interface MobileQuickActionsProps {
   onOpenPassport?: () => void;
   onToggleGkgadu?: () => void;
   onToggleWinamp?: () => void;
+  onOpenBios?: () => void;
+  onOpenReceipt?: () => void;
 }
 
 export const MobileQuickActions = ({
@@ -47,6 +51,8 @@ export const MobileQuickActions = ({
   onOpenPassport,
   onToggleGkgadu,
   onToggleWinamp,
+  onOpenBios,
+  onOpenReceipt,
 }: MobileQuickActionsProps) => {
   useScrollLock(isOpen);
   const { isSignedIn, user } = useSafeUser();
@@ -250,8 +256,58 @@ export const MobileQuickActions = ({
                 </button>
               )}
 
-              {/* Terminal, GKgadu & GKinAmp Micro Apps Hub */}
+              {/* Retro & Engineering Micro Apps Hub (Receipt, BIOS, GKgadu, GKinAmp) */}
               <div className="grid grid-cols-2 gap-2">
+                {/* Paragon Inżynierski Launcher */}
+                {onOpenReceipt && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.03);
+                      hapticMedium();
+                      onClose();
+                      onOpenReceipt();
+                    }}
+                    className="p-2.5 rounded-2xl border border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 flex items-center gap-2 text-left transition-colors cursor-pointer shadow-sm"
+                  >
+                    <div className="h-8 w-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
+                      <Receipt className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1">
+                        <p className="font-bold text-xs text-foreground truncate">Paragon Dev</p>
+                        <span className="font-mono text-[8px] bg-indigo-500/30 text-indigo-300 px-1 rounded">R</span>
+                      </div>
+                      <p className="text-[9px] font-mono text-indigo-400 truncate">Faktura & Czas</p>
+                    </div>
+                  </button>
+                )}
+
+                {/* Retro BIOS Setup Launcher */}
+                {onOpenBios && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(900, 0.03);
+                      hapticMedium();
+                      onClose();
+                      onOpenBios();
+                    }}
+                    className="p-2.5 rounded-2xl border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 flex items-center gap-2 text-left transition-colors cursor-pointer shadow-sm"
+                  >
+                    <div className="h-8 w-8 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 shrink-0">
+                      <Cpu className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1">
+                        <p className="font-bold text-xs text-foreground truncate">Award BIOS</p>
+                        <span className="font-mono text-[8px] bg-blue-500/30 text-blue-300 px-1 rounded">B</span>
+                      </div>
+                      <p className="text-[9px] font-mono text-blue-400 truncate">Setup Utility '26</p>
+                    </div>
+                  </button>
+                )}
+
                 {/* GKgadu 2026 Launcher */}
                 {onToggleGkgadu && (
                   <button

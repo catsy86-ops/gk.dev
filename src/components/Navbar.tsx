@@ -21,6 +21,7 @@ import {
   Terminal,
   Trophy,
   Radio,
+  Receipt,
 } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { useTheme } from "next-themes";
@@ -58,6 +59,7 @@ interface SubItem {
   desc: string;
   href: string;
   badge?: string;
+  onClick?: () => void;
 }
 
 interface NavbarProps {
@@ -68,6 +70,8 @@ interface NavbarProps {
   isWinampOpen?: boolean;
   onToggleGkgadu?: () => void;
   isGkgaduOpen?: boolean;
+  onOpenBios?: () => void;
+  onOpenReceipt?: () => void;
 }
 
 const Navbar = ({
@@ -78,6 +82,8 @@ const Navbar = ({
   isWinampOpen,
   onToggleGkgadu,
   isGkgaduOpen,
+  onOpenBios,
+  onOpenReceipt,
 }: NavbarProps) => {
   const { t, lang } = useI18n();
 
@@ -135,7 +141,41 @@ const Navbar = ({
       ] as SubItem[],
     },
     { label: t.nav.reviews, href: "#opinie", id: "opinie" },
-    { label: t.nav.course, href: "#kurs-js", id: "kurs-js" },
+    {
+      label: lang === "pl" ? "Narzędzia & Lab" : "Tools & Lab",
+      href: "#kurs-js",
+      id: "kurs-js",
+      subItems: [
+        {
+          icon: Code2,
+          title: lang === "pl" ? "Live Edytor Kodu (Sandbox)" : "Live Code Sandbox",
+          desc: lang === "pl" ? "Uruchamiaj i testuj kod JS na żywo w przeglądarce" : "Execute & test JS code live in browser",
+          href: "#kurs-js",
+          badge: "Nowość",
+        },
+        {
+          icon: Receipt,
+          title: lang === "pl" ? "Paragon Inżynierski (Dev Receipt)" : "Dev Receipt Generator",
+          desc: lang === "pl" ? "Kalkulator godzin, stacku i certyfikat (Skrót: R)" : "Hours, stack & certificate breakdown (Key: R)",
+          href: "#o-mnie",
+          onClick: onOpenReceipt,
+        },
+        {
+          icon: Cpu,
+          title: lang === "pl" ? "Retro Award BIOS Setup v2026" : "Retro BIOS Setup v2026",
+          desc: lang === "pl" ? "Symulator niebieskiego ekranu BIOS (Skrót: B)" : "Blue screen BIOS setup utility (Key: B)",
+          href: "#hero",
+          onClick: onOpenBios,
+        },
+        {
+          icon: Terminal,
+          title: lang === "pl" ? "Terminal Deweloperski (CLI)" : "Developer Terminal CLI",
+          desc: lang === "pl" ? "Snake, Matrix i interaktywny shell (Skrót: T)" : "Snake, Matrix & interactive shell (Key: T)",
+          href: "#hero",
+          onClick: onOpenTerminal,
+        },
+      ] as SubItem[],
+    },
     { label: t.nav.faq, href: "#faq", id: "faq" },
   ];
 
@@ -305,7 +345,12 @@ const Navbar = ({
                                   onClick={(e) => {
                                     soundEngine.playClick();
                                     setHoveredNav(null);
-                                    handleClick(e, sub.href);
+                                    if (sub.onClick) {
+                                      e.preventDefault();
+                                      sub.onClick();
+                                    } else {
+                                      handleClick(e, sub.href);
+                                    }
                                   }}
                                   className="group flex items-start gap-3 rounded-xl p-2.5 hover:bg-secondary/80 transition-colors text-left"
                                 >
@@ -590,49 +635,94 @@ const Navbar = ({
                   <AuthButton />
                 </div>
 
-                {/* Mobile Terminal CLI Trigger */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.playPop(850, 0.03);
-                    hapticMedium();
-                    setIsMobileNavOpen(false);
-                    if (onOpenTerminal) {
-                      onOpenTerminal();
-                    }
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 font-bold text-xs shadow-sm hover:bg-emerald-500/25 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <Terminal className="h-4 w-4" />
-                    <span>Terminal Deweloperski (CLI)</span>
-                  </div>
-                  <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">
-                    Otwórz ~
-                  </span>
-                </button>
-
-                {/* Mobile GKgadu Live Communicator Trigger */}
-                {onToggleGkgadu && (
+                {/* Mobile Micro Apps Grid (Receipt, BIOS, Terminal, GKgadu) */}
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Mobile Dev Receipt Trigger */}
                   <button
                     type="button"
                     onClick={() => {
                       soundEngine.playPop(850, 0.03);
                       hapticMedium();
                       setIsMobileNavOpen(false);
-                      onToggleGkgadu();
+                      if (onOpenReceipt) onOpenReceipt();
                     }}
-                    className="w-full flex items-center justify-between p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs shadow-sm hover:bg-amber-500/25 transition-colors cursor-pointer"
+                    className="flex flex-col items-start p-2.5 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-purple-500/15 border border-indigo-500/30 text-indigo-400 font-bold text-xs shadow-sm hover:bg-indigo-500/25 transition-colors cursor-pointer text-left"
                   >
-                    <div className="flex items-center gap-2">
-                      <Sun className="h-4 w-4 text-amber-400 fill-amber-400" />
-                      <span>GKgadu 2026 (Komunikator Live)</span>
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <Receipt className="h-4 w-4 text-indigo-400" />
+                      <span className="font-mono text-[9px] bg-indigo-500/20 px-1.5 py-0.2 rounded border border-indigo-500/40 text-indigo-300">
+                        [R]
+                      </span>
                     </div>
-                    <span className="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 text-amber-300">
-                      GG Live ☀️
-                    </span>
+                    <span className="text-foreground text-xs leading-tight">Paragon Dev</span>
+                    <span className="text-[9px] font-mono text-muted-foreground font-normal">Kalkulator godzin</span>
                   </button>
-                )}
+
+                  {/* Mobile Retro BIOS Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(900, 0.03);
+                      hapticMedium();
+                      setIsMobileNavOpen(false);
+                      if (onOpenBios) onOpenBios();
+                    }}
+                    className="flex flex-col items-start p-2.5 rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 font-bold text-xs shadow-sm hover:bg-blue-600/25 transition-colors cursor-pointer text-left"
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <Cpu className="h-4 w-4 text-blue-400" />
+                      <span className="font-mono text-[9px] bg-blue-500/20 px-1.5 py-0.2 rounded border border-blue-500/40 text-blue-300">
+                        [B]
+                      </span>
+                    </div>
+                    <span className="text-foreground text-xs leading-tight">Award BIOS</span>
+                    <span className="text-[9px] font-mono text-muted-foreground font-normal">Setup Utility '26</span>
+                  </button>
+
+                  {/* Mobile Terminal CLI Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playPop(850, 0.03);
+                      hapticMedium();
+                      setIsMobileNavOpen(false);
+                      if (onOpenTerminal) onOpenTerminal();
+                    }}
+                    className="flex flex-col items-start p-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-xs shadow-sm hover:bg-emerald-500/25 transition-colors cursor-pointer text-left"
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <Terminal className="h-4 w-4 text-emerald-400" />
+                      <span className="font-mono text-[9px] bg-emerald-500/20 px-1.5 py-0.2 rounded border border-emerald-500/40 text-emerald-300">
+                        [T]
+                      </span>
+                    </div>
+                    <span className="text-foreground text-xs leading-tight">Terminal CLI</span>
+                    <span className="text-[9px] font-mono text-muted-foreground font-normal">Snake & Shell</span>
+                  </button>
+
+                  {/* Mobile GKgadu Live Communicator Trigger */}
+                  {onToggleGkgadu && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playPop(850, 0.03);
+                        hapticMedium();
+                        setIsMobileNavOpen(false);
+                        onToggleGkgadu();
+                      }}
+                      className="flex flex-col items-start p-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs shadow-sm hover:bg-amber-500/25 transition-colors cursor-pointer text-left"
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <Sun className="h-4 w-4 text-amber-400 fill-amber-400" />
+                        <span className="font-mono text-[9px] bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/40 text-amber-300">
+                          GG ☀️
+                        </span>
+                      </div>
+                      <span className="text-foreground text-xs leading-tight">GKgadu Live</span>
+                      <span className="text-[9px] font-mono text-muted-foreground font-normal">Czat na żywo</span>
+                    </button>
+                  )}
+                </div>
 
                 <div className="space-y-1">
                   {navItems.map((item) => (
@@ -730,6 +820,8 @@ const Navbar = ({
             onOpenAi={() => setIsAiOpen(true)}
             onOpenClientPortal={() => setIsClientPortalOpen(true)}
             onToggleGkgadu={onToggleGkgadu}
+            onOpenBios={onOpenBios}
+            onOpenReceipt={onOpenReceipt}
           />
         </Suspense>
       )}

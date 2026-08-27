@@ -54,6 +54,7 @@ const Footer = () => {
     { label: t.nav.projects, href: "#projekty" },
     { label: t.nav.reviews, href: "#opinie" },
     { label: t.nav.course, href: "#kurs-js" },
+    { label: "⚡ Live Edytor Kodu", href: "#kurs-js" },
     { label: t.nav.faq, href: "#faq" },
     { label: t.nav.contact, href: "#kontakt" },
     { label: t.nav.downloadCv, href: "/cv.pdf", isDownload: true },
@@ -201,6 +202,15 @@ const Footer = () => {
                 </kbd>
                 <span>{t.footer.commandHint}</span>
               </span>
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
+                <span>Skróty:</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">R</kbd>
+                <span>Paragon</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">B</kbd>
+                <span>BIOS</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">T</kbd>
+                <span>CLI</span>
+              </div>
             </div>
           </motion.div>
         </div>
