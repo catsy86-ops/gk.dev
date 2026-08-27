@@ -28,6 +28,7 @@ import { WinampFloatingButton } from "@/components/WinampFloatingButton";
 import { OfflineNetworkIndicator } from "@/components/OfflineNetworkIndicator";
 import { GkgaduFloatingBubble } from "@/components/GkgaduFloatingBubble";
 import { musicEngine } from "@/lib/music-engine";
+import { soundEngine } from "@/lib/audio";
 import { hapticMedium } from "@/lib/haptics";
 
 const StatsSection = lazy(() => import("@/components/StatsSection"));

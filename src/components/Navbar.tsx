@@ -726,20 +726,58 @@ const Navbar = ({
 
                 <div className="space-y-1">
                   {navItems.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      onClick={(e) => {
-                        soundEngine.playClick();
-                        setIsMobileNavOpen(false);
-                        handleClick(e, item.href);
-                      }}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 hover:bg-secondary text-sm font-semibold text-foreground transition-colors"
-                    >
-                      <span>{item.label}</span>
-                      <ArrowUpRight className="h-4 w-4 text-primary" />
-                    </a>
+                    <div key={item.label} className="space-y-1">
+                      <a
+                        href={item.href}
+                        onClick={(e) => {
+                          soundEngine.playClick();
+                          setIsMobileNavOpen(false);
+                          handleClick(e, item.href);
+                        }}
+                        className="flex items-center justify-between p-3 rounded-2xl bg-secondary/50 hover:bg-secondary text-sm font-semibold text-foreground transition-colors"
+                      >
+                        <span>{item.label}</span>
+                        <ArrowUpRight className="h-4 w-4 text-primary" />
+                      </a>
+
+                      {/* Render sub-items if present in mobile menu */}
+                      {item.subItems && item.subItems.length > 0 && (
+                        <div className="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary/20 ml-2">
+                          {item.subItems.map((sub, sIdx) => (
+                            <button
+                              key={sIdx}
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                soundEngine.playClick();
+                                setIsMobileNavOpen(false);
+                                if (sub.onClick) {
+                                  sub.onClick();
+                                } else {
+                                  const targetId = sub.href.replace("#", "");
+                                  const elem = document.getElementById(targetId);
+                                  if (elem) elem.scrollIntoView({ behavior: "smooth" });
+                                }
+                              }}
+                              className="w-full flex items-center justify-between p-2 rounded-xl bg-secondary/30 hover:bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors text-left cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <sub.icon className="h-3.5 w-3.5 text-primary" />
+                                <span className="font-medium text-foreground">{sub.title}</span>
+                              </div>
+                              {sub.badge && (
+                                <span className="font-mono text-[8px] px-1.5 py-0.2 rounded bg-primary/20 text-primary border border-primary/30">
+                                  {sub.badge}
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
+                </div>
 
                   {/* Direct quick action buttons */}
                   <div className="pt-2 border-t border-border/60 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -803,7 +841,6 @@ const Navbar = ({
                     <span>Napisz do mnie</span>
                     <ArrowUpRight className="h-4 w-4" />
                   </a>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
