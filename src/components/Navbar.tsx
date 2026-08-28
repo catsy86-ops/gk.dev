@@ -147,6 +147,22 @@ const Navbar = ({
       id: "kurs-js",
       subItems: [
         {
+          icon: Sun,
+          title: lang === "pl" ? "GKgadu 2026 (Live GG)" : "GKgadu 2026 (Live GG)",
+          desc: lang === "pl" ? "Komunikator WebSockets w stylu retro GG (Skrót: G)" : "Retro GG instant messenger (Key: G)",
+          href: "#hero",
+          onClick: onToggleGkgadu,
+          badge: "Live ☀️",
+        },
+        {
+          icon: Radio,
+          title: lang === "pl" ? "GKinAmp 2026 (Audio Player)" : "GKinAmp 2026 (Audio Player)",
+          desc: lang === "pl" ? "Cyber odtwarzacz Lo-Fi / Synthwave z DSP & EQ" : "Cyber Lo-Fi / Synthwave player with DSP & EQ",
+          href: "#hero",
+          onClick: onToggleWinamp,
+          badge: "2026 🎵",
+        },
+        {
           icon: Code2,
           title: lang === "pl" ? "Live Edytor Kodu (Sandbox)" : "Live Code Sandbox",
           desc: lang === "pl" ? "Uruchamiaj i testuj kod JS na żywo w przeglądarce" : "Execute & test JS code live in browser",
@@ -170,7 +186,7 @@ const Navbar = ({
         {
           icon: Terminal,
           title: lang === "pl" ? "Terminal Deweloperski (CLI)" : "Developer Terminal CLI",
-          desc: lang === "pl" ? "Snake, Matrix i interaktywny shell (Skrót: T)" : "Snake, Matrix & interactive shell (Key: T)",
+          desc: lang === "pl" ? "Snake, Matrix i interaktywny shell (Skrót: ~)" : "Snake, Matrix & interactive shell (Key: ~)",
           href: "#hero",
           onClick: onOpenTerminal,
         },
@@ -720,6 +736,29 @@ const Navbar = ({
                       </div>
                       <span className="text-foreground text-xs leading-tight">GKgadu Live</span>
                       <span className="text-[9px] font-mono text-muted-foreground font-normal">Czat na żywo</span>
+                    </button>
+                  )}
+
+                  {/* Mobile GKinAmp Lo-Fi Player Trigger */}
+                  {onToggleWinamp && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playPop(920, 0.03);
+                        hapticMedium();
+                        setIsMobileNavOpen(false);
+                        onToggleWinamp();
+                      }}
+                      className="flex flex-col items-start p-2.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-bold text-xs shadow-sm hover:bg-cyan-500/25 transition-colors cursor-pointer text-left"
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <Radio className="h-4 w-4 text-cyan-400" />
+                        <span className="font-mono text-[9px] bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/40 text-cyan-300">
+                          🎵 DSP
+                        </span>
+                      </div>
+                      <span className="text-foreground text-xs leading-tight">GKinAmp</span>
+                      <span className="text-[9px] font-mono text-muted-foreground font-normal">Lo-Fi Cyber Player</span>
                     </button>
                   )}
                 </div>

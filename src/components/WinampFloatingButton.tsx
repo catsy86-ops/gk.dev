@@ -61,7 +61,7 @@ export function WinampFloatingButton({
   };
 
   return (
-    <div className="hidden sm:block fixed bottom-40 right-4 sm:bottom-20 sm:right-6 z-[99997] pointer-events-auto select-none">
+    <div className="fixed bottom-36 right-4 sm:bottom-24 sm:right-6 z-40 pointer-events-auto select-none">
       <AnimatePresence>
         {!isOpen && !isTyping && (
           <motion.button

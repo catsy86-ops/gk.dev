@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Home, Wrench, FolderOpen, Send, Sparkles, Terminal, Sun } from "lucide-react";
+import { Home, Wrench, FolderOpen, Send, Sparkles, Terminal } from "lucide-react";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { MobileQuickActions } from "@/components/MobileQuickActions";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -167,29 +167,6 @@ export const MobileDock = ({
                       CLI
                     </span>
                   </button>
-
-                  {/* GKgadu Direct Trigger Tab */}
-                  {onToggleGkgadu && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundEngine.playPop(850, 0.03);
-                        hapticMedium();
-                        onToggleGkgadu();
-                      }}
-                      className="relative flex flex-col items-center justify-center py-1 px-1.5 sm:px-2 rounded-full transition-colors min-h-[44px] text-amber-400 hover:text-amber-300 active:scale-95 cursor-pointer"
-                      aria-label="GKgadu Live"
-                      title="GKgadu Komunikator Live"
-                    >
-                      <div className="relative">
-                        <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 fill-amber-400" strokeWidth={2.2} />
-                        <span className="absolute -top-0.5 -right-1 h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      </div>
-                      <span className="text-[9px] sm:text-[10px] font-['Geist'] font-bold mt-0.5 tracking-tight font-mono text-amber-400">
-                        GKgadu
-                      </span>
-                    </button>
-                  )}
 
                   {/* Quick Action & XP Hub Tab */}
                   <button

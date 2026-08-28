@@ -61,7 +61,7 @@ export const GkgaduFloatingBubble = ({ isOpen, onToggle }: GkgaduFloatingBubbleP
   }, [onToggle]);
 
   return (
-    <div className="hidden sm:block fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-[99998] pointer-events-auto select-none">
+    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 pointer-events-auto select-none">
       <AnimatePresence>
         {!isOpen && !isTyping && (
           <motion.button

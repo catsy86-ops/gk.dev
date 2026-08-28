@@ -202,14 +202,18 @@ const Footer = () => {
                 </kbd>
                 <span>{t.footer.commandHint}</span>
               </span>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
+              <div className="flex flex-wrap items-center justify-end gap-1 text-[10px] text-muted-foreground/70">
                 <span>Skróty:</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">G</kbd>
+                <span>GKgadu</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">~</kbd>
+                <span>CLI</span>
                 <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">R</kbd>
                 <span>Paragon</span>
                 <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">B</kbd>
                 <span>BIOS</span>
-                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">T</kbd>
-                <span>CLI</span>
+                <kbd className="rounded border border-border/80 bg-secondary/80 px-1 py-0.2 text-[9px] text-foreground">M</kbd>
+                <span>Matrix</span>
               </div>
             </div>
           </motion.div>
